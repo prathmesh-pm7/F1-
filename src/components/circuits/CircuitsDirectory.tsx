@@ -1,7 +1,6 @@
 import React from 'react';
 import { Circuit, DataProvenance } from '../../types/f1';
 import { MapPin } from 'lucide-react';
-import { ProvenanceBadge } from '../shared/ProvenanceBadge';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
@@ -124,7 +123,6 @@ export const CircuitsDirectory: React.FC<Props> = ({
           </div>
 
           {/* Provenance */}
-          {provenance && <ProvenanceBadge provenance={provenance} />}
         </>
       )}
     </div>
