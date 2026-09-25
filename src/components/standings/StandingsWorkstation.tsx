@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { DriverStanding, ConstructorStanding, DataProvenance } from '../../types/f1';
-import { ProvenanceBadge } from '../shared/ProvenanceBadge';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
@@ -194,7 +193,6 @@ export const StandingsWorkstation: React.FC<Props> = ({
           )}
 
           {/* Provenance */}
-          {provenance && <ProvenanceBadge provenance={provenance} />}
         </>
       )}
     </div>
