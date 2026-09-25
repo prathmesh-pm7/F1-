@@ -13,9 +13,6 @@ import { FiaDocumentsViewer } from './components/documents/FiaDocumentsViewer';
 import { JolpicaProvider } from './providers/jolpicaProvider';
 import { ReplayProvider } from './providers/replayProvider';
 import { LiveTimingProvider } from './providers/liveTimingProvider';
-import { VERIFIED_TECHNICAL_UPDATES } from './data/technicalUpdates';
-import { VERIFIED_FIA_DOCUMENTS } from './data/fiaDocuments';
-import { VERIFIED_NEWS } from './data/verifiedNews';
 import { getCurrentSeason, SUPPORTED_HISTORICAL_SEASONS } from './config/season';
 import { LiveSessionSnapshot, LiveConnectionState, GrandPrix, DriverStanding, ConstructorStanding, Driver, Team, Circuit, DataProvenance } from './types/f1';
 
@@ -53,6 +50,8 @@ export default function App() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [circuits, setCircuits] = useState<Circuit[]>([]);
   const [isLoadingSeason, setIsLoadingSeason] = useState(true);
+  const [showTeamSetup, setShowTeamSetup] = useState(false);
+  const [teamSetupDismissed, setTeamSetupDismissed] = useState(false);
 
   useEffect(() => {
     try {
@@ -119,7 +118,8 @@ export default function App() {
       }
     }
     void loadSeasonData();
-    return () => { mounted = false; };
+    const refresh = window.setInterval(() => { void loadSeasonData(); }, 60_000);
+    return () => { mounted = false; window.clearInterval(refresh); };
   }, [selectedSeason, jolpicaProvider]);
 
   useEffect(() => {
@@ -138,9 +138,14 @@ export default function App() {
   }, [isReplayMode, replayEngine, liveEngine]);
 
   const favoriteTeam = teams.find(team => team.id === favoriteTeamId) ?? null;
+  useEffect(() => {
+    if (!isLoadingSeason && teams.length > 0 && !favoriteTeam && !teamSetupDismissed) setShowTeamSetup(true);
+  }, [isLoadingSeason, teams.length, favoriteTeam, teamSetupDismissed]);
+
   const rootStyle = {
     '--team-accent': favoriteTeam?.color ?? '#8b929b',
-    '--team-accent-soft': favoriteTeam?.color ? `${favoriteTeam.color}26` : '#8b929b20'
+    '--team-accent-soft': favoriteTeam?.color ? `${favoriteTeam.color}20` : '#8b929b18',
+    '--team-accent-strong': favoriteTeam?.color ?? '#8b929b'
   } as React.CSSProperties;
 
   const handleSwitchToReplay = () => {
@@ -171,7 +176,7 @@ export default function App() {
         connectionState={connectionState}
         isReplayMode={isReplayMode}
         onToggleProviderMode={handleToggleProviderMode}
-        searchData={{ drivers, teams, circuits, schedule, documents: VERIFIED_FIA_DOCUMENTS, technical: VERIFIED_TECHNICAL_UPDATES }}
+        searchData={{ drivers, teams, circuits, schedule, documents: [], technical: [] }}
       >
         {activeTab === 'live' && (
           <LiveTimingWorkstation
@@ -207,10 +212,30 @@ export default function App() {
           />
         )}
         {activeTab === 'circuits' && <CircuitsDirectory circuits={circuits} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} />}
-        {activeTab === 'news' && <NewsBriefing news={VERIFIED_NEWS} />}
-        {activeTab === 'technical' && <TechnicalUpdatesFeed updates={VERIFIED_TECHNICAL_UPDATES} />}
-        {activeTab === 'documents' && <FiaDocumentsViewer documents={VERIFIED_FIA_DOCUMENTS} />}
+        {activeTab === 'news' && <NewsBriefing news={[]} />}
+        {activeTab === 'technical' && <TechnicalUpdatesFeed updates={[]} />}
+        {activeTab === 'documents' && <FiaDocumentsViewer documents={[]} />}
       </AppShell>
+      {showTeamSetup && teams.length > 0 && (
+        <div className="team-setup-overlay" role="dialog" aria-modal="true" aria-label="Choose your team">
+          <div className="team-setup-panel">
+            <div className="team-setup-kicker">PERSONAL WORKSPACE</div>
+            <h1>Choose your team</h1>
+            <p>Your team becomes the accent of the interface and its data gets priority throughout the app.</p>
+            <div className="team-setup-grid">
+              {teams.map(team => (
+                <button key={team.id} type="button" className="team-setup-team" style={{'--setup-color': team.color} as React.CSSProperties}
+                  onClick={() => { setFavoriteTeamId(team.id); setShowTeamSetup(false); setActiveTab('live'); }}>
+                  <span className="team-setup-swatch" />
+                  <span><strong>{team.name}</strong><small>{team.drivers?.join(' / ') || 'Drivers loading'}</small></span>
+                  <b>P{team.position ?? '—'}</b>
+                </button>
+              ))}
+            </div>
+            <button type="button" className="team-setup-later" onClick={() => { setShowTeamSetup(false); setTeamSetupDismissed(true); }}>CHOOSE LATER</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

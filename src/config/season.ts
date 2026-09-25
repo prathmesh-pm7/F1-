@@ -15,4 +15,4 @@ export const SUPPORTED_HISTORICAL_SEASONS = [
   2026, 2025, 2024, 2023, 2022, 2021
 ];
 
-export const DEFAULT_FALLBACK_SEASON = 2024;
+export const DEFAULT_FALLBACK_SEASON = getCurrentSeason();

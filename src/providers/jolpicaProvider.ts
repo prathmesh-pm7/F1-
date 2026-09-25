@@ -28,6 +28,8 @@ const isRecord = (value: unknown): value is JsonRecord => typeof value === 'obje
 
 export const TEAM_COLORS: Record<string, string> = {
   red_bull: '#3671C6',
+  audi: '#BB0A30',
+  cadillac: '#C7C8CA',
   mclaren: '#FF8000',
   ferrari: '#E8002D',
   mercedes: '#27F4D2',
@@ -40,16 +42,18 @@ export const TEAM_COLORS: Record<string, string> = {
 };
 
 export const KNOWN_POWER_UNITS: Record<string, string> = {
-  red_bull: 'Honda RBPT',
-  rb: 'Honda RBPT',
+  red_bull: 'Red Bull Ford Powertrains',
+  rb: 'Red Bull Ford Powertrains',
   ferrari: 'Ferrari',
   haas: 'Ferrari',
-  sauber: 'Ferrari',
+  sauber: 'Audi',
   mercedes: 'Mercedes',
   mclaren: 'Mercedes',
-  aston_martin: 'Mercedes',
+  aston_martin: 'Honda',
   williams: 'Mercedes',
-  alpine: 'Renault'
+  alpine: 'Mercedes',
+  audi: 'Audi',
+  cadillac: 'Ferrari'
 };
 
 export class JolpicaProvider implements F1DataProvider {
@@ -66,7 +70,7 @@ export class JolpicaProvider implements F1DataProvider {
   ];
 
   private cache = new Map<string, { data: unknown; expiry: number }>();
-  private CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes cache
+  private CACHE_TTL_MS = 1000 * 30; // keep the calendar/standings close to current time
 
   private async fetchFromApi<T>(path: string): Promise<T> {
     const cached = this.cache.get(path);
@@ -101,14 +105,15 @@ export class JolpicaProvider implements F1DataProvider {
     };
   }
 
-  private sessionStatus(startTime: string): 'SCHEDULED' | 'UPCOMING' | 'LIVE' | 'COMPLETED' {
+  private sessionStatus(startTime: string, type: string): 'SCHEDULED' | 'UPCOMING' | 'LIVE' | 'COMPLETED' {
     const start = new Date(startTime).getTime();
     if (!Number.isFinite(start)) return 'SCHEDULED';
     const now = Date.now();
-    const end = start + 2 * 60 * 60 * 1000;
-    if (now >= end) return 'COMPLETED';
-    if (now >= start) return 'LIVE';
-    return 'UPCOMING';
+    const durationMinutes = type === 'RACE' ? 120 : type === 'SPRINT' ? 60 : 60;
+    const end = start + durationMinutes * 60 * 1000;
+    if (now < start) return 'UPCOMING';
+    if (now < end) return 'LIVE';
+    return 'COMPLETED';
   }
 
   public async getSchedule(year?: number): Promise<ProviderResult<GrandPrix[]>> {
@@ -132,27 +137,25 @@ export class JolpicaProvider implements F1DataProvider {
         const location = isRecord(circuit.Location) ? circuit.Location : {};
         const raceDate = String(r.date ?? '');
         const raceStart = `${raceDate}T${String(r.time ?? '13:00:00Z')}`;
-        const fp1Raw = isRecord(r.FirstPractice) ? r.FirstPractice : null;
-        const fp2Raw = isRecord(r.SecondPractice) ? r.SecondPractice : null;
-        const qualifyingRaw = isRecord(r.Qualifying) ? r.Qualifying : null;
-        const sprintRaw = isRecord(r.Sprint) ? r.Sprint : null;
-        const makeStart = (value: Record<string, unknown> | null, fallback: string) =>
-          value ? `${String(value.date ?? raceDate)}T${String(value.time ?? fallback)}` : `${raceDate}T${fallback}`;
-        const fp1Start = makeStart(fp1Raw, '10:00:00Z');
-        const fp2Start = makeStart(fp2Raw, '14:00:00Z');
-        const qualifyingStart = makeStart(qualifyingRaw, '16:00:00Z');
-        const sprintStart = sprintRaw ? makeStart(sprintRaw, '10:00:00Z') : null;
-
-        const sessionData = [
-          { id: `${r.round}-fp1`, name: 'Free Practice 1', type: 'FP1' as const, startTime: fp1Start },
-          sprintRaw
-            ? { id: `${r.round}-sprint`, name: 'Sprint', type: 'SPRINT' as const, startTime: sprintStart as string }
-            : { id: `${r.round}-fp2`, name: 'Free Practice 2', type: 'FP2' as const, startTime: fp2Start },
-          { id: `${r.round}-qualifying`, name: 'Qualifying', type: 'QUALIFYING' as const, startTime: qualifyingStart },
-          { id: `${r.round}-race`, name: 'Grand Prix Race', type: 'RACE' as const, startTime: raceStart }
+        const sessionFields: Array<{ key: string; name: string; type: 'FP1' | 'FP2' | 'FP3' | 'QUALIFYING' | 'SPRINT' | 'RACE' }> = [
+          { key: 'FirstPractice', name: 'Free Practice 1', type: 'FP1' },
+          { key: 'SecondPractice', name: 'Free Practice 2', type: 'FP2' },
+          { key: 'ThirdPractice', name: 'Free Practice 3', type: 'FP3' },
+          { key: 'SprintQualifying', name: 'Sprint Qualifying', type: 'QUALIFYING' },
+          { key: 'SprintShootout', name: 'Sprint Qualifying', type: 'QUALIFYING' },
+          { key: 'Sprint', name: 'Sprint', type: 'SPRINT' },
+          { key: 'Qualifying', name: 'Qualifying', type: 'QUALIFYING' },
         ];
-
-        const sessions = sessionData.map(session => ({ ...session, status: this.sessionStatus(session.startTime) }));
+        const sessionData = sessionFields.flatMap(field => {
+          const value = isRecord(r[field.key]) ? r[field.key] : null;
+          if (!value) return [];
+          const date = String(value.date ?? raceDate);
+          const time = String(value.time ?? '');
+          if (!time) return [];
+          return [{ id: `${r.round}-${field.key.toLowerCase()}`, name: field.name, type: field.type, startTime: `${date}T${time}` }];
+        });
+        sessionData.push({ id: `${r.round}-race`, name: 'Grand Prix Race', type: 'RACE', startTime: raceStart });
+        const sessions = sessionData.map(session => ({ ...session, status: this.sessionStatus(session.startTime, session.type) }));
         const now = Date.now();
         const raceTime = new Date(raceStart).getTime();
         const raceEnd = raceTime + 3 * 60 * 60 * 1000;
@@ -174,7 +177,7 @@ export class JolpicaProvider implements F1DataProvider {
           officialName: String(r.raceName ?? `Grand Prix ${roundNum}`),
           circuit: circuitObj,
           country,
-          countryCode: country.slice(0, 3).toUpperCase() || 'INT',
+          countryCode: String(location.country ?? '').toUpperCase() || 'INT',
           date: raceDate,
           sessions,
           isSprintWeekend: Boolean(sprintRaw),
@@ -214,7 +217,7 @@ export class JolpicaProvider implements F1DataProvider {
         const points = parseFloat(item.points || '0');
         const constructorId = item.Constructors?.[0]?.constructorId || 'generic';
         const constructorName = item.Constructors?.[0]?.name || 'Constructor';
-        const color = TEAM_COLORS[constructorId] || '#E10600';
+        const color = TEAM_COLORS[constructorId] || '#8b929b';
 
         const driver: Driver = {
           id: item.Driver?.driverId || String(pos),
@@ -282,14 +285,14 @@ export class JolpicaProvider implements F1DataProvider {
         const pos = parseInt(item.position, 10);
         const points = parseFloat(item.points || '0');
         const teamId = item.Constructor?.constructorId || 'generic';
-        const color = TEAM_COLORS[teamId] || '#E10600';
+        const color = TEAM_COLORS[teamId] || '#8b929b';
 
         const team: Team = {
           id: teamId,
           name: item.Constructor?.name || 'Team',
           fullName: item.Constructor?.name || 'Formula 1 Team',
-          base: item.Constructor?.nationality || 'HQ',
-          powerUnit: KNOWN_POWER_UNITS[teamId] || 'Hybrid Power Unit',
+          base: '—',
+          powerUnit: KNOWN_POWER_UNITS[teamId] || '—',
           color,
           position: pos,
           points,

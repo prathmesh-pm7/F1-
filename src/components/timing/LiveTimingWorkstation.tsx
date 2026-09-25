@@ -6,7 +6,6 @@ import { DriverTelemetryDrawer } from './DriverTelemetryDrawer';
 import { MiniGapTracker } from './MiniGapTracker';
 import { ReplayController } from './ReplayController';
 import { RaceControlFeed } from '../race-control/RaceControlFeed';
-import { ProvenanceBadge } from '../shared/ProvenanceBadge';
 import { RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -116,7 +115,6 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
       )}
 
       <section aria-label="Race Control Event Feed"><RaceControlFeed messages={snapshot.raceControl} /></section>
-      <div className="pt-2 border-t border-[#1c222b]"><ProvenanceBadge provenance={snapshot.provenance} /></div>
     </div>
   );
 };
