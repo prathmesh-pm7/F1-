@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { GrandPrix, DataProvenance } from '../../types/f1';
-import { ProvenanceBadge } from '../shared/ProvenanceBadge';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
@@ -84,7 +83,6 @@ export const WeekendHub: React.FC<Props> = ({
           )}
         </>
       )}
-      {provenance && <ProvenanceBadge provenance={provenance} />}
     </div>
   );
 };
