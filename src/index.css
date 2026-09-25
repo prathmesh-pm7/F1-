@@ -54,3 +54,36 @@
 .f1-strip>div{min-height:57px;padding:8px 12px;border-right:1px solid var(--f1-line-soft)}.f1-strip>div:last-child{border-right:0}.f1-strip-label{display:block;color:#59626e;font:8px 'JetBrains Mono',monospace;letter-spacing:.1em}.f1-strip strong{display:block;margin-top:5px;color:#e7eaee;font:600 13px 'JetBrains Mono',monospace}.f1-strip small{display:block;margin-top:2px;color:#646d78;font:8px 'JetBrains Mono',monospace}
 @media(max-width:900px){.hide-lg{display:none!important}.driver-name{display:none}.f1-strip{grid-template-columns:repeat(2,1fr)}.f1-strip>div:nth-child(2){border-right:0}.f1-strip>div:nth-child(-n+2){border-bottom:1px solid var(--f1-line-soft)}}
 @media(max-width:767px){.f1-content{padding:10px 9px 72px}.f1-header-context,.f1-header-rule{padding:0 10px}.f1-header-context{min-height:42px}.f1-header-rule{min-height:30px}.f1-context-primary{max-width:63%}.f1-context-meta{gap:6px}.f1-search-button span,.f1-search-button kbd,.f1-weather,.f1-header-source .muted{display:none}.hide-md{display:none!important}.f1-timing-table{min-width:620px}.f1-timing-table td{height:36px;padding:0 7px}.f1-timing-table th{padding:0 7px}.hide-sm{display:none!important}.f1-strip>div{padding:7px 9px}.f1-strip strong{font-size:11px}}
+
+/* User team personalization: the team is the accent, not the whole interface. */
+:root { --team-accent:#8b929b; --team-accent-soft:#8b929b20; }
+.f1-nav-item.is-active { border-left-color:var(--team-accent); }
+.f1-nav-item.is-active .f1-nav-icon { color:var(--team-accent); }
+.f1-mobile-item.is-active { border-top-color:var(--team-accent); }
+.f1-mobile-item.is-active svg { color:var(--team-accent); }
+.f1-red-rule { background:var(--team-accent); }
+.f1-team-focus { display:grid; grid-template-columns:minmax(180px,1fr) minmax(320px,1.5fr) minmax(190px,1fr); gap:0; min-height:76px; border:1px solid var(--f1-line); border-left:3px solid var(--team-accent); background:#0d1014; }
+.f1-team-focus>div { padding:10px 13px; border-right:1px solid var(--f1-line-soft); }
+.f1-team-focus>div:last-child { border-right:0; }
+.f1-team-focus-kicker { color:var(--team-accent); font:8px 'JetBrains Mono',monospace; letter-spacing:.14em; }
+.f1-team-focus-name { margin-top:4px; color:#f2f4f6; font:700 15px 'JetBrains Mono',monospace; }
+.f1-team-focus-meta { margin-top:5px; color:var(--f1-muted); font:9px 'JetBrains Mono',monospace; }
+.f1-team-focus-stats { display:grid; grid-template-columns:repeat(4,1fr); }
+.f1-team-focus-stats div { display:flex; flex-direction:column; justify-content:center; gap:4px; }
+.f1-team-focus-stats span { color:#59626e; font:7px 'JetBrains Mono',monospace; letter-spacing:.08em; }
+.f1-team-focus-stats strong { color:#e8ebef; font:700 12px 'JetBrains Mono',monospace; }
+.f1-team-ontrack { display:flex; flex-direction:column; justify-content:center; gap:5px; }
+.f1-team-ontrack>div { display:grid; grid-template-columns:42px 35px 65px 1fr; gap:6px; color:#8e97a2; font:9px 'JetBrains Mono',monospace; }
+.f1-team-ontrack-driver { color:var(--team-accent); font-weight:800; }
+.f1-provider-state { display:flex; justify-content:space-between; gap:18px; align-items:center; border:1px solid var(--f1-line); border-left:3px solid #555e69; background:#0d1014; padding:12px 14px; font-family:'JetBrains Mono',monospace; }
+.f1-provider-title { color:#dfe3e8; font-size:10px; letter-spacing:.08em; font-weight:700; }
+.f1-provider-copy { color:#69737e; font-size:9px; margin-top:5px; max-width:760px; line-height:1.5; }
+.f1-provider-actions { display:flex; gap:6px; flex:none; }
+.f1-provider-actions button { display:flex; align-items:center; gap:6px; min-height:25px; padding:0 8px; border:1px solid var(--f1-line); background:#11151a; color:#9aa2ad; font:8px 'JetBrains Mono',monospace; cursor:pointer; }
+.f1-provider-actions button:hover { color:#fff; border-color:#4a535e; }
+.f1-session-line { display:flex; justify-content:space-between; gap:12px; padding:2px 1px; color:#707984; font:9px 'JetBrains Mono',monospace; }
+.f1-session-line>div { display:flex; align-items:center; gap:8px; }
+.f1-session-line strong { color:#e6e9ed; }
+.f1-session-line span:first-child { color:#6d7681; }
+@media(max-width:1000px){ .f1-team-focus{grid-template-columns:1fr 1fr}.f1-team-ontrack{grid-column:1/-1;border-top:1px solid var(--f1-line-soft)} }
+@media(max-width:767px){ .f1-team-focus{grid-template-columns:1fr}.f1-team-focus>div{border-right:0;border-bottom:1px solid var(--f1-line-soft)}.f1-team-focus>div:last-child{border-bottom:0}.f1-team-focus-stats{grid-template-columns:repeat(4,1fr)}.f1-provider-state{align-items:flex-start;flex-direction:column}.f1-provider-actions{width:100%}.f1-provider-actions button{flex:1}.f1-session-line{flex-direction:column;align-items:flex-start}.f1-team-ontrack>div{grid-template-columns:42px 35px 65px 1fr}}
