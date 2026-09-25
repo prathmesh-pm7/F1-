@@ -42,14 +42,14 @@ export const TEAM_COLORS: Record<string, string> = {
 };
 
 export const KNOWN_POWER_UNITS: Record<string, string> = {
-  red_bull: 'Honda RBPT',
-  rb: 'Honda RBPT',
+  red_bull: 'Red Bull Ford Powertrains',
+  rb: 'Red Bull Ford Powertrains',
   ferrari: 'Ferrari',
   haas: 'Ferrari',
-  sauber: 'Ferrari',
+  sauber: 'Audi',
   mercedes: 'Mercedes',
   mclaren: 'Mercedes',
-  aston_martin: 'Mercedes',
+  aston_martin: 'Honda',
   williams: 'Mercedes',
   alpine: 'Mercedes',
   audi: 'Audi',
