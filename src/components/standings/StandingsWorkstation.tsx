@@ -36,7 +36,7 @@ export const StandingsWorkstation: React.FC<Props> = ({
             onClick={() => setTab('drivers')}
             className={`px-3 py-1.5 font-bold uppercase tracking-wider transition-colors ${
               tab === 'drivers'
-                ? 'bg-[#1c222b] text-white border-b-2 border-[#e10600]'
+                ? 'bg-[#1c222b] text-white border-b-2 border-[var(--team-accent)]'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -47,7 +47,7 @@ export const StandingsWorkstation: React.FC<Props> = ({
             onClick={() => setTab('constructors')}
             className={`px-3 py-1.5 font-bold uppercase tracking-wider transition-colors ${
               tab === 'constructors'
-                ? 'bg-[#1c222b] text-white border-b-2 border-[#e10600]'
+                ? 'bg-[#1c222b] text-white border-b-2 border-[var(--team-accent)]'
                 : 'text-neutral-400 hover:text-white'
             }`}
           >
@@ -118,7 +118,7 @@ export const StandingsWorkstation: React.FC<Props> = ({
                   {driverStandings.map((ds) => (
                     <tr key={ds.driver.id} className="hover:bg-[#161a20] transition-colors">
                       <td className="py-2 px-3 text-center font-bold">
-                        <span className={ds.position <= 3 ? 'text-amber-400 font-black' : 'text-neutral-300'}>
+                        <span className={ds.position <= 3 ? 'text-[var(--team-accent)] font-black' : 'text-neutral-300'}>
                           {String(ds.position).padStart(2, '0')}
                         </span>
                       </td>
