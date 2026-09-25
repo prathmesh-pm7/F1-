@@ -1,6 +1,5 @@
 import React from 'react';
 import { Team, DataProvenance } from '../../types/f1';
-import { ProvenanceBadge } from '../shared/ProvenanceBadge';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
@@ -87,8 +86,6 @@ export const TeamsDirectory: React.FC<Props> = ({
           })}
         </div>
       )}
-
-      {provenance && <ProvenanceBadge provenance={provenance} />}
     </div>
   );
 };
