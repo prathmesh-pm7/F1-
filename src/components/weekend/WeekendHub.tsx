@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { GrandPrix, DataProvenance } from '../../types/f1';
 import { ProvenanceBadge } from '../shared/ProvenanceBadge';
 import { EmptyState } from '../shared/EmptyState';
@@ -25,6 +25,7 @@ export const WeekendHub: React.FC<Props> = ({
 }) => {
   const firstRound = useMemo(() => schedule.find(gp => gp.status === 'CURRENT')?.round ?? schedule.find(gp => gp.status === 'UPCOMING')?.round ?? schedule[0]?.round ?? 1, [schedule]);
   const [selectedRound, setSelectedRound] = useState<number>(firstRound);
+  useEffect(() => { setSelectedRound(firstRound); }, [firstRound]);
   const currentGP = schedule.find(s => s.round === selectedRound) ?? schedule.find(s => s.status === 'CURRENT') ?? schedule.find(s => s.status === 'UPCOMING') ?? schedule[0];
 
   return (
