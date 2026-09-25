@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Driver, DataProvenance } from '../../types/f1';
 import { Search } from 'lucide-react';
-import { ProvenanceBadge } from '../shared/ProvenanceBadge';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
@@ -199,7 +198,6 @@ export const DriversDirectory: React.FC<Props> = ({
           )}
 
           {/* Provenance */}
-          {provenance && <ProvenanceBadge provenance={provenance} />}
         </>
       )}
     </div>
