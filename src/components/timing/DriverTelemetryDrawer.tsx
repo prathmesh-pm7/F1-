@@ -130,11 +130,11 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
       <div className="flex items-center justify-between text-[11px] text-neutral-400 border-t border-[#1c222b] pt-2">
         <span className="flex items-center gap-1.5">
           <Gauge className="w-3.5 h-3.5 text-neutral-400" />
-          <span>SPEED TRAP: <strong className="text-white">{entry.speedTrapKmH ? `${entry.speedTrapKmH.toFixed(1)} km/h` : '349.4 km/h'}</strong></span>
+          <span>SPEED TRAP: <strong className="text-white">{entry.speedTrapKmH !== undefined ? `${entry.speedTrapKmH.toFixed(1)} km/h` : '—'}</strong></span>
         </span>
         <span className="flex items-center gap-1.5">
           <Flame className="w-3.5 h-3.5 text-amber-400" />
-          <span>DRS ZONE: <strong className={entry.drsEligible ? 'text-emerald-400' : 'text-neutral-400'}>{entry.drsEligible ? 'ELIGIBLE' : 'NO DRS'}</strong></span>
+          <span>DRS ZONE: <strong className={entry.drsEligible === true ? 'text-emerald-400' : entry.drsEligible === false ? 'text-neutral-400' : 'text-neutral-500'}>{entry.drsEligible === true ? 'ELIGIBLE' : entry.drsEligible === false ? 'INELIGIBLE' : '—'}</strong></span>
         </span>
       </div>
     </div>

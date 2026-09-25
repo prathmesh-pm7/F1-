@@ -218,6 +218,14 @@ export default function App() {
     replayEngine.jumpToLap(lap);
   };
 
+  const handleSwitchToReplay = () => {
+    liveEngine.disconnect();
+    setIsReplayMode(true);
+    setSnapshot(replayEngine.getSnapshot());
+    setConnectionState('REPLAY');
+    replayEngine.connect();
+  };
+
   const handleToggleProviderMode = () => {
     if (isReplayMode) {
       replayEngine.pause();
@@ -225,9 +233,7 @@ export default function App() {
       setIsReplayMode(false);
       liveEngine.connect();
     } else {
-      liveEngine.disconnect();
-      setIsReplayMode(true);
-      replayEngine.connect();
+      handleSwitchToReplay();
     }
   };
 
@@ -265,6 +271,7 @@ export default function App() {
           isReplayPlaying={isReplayPlaying}
           replaySpeed={replaySpeed}
           onConnectLive={handleConnectLive}
+          onSwitchToReplay={handleSwitchToReplay}
         />
       )}
 

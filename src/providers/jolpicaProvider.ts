@@ -36,6 +36,19 @@ export const TEAM_COLORS: Record<string, string> = {
   haas: '#B6BABD'
 };
 
+export const KNOWN_POWER_UNITS: Record<string, string> = {
+  red_bull: 'Honda RBPT',
+  rb: 'Honda RBPT',
+  ferrari: 'Ferrari',
+  haas: 'Ferrari',
+  sauber: 'Ferrari',
+  mercedes: 'Mercedes',
+  mclaren: 'Mercedes',
+  aston_martin: 'Mercedes',
+  williams: 'Mercedes',
+  alpine: 'Renault'
+};
+
 export class JolpicaProvider implements F1DataProvider {
   public name = 'Jolpica F1';
   public capabilities: ProviderCapability[] = [
@@ -156,7 +169,6 @@ export class JolpicaProvider implements F1DataProvider {
           countryCode: (r.Circuit?.Location?.country || 'INT').slice(0, 3).toUpperCase(),
           date: r.date,
           sessions,
-          totalLaps: 53,
           isSprintWeekend: Boolean(r.Sprint),
           status: 'COMPLETED'
         };
@@ -279,9 +291,8 @@ export class JolpicaProvider implements F1DataProvider {
           name: item.Constructor?.name || 'Team',
           fullName: item.Constructor?.name || 'Formula 1 Team',
           base: item.Constructor?.nationality || 'HQ',
-          powerUnit: 'Hybrid 1.6L V6 Turbo',
+          powerUnit: KNOWN_POWER_UNITS[teamId] || 'Hybrid Power Unit',
           color,
-          drivers: ['DRV1', 'DRV2'],
           position: pos,
           points,
           wins: parseInt(item.wins || '0', 10)

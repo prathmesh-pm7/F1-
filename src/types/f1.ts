@@ -151,7 +151,7 @@ export interface Team {
   powerUnit: string;
   color: string;
   secondaryColor?: string;
-  drivers: [string, string]; // Driver codes e.g. ['VER', 'PER']
+  drivers?: string[]; // Driver codes e.g. ['VER', 'PER']
   position?: number;
   points?: number;
   wins?: number;
@@ -208,7 +208,7 @@ export interface GrandPrix {
   countryCode: string;
   date: string;
   sessions: SessionSchedule[];
-  totalLaps: number;
+  totalLaps?: number;
   isSprintWeekend: boolean;
   status: 'COMPLETED' | 'CURRENT' | 'UPCOMING';
   winner?: {

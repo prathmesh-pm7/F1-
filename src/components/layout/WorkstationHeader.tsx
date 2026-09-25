@@ -102,29 +102,35 @@ export const WorkstationHeader: React.FC<Props> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Provider Mode Switcher Button */}
-          <button
-            type="button"
-            onClick={onToggleProviderMode}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono border transition-colors ${
-              isReplayMode
-                ? 'bg-[#1c222b] border-amber-600/80 text-amber-300 hover:bg-[#252c38]'
-                : 'bg-[#161a20] border-[#333d4d] text-neutral-300 hover:text-white hover:border-neutral-400'
-            }`}
-            title="Switch between Live F1 Feed and Verified Historical Replay"
-          >
-            {isReplayMode ? (
-              <>
-                <Radio className="w-3 h-3 text-neutral-400" />
-                <span>Switch to Live Provider</span>
-              </>
-            ) : (
-              <>
-                <PlayCircle className="w-3 h-3 text-amber-400" />
-                <span>Replay Monza 2024</span>
-              </>
-            )}
-          </button>
+          {/* Dual Segment Provider Selector */}
+          <div className="flex items-center border border-[#2d3744] bg-[#0c0f13] text-xs font-mono p-0.5">
+            <button
+              type="button"
+              onClick={() => { if (isReplayMode) onToggleProviderMode(); }}
+              className={`flex items-center gap-1.5 px-2.5 py-1 font-semibold transition-colors ${
+                !isReplayMode
+                  ? 'bg-[#1a2330] text-emerald-400 border border-emerald-500/40'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Formula 1 Live SignalR Feed"
+            >
+              <Radio className="w-3 h-3" />
+              <span>LIVE FEED</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { if (!isReplayMode) onToggleProviderMode(); }}
+              className={`flex items-center gap-1.5 px-2.5 py-1 font-semibold transition-colors ${
+                isReplayMode
+                  ? 'bg-[#292212] text-amber-300 border border-amber-500/40'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+              title="Verified Replay of 2024 Italian GP at Monza"
+            >
+              <PlayCircle className="w-3 h-3" />
+              <span>MONZA REPLAY</span>
+            </button>
+          </div>
 
           {/* Quick search button */}
           <button
