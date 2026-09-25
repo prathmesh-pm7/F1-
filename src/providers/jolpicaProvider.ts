@@ -23,6 +23,9 @@ import { getCurrentSeason } from '../config/season';
 
 const JOLPICA_BASE = 'https://api.jolpi.ca/ergast/f1';
 
+type JsonRecord = Record<string, unknown>;
+const isRecord = (value: unknown): value is JsonRecord => typeof value === 'object' && value !== null && !Array.isArray(value);
+
 export const TEAM_COLORS: Record<string, string> = {
   red_bull: '#3671C6',
   mclaren: '#FF8000',
@@ -62,14 +65,12 @@ export class JolpicaProvider implements F1DataProvider {
     'teams'
   ];
 
-  private cache = new Map<string, { data: any; expiry: number }>();
+  private cache = new Map<string, { data: unknown; expiry: number }>();
   private CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes cache
 
   private async fetchFromApi<T>(path: string): Promise<T> {
     const cached = this.cache.get(path);
-    if (cached && cached.expiry > Date.now()) {
-      return cached.data;
-    }
+    if (cached && cached.expiry > Date.now()) return cached.data as T;
 
     const res = await fetch(`${JOLPICA_BASE}${path}`, {
       headers: { 'Accept': 'application/json' }
@@ -100,94 +101,91 @@ export class JolpicaProvider implements F1DataProvider {
     };
   }
 
+  private sessionStatus(startTime: string): 'SCHEDULED' | 'UPCOMING' | 'LIVE' | 'COMPLETED' {
+    const start = new Date(startTime).getTime();
+    if (!Number.isFinite(start)) return 'SCHEDULED';
+    const now = Date.now();
+    const end = start + 2 * 60 * 60 * 1000;
+    if (now >= end) return 'COMPLETED';
+    if (now >= start) return 'LIVE';
+    return 'UPCOMING';
+  }
+
   public async getSchedule(year?: number): Promise<ProviderResult<GrandPrix[]>> {
     const targetYear = year ?? getCurrentSeason();
     const endpoint = `/${targetYear}.json`;
     const provenance = this.createProvenance(endpoint, targetYear < getCurrentSeason());
 
     try {
-      const json = await this.fetchFromApi<any>(endpoint);
-      const races = json?.MRData?.RaceTable?.Races;
+      const json = await this.fetchFromApi<unknown>(endpoint);
+      const races = isRecord(json) && isRecord(json.MRData) && isRecord(json.MRData.RaceTable)
+        ? json.MRData.RaceTable.Races : undefined;
 
-      if (!races || !Array.isArray(races) || races.length === 0) {
-        return {
-          status: 'EMPTY',
-          data: [],
-          message: `No race schedule published yet for season ${targetYear}`,
-          provenance
-        };
+      if (!Array.isArray(races) || races.length === 0) {
+        return { status: 'EMPTY', data: [], message: `No race schedule published yet for season ${targetYear}`, provenance };
       }
 
-      const schedule: GrandPrix[] = races.map((r: any): GrandPrix => {
-        const roundNum = parseInt(r.round, 10);
-        const circuitObj: Circuit = {
-          id: r.Circuit?.circuitId || 'unknown',
-          name: r.Circuit?.circuitName || 'Circuit',
-          location: r.Circuit?.Location?.locality || '',
-          country: r.Circuit?.Location?.country || ''
-        };
+      const schedule: GrandPrix[] = races.map((raw): GrandPrix => {
+        const r = isRecord(raw) ? raw : {};
+        const roundNum = Number.parseInt(String(r.round ?? '0'), 10);
+        const circuit = isRecord(r.Circuit) ? r.Circuit : {};
+        const location = isRecord(circuit.Location) ? circuit.Location : {};
+        const raceDate = String(r.date ?? '');
+        const raceStart = `${raceDate}T${String(r.time ?? '13:00:00Z')}`;
+        const fp1Raw = isRecord(r.FirstPractice) ? r.FirstPractice : null;
+        const fp2Raw = isRecord(r.SecondPractice) ? r.SecondPractice : null;
+        const qualifyingRaw = isRecord(r.Qualifying) ? r.Qualifying : null;
+        const sprintRaw = isRecord(r.Sprint) ? r.Sprint : null;
+        const makeStart = (value: Record<string, unknown> | null, fallback: string) =>
+          value ? `${String(value.date ?? raceDate)}T${String(value.time ?? fallback)}` : `${raceDate}T${fallback}`;
+        const fp1Start = makeStart(fp1Raw, '10:00:00Z');
+        const fp2Start = makeStart(fp2Raw, '14:00:00Z');
+        const qualifyingStart = makeStart(qualifyingRaw, '16:00:00Z');
+        const sprintStart = sprintRaw ? makeStart(sprintRaw, '10:00:00Z') : null;
 
-        const sessions = [
-          {
-            id: `${r.round}-fp1`,
-            name: 'Free Practice 1',
-            type: 'FP1' as const,
-            startTime: r.FirstPractice ? `${r.FirstPractice.date}T${r.FirstPractice.time || '10:00:00Z'}` : `${r.date}T10:00:00Z`,
-            status: 'COMPLETED' as const
-          },
-          {
-            id: `${r.round}-fp2`,
-            name: r.Sprint ? 'Sprint Shootout' : 'Free Practice 2',
-            type: (r.Sprint ? 'SPRINT_SHOOTOUT' : 'FP2') as any,
-            startTime: r.SecondPractice ? `${r.SecondPractice.date}T${r.SecondPractice.time || '14:00:00Z'}` : `${r.date}T14:00:00Z`,
-            status: 'COMPLETED' as const
-          },
-          {
-            id: `${r.round}-qualifying`,
-            name: 'Qualifying',
-            type: 'QUALIFYING' as const,
-            startTime: r.Qualifying ? `${r.Qualifying.date}T${r.Qualifying.time || '16:00:00Z'}` : `${r.date}T16:00:00Z`,
-            status: 'COMPLETED' as const
-          },
-          {
-            id: `${r.round}-race`,
-            name: 'Grand Prix Race',
-            type: 'RACE' as const,
-            startTime: `${r.date}T${r.time || '13:00:00Z'}`,
-            status: 'COMPLETED' as const
-          }
+        const sessionData = [
+          { id: `${r.round}-fp1`, name: 'Free Practice 1', type: 'FP1' as const, startTime: fp1Start },
+          sprintRaw
+            ? { id: `${r.round}-sprint`, name: 'Sprint', type: 'SPRINT' as const, startTime: sprintStart as string }
+            : { id: `${r.round}-fp2`, name: 'Free Practice 2', type: 'FP2' as const, startTime: fp2Start },
+          { id: `${r.round}-qualifying`, name: 'Qualifying', type: 'QUALIFYING' as const, startTime: qualifyingStart },
+          { id: `${r.round}-race`, name: 'Grand Prix Race', type: 'RACE' as const, startTime: raceStart }
         ];
+
+        const sessions = sessionData.map(session => ({ ...session, status: this.sessionStatus(session.startTime) }));
+        const now = Date.now();
+        const raceTime = new Date(raceStart).getTime();
+        const raceEnd = raceTime + 3 * 60 * 60 * 1000;
+        const status: GrandPrix['status'] = now >= raceEnd ? 'COMPLETED' : now >= raceTime ? 'CURRENT' : 'UPCOMING';
+
+        const country = String(location.country ?? '');
+        const circuitObj: Circuit = {
+          id: String(circuit.circuitId ?? 'unknown'),
+          name: String(circuit.circuitName ?? 'Circuit'),
+          location: String(location.locality ?? ''),
+          country
+        };
 
         return {
           round: roundNum,
-          season: parseInt(r.season, 10) || targetYear,
-          id: String(r.round),
-          name: (r.raceName || '').replace('Grand Prix', '').trim(),
-          officialName: r.raceName || `Grand Prix ${roundNum}`,
+          season: Number.parseInt(String(r.season ?? targetYear), 10) || targetYear,
+          id: String(r.round ?? roundNum),
+          name: String(r.raceName ?? '').replace('Grand Prix', '').trim(),
+          officialName: String(r.raceName ?? `Grand Prix ${roundNum}`),
           circuit: circuitObj,
-          country: r.Circuit?.Location?.country || '',
-          countryCode: (r.Circuit?.Location?.country || 'INT').slice(0, 3).toUpperCase(),
-          date: r.date,
+          country,
+          countryCode: country.slice(0, 3).toUpperCase() || 'INT',
+          date: raceDate,
           sessions,
-          isSprintWeekend: Boolean(r.Sprint),
-          status: 'COMPLETED'
+          isSprintWeekend: Boolean(sprintRaw),
+          status
         };
       });
 
-      return {
-        status: 'SUCCESS',
-        data: schedule,
-        provenance
-      };
-    } catch (err: any) {
-      return {
-        status: 'ERROR',
-        error: err.message || `Failed to fetch schedule for season ${targetYear}`,
-        provenance: {
-          ...provenance,
-          notes: `Provider error: ${err.message}`
-        }
-      };
+      return { status: 'SUCCESS', data: schedule, provenance };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : `Failed to fetch schedule for season ${targetYear}`;
+      return { status: 'ERROR', error: message, provenance: { ...provenance, notes: `Provider error: ${message}` } };
     }
   }
 
