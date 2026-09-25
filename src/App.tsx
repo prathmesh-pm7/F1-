@@ -36,7 +36,7 @@ export default function App() {
   const replayEngine = replayProviderRef.current;
   const liveEngine = liveProviderRef.current;
 
-  const [isReplayMode, setIsReplayMode] = useState(true);
+  const [isReplayMode, setIsReplayMode] = useState(false);
   const [snapshot, setSnapshot] = useState<LiveSessionSnapshot>(() => replayEngine.getSnapshot());
   const [connectionState, setConnectionState] = useState<LiveConnectionState>('REPLAY');
   const [isReplayPlaying, setIsReplayPlaying] = useState(false);
