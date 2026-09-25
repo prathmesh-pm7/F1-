@@ -51,6 +51,7 @@ export default function App() {
   const [circuits, setCircuits] = useState<Circuit[]>([]);
   const [isLoadingSeason, setIsLoadingSeason] = useState(true);
   const [showTeamSetup, setShowTeamSetup] = useState(false);
+  const [teamSetupDismissed, setTeamSetupDismissed] = useState(false);
 
   useEffect(() => {
     try {
@@ -138,8 +139,8 @@ export default function App() {
 
   const favoriteTeam = teams.find(team => team.id === favoriteTeamId) ?? null;
   useEffect(() => {
-    if (!isLoadingSeason && teams.length > 0 && !favoriteTeamId) setShowTeamSetup(true);
-  }, [isLoadingSeason, teams.length, favoriteTeamId]);
+    if (!isLoadingSeason && teams.length > 0 && !favoriteTeam && !teamSetupDismissed) setShowTeamSetup(true);
+  }, [isLoadingSeason, teams.length, favoriteTeam, teamSetupDismissed]);
 
   const rootStyle = {
     '--team-accent': favoriteTeam?.color ?? '#8b929b',
@@ -231,7 +232,7 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <button type="button" className="team-setup-later" onClick={() => setShowTeamSetup(false)}>CHOOSE LATER</button>
+            <button type="button" className="team-setup-later" onClick={() => { setShowTeamSetup(false); setTeamSetupDismissed(true); }}>CHOOSE LATER</button>
           </div>
         </div>
       )}
