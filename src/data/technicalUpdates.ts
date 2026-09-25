@@ -12,8 +12,19 @@ export const VERIFIED_TECHNICAL_UPDATES: TechnicalUpdate[] = [
     summary: 'Low-drag high-efficiency floor edge wing and modified diffuser sidewalls',
     technicalDescription: 'McLaren introduced a revised floor edge geometry with reduced fences to optimize pressure recovery in Monza’s long straights while maintaining high-speed balance through the Curva Grande and Parabolica.',
     source: 'FIA Technical Delegate Car Presentation Submission (Doc 14)',
+    sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
     status: 'VERIFIED',
-    sourceDocNumber: 'FIA-DOC-14-ITA'
+    sourceDocNumber: 'FIA-DOC-14-ITA',
+    provenance: {
+      provider: 'Curated Technical',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-30T10:00:00Z',
+      lastUpdatedAt: '2024-08-30T10:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'FIA Car Display Technical Submission'
+    }
   },
   {
     id: 'tech-02',
@@ -26,8 +37,19 @@ export const VERIFIED_TECHNICAL_UPDATES: TechnicalUpdate[] = [
     summary: 'Extreme low-downforce monoplane rear wing and single-element beam wing',
     technicalDescription: 'Custom Monza wing profile with trimmed trailing edge and reduced camber. Enabled 350+ km/h top speeds and contributed to low tyre degradation on the one-stop hard compound strategy.',
     source: 'FIA Technical Delegate Submissions',
+    sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
     status: 'VERIFIED',
-    sourceDocNumber: 'FIA-DOC-16-ITA'
+    sourceDocNumber: 'FIA-DOC-16-ITA',
+    provenance: {
+      provider: 'Curated Technical',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-30T10:00:00Z',
+      lastUpdatedAt: '2024-08-30T10:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'FIA Car Display Technical Submission'
+    }
   },
   {
     id: 'tech-03',
@@ -40,8 +62,19 @@ export const VERIFIED_TECHNICAL_UPDATES: TechnicalUpdate[] = [
     summary: 'Trimmed flap chord and aggressive trailing edge cutouts',
     technicalDescription: 'To match the lower rear wing level, the upper flap of the front wing was trimmed to balance front-to-rear aero balance and eliminate high-speed understeer.',
     source: 'FIA Technical Delegate Report',
+    sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
     status: 'VERIFIED',
-    sourceDocNumber: 'FIA-DOC-18-ITA'
+    sourceDocNumber: 'FIA-DOC-18-ITA',
+    provenance: {
+      provider: 'Curated Technical',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-30T10:00:00Z',
+      lastUpdatedAt: '2024-08-30T10:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'FIA Car Display Technical Submission'
+    }
   },
   {
     id: 'tech-04',
@@ -54,8 +87,19 @@ export const VERIFIED_TECHNICAL_UPDATES: TechnicalUpdate[] = [
     summary: 'Reduced cooling louver exits to minimize parasitic aerodynamic drag',
     technicalDescription: 'Mercedes ran closed cooling options along the engine cover spine given the cooler expected ambient conditions and straight-line speed requirement.',
     source: 'FIA Technical Delegate Submission',
+    sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
     status: 'VERIFIED',
-    sourceDocNumber: 'FIA-DOC-20-ITA'
+    sourceDocNumber: 'FIA-DOC-20-ITA',
+    provenance: {
+      provider: 'Curated Technical',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-30T10:00:00Z',
+      lastUpdatedAt: '2024-08-30T10:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'FIA Car Display Technical Submission'
+    }
   },
   {
     id: 'tech-05',
@@ -68,7 +112,18 @@ export const VERIFIED_TECHNICAL_UPDATES: TechnicalUpdate[] = [
     summary: 'Lightweight sidepod bodywork and revised floor structural tie rods',
     technicalDescription: 'Williams brought chassis weight optimization that brought the FW46 under the minimum weight threshold, allowing optimal ballast distribution.',
     source: 'FIA Technical Delegate Document',
+    sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
     status: 'VERIFIED',
-    sourceDocNumber: 'FIA-DOC-22-ITA'
+    sourceDocNumber: 'FIA-DOC-22-ITA',
+    provenance: {
+      provider: 'Curated Technical',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-30T10:00:00Z',
+      lastUpdatedAt: '2024-08-30T10:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'FIA Car Display Technical Submission'
+    }
   }
 ];

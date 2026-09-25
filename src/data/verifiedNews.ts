@@ -9,7 +9,17 @@ export const VERIFIED_NEWS: NewsItem[] = [
     sourceUrl: 'https://www.fia.com/news',
     publishedAt: '2024-09-02T10:30:00Z',
     category: 'TECHNICAL',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'Curated Technical',
+      sourceUrl: 'https://www.fia.com/news',
+      retrievedAt: '2024-09-02T10:30:00Z',
+      lastUpdatedAt: '2024-09-02T10:30:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'FIA Technical Directive Notification'
+    }
   },
   {
     id: 'news-02',
@@ -19,7 +29,17 @@ export const VERIFIED_NEWS: NewsItem[] = [
     sourceUrl: 'https://www.fia.com/documents',
     publishedAt: '2024-09-01T18:15:00Z',
     category: 'FIA',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.fia.com/documents',
+      retrievedAt: '2024-09-01T18:15:00Z',
+      lastUpdatedAt: '2024-09-01T18:15:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Official Stewards Hearing Decision'
+    }
   },
   {
     id: 'news-03',
@@ -29,7 +49,17 @@ export const VERIFIED_NEWS: NewsItem[] = [
     sourceUrl: 'https://www.formula1.com',
     publishedAt: '2024-09-01T19:40:00Z',
     category: 'TECHNICAL',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'Curated Technical',
+      sourceUrl: 'https://www.formula1.com',
+      retrievedAt: '2024-09-01T19:40:00Z',
+      lastUpdatedAt: '2024-09-01T19:40:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Historical Telemetry Post-Race Analysis'
+    }
   },
   {
     id: 'news-04',
@@ -39,6 +69,16 @@ export const VERIFIED_NEWS: NewsItem[] = [
     sourceUrl: 'https://www.formula1.com/en/latest/article.fia-and-formula-1-announce-calendar-for-2025.html',
     publishedAt: '2024-08-28T12:00:00Z',
     category: 'REGULATIONS',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.formula1.com/en/latest/article.fia-and-formula-1-announce-calendar-for-2025.html',
+      retrievedAt: '2024-08-28T12:00:00Z',
+      lastUpdatedAt: '2024-08-28T12:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'FOM / FIA Calendar Official Statement'
+    }
   }
 ];

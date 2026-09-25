@@ -13,33 +13,31 @@ import {
   DataProvenance
 } from '../types/f1';
 
-export interface LiveSessionSnapshot {
-  sessionName: string;
-  circuitName: string;
-  currentLap: number;
-  totalLaps: number;
-  remainingTimeStr?: string;
-  trackStatus: TrackStatus;
-  weather: Weather;
-  entries: TimingEntry[];
-  fastestLap?: {
-    driverCode: string;
-    time: string;
-    lap: number;
-  };
-  raceControl: RaceControlMessage[];
-  provenance: DataProvenance;
-  connectionState: LiveConnectionState;
-}
+export type ProviderResult<T> =
+  | { status: 'SUCCESS'; data: T; provenance: DataProvenance }
+  | { status: 'EMPTY'; data: T; message: string; provenance: DataProvenance }
+  | { status: 'ERROR'; error: string; provenance: DataProvenance };
+
+export type ProviderCapability =
+  | 'calendar'
+  | 'standings'
+  | 'results'
+  | 'qualifying'
+  | 'sprint'
+  | 'circuits'
+  | 'drivers'
+  | 'teams'
+  | 'liveTiming';
 
 export interface F1DataProvider {
   name: string;
-  getSchedule(year?: number): Promise<GrandPrix[]>;
-  getDriverStandings(year?: number): Promise<DriverStanding[]>;
-  getConstructorStandings(year?: number): Promise<ConstructorStanding[]>;
-  getDrivers(year?: number): Promise<Driver[]>;
-  getTeams(year?: number): Promise<Team[]>;
-  getCircuits(): Promise<Circuit[]>;
+  capabilities: ProviderCapability[];
+  getSchedule(year?: number): Promise<ProviderResult<GrandPrix[]>>;
+  getDriverStandings(year?: number): Promise<ProviderResult<DriverStanding[]>>;
+  getConstructorStandings(year?: number): Promise<ProviderResult<ConstructorStanding[]>>;
+  getDrivers(year?: number): Promise<ProviderResult<Driver[]>>;
+  getTeams(year?: number): Promise<ProviderResult<Team[]>>;
+  getCircuits(year?: number): Promise<ProviderResult<Circuit[]>>;
 }
 
 export interface F1LiveProvider {
@@ -47,7 +45,8 @@ export interface F1LiveProvider {
   connect(): Promise<void>;
   disconnect(): void;
   getState(): LiveConnectionState;
-  onSnapshot(callback: (snapshot: LiveSessionSnapshot) => void): () => void;
+  getLastUpdated(): string | null;
+  onSnapshot(callback: (snapshot: import('../types/f1').LiveSessionSnapshot) => void): () => void;
   onStateChange(callback: (state: LiveConnectionState, reason?: string) => void): () => void;
   onRaceControlMessage(callback: (msg: RaceControlMessage) => void): () => void;
 }

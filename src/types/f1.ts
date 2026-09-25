@@ -4,22 +4,25 @@
  */
 
 export type LiveConnectionState =
+  | 'DISCONNECTED'
   | 'CONNECTING'
   | 'CONNECTED'
+  | 'SUBSCRIBED'
   | 'LIVE'
   | 'STALE'
-  | 'DISCONNECTED'
   | 'PROVIDER_UNAVAILABLE'
   | 'ERROR'
   | 'REPLAY'
   | 'FIXTURE';
 
 export interface DataProvenance {
-  provider: 'Jolpica F1' | 'OpenF1' | 'F1 Live Timing (SignalR)' | 'Replay Engine' | 'FIA Official' | 'Curated Technical';
+  provider: 'Jolpica F1' | 'OpenF1' | 'F1 Live Timing (SignalR)' | 'Replay Engine' | 'FIA Official' | 'Curated Technical' | 'Provider Unavailable';
   sourceUrl?: string;
   retrievedAt: string;
+  lastUpdatedAt?: string;
   isLive: boolean;
   isFixture: boolean;
+  isHistorical?: boolean;
   notes?: string;
 }
 
@@ -51,10 +54,10 @@ export interface SectorTime {
   sector: 1 | 2 | 3;
   timeStr: string;
   seconds?: number;
-  status: 'personal-best' | 'overall-best' | 'normal' | 'pit';
+  status: 'personal-best' | 'overall-best' | 'normal' | 'pit' | 'unknown';
 }
 
-export type TyreCompound = 'SOFT' | 'MEDIUM' | 'HARD' | 'INTERMEDIATE' | 'WET';
+export type TyreCompound = 'SOFT' | 'MEDIUM' | 'HARD' | 'INTERMEDIATE' | 'WET' | 'UNKNOWN';
 
 export interface TyreStint {
   stintNumber: number;
@@ -99,7 +102,9 @@ export interface TimingEntry {
   pitCount: number;
   lastPitLap?: number;
   inPit?: boolean;
+  pitOut?: boolean;
   retired?: boolean;
+  stopped?: boolean;
   retirementReason?: string;
   speedTrapKmH?: number;
   drsEligible?: boolean;
@@ -174,9 +179,9 @@ export interface Circuit {
   name: string;
   location: string;
   country: string;
-  lengthKm: number;
-  turns: number;
-  drsZones: number;
+  lengthKm?: number;
+  turns?: number;
+  drsZones?: number;
   lapRecord?: {
     time: string;
     driver: string;
@@ -222,6 +227,7 @@ export interface NewsItem {
   publishedAt: string;
   category: 'FIA' | 'TECHNICAL' | 'RACE_CONTROL' | 'PADDOCK' | 'REGULATIONS';
   verified: boolean;
+  provenance: DataProvenance;
 }
 
 export interface LiveSessionSnapshot {
@@ -241,6 +247,7 @@ export interface LiveSessionSnapshot {
   raceControl: RaceControlMessage[];
   provenance: DataProvenance;
   connectionState: LiveConnectionState;
+  lastUpdated: string; // ISO 8601 timestamp
 }
 
 export interface TechnicalUpdate {
@@ -254,8 +261,10 @@ export interface TechnicalUpdate {
   summary: string;
   technicalDescription: string;
   source: string;
+  sourceUrl?: string;
   status: 'VERIFIED' | 'REPORTED';
   sourceDocNumber?: string;
+  provenance: DataProvenance;
 }
 
 export interface FIADocument {
@@ -269,4 +278,5 @@ export interface FIADocument {
   type: 'Race Director Notes' | 'Stewards Decision' | 'Technical Delegate Report' | 'Summons' | 'Infringement' | 'Grid / Entry List';
   documentUrl: string;
   verified: boolean;
+  provenance: DataProvenance;
 }

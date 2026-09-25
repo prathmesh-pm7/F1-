@@ -45,6 +45,7 @@ export const MONZA_2024_RACE_RECORD: LiveSessionSnapshot = {
     notes: 'Official FIA Race Timing record — 2024 Italian Grand Prix (Lap 38/53)'
   },
   connectionState: 'REPLAY',
+  lastUpdated: '2024-09-01T14:48:00Z',
   entries: [
     {
       position: 1,

@@ -1,0 +1,646 @@
+{
+  "36": [
+    {
+      "position": 1,
+      "driverNumber": 16,
+      "driverCode": "LEC",
+      "driverName": "Charles Leclerc",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "LEADER",
+      "interval": "—",
+      "gapToLeaderSeconds": 0,
+      "intervalSeconds": 0,
+      "currentLap": 36,
+      "lastLapTime": "1:23.412",
+      "bestLapTime": "1:22.941",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.510", "seconds": 27.51, "status": "normal" },
+        { "sector": 2, "timeStr": "28.210", "seconds": 28.21, "status": "normal" },
+        { "sector": 3, "timeStr": "27.692", "seconds": 27.692, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 21 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 15, "startLap": 1, "endLap": 15 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 21, "startLap": 16 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 15,
+      "inPit": false,
+      "speedTrapKmH": 348.6,
+      "drsEligible": false
+    },
+    {
+      "position": 2,
+      "driverNumber": 55,
+      "driverCode": "SAI",
+      "driverName": "Carlos Sainz",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "+11.100",
+      "interval": "+11.100",
+      "gapToLeaderSeconds": 11.1,
+      "intervalSeconds": 11.1,
+      "currentLap": 36,
+      "lastLapTime": "1:23.650",
+      "bestLapTime": "1:23.110",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.600", "seconds": 27.6, "status": "normal" },
+        { "sector": 2, "timeStr": "28.240", "seconds": 28.24, "status": "normal" },
+        { "sector": 3, "timeStr": "27.810", "seconds": 27.81, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 17 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 19, "startLap": 1, "endLap": 19 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 17, "startLap": 20 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 19,
+      "inPit": false,
+      "speedTrapKmH": 347.8,
+      "drsEligible": false
+    },
+    {
+      "position": 3,
+      "driverNumber": 81,
+      "driverCode": "PIA",
+      "driverName": "Oscar Piastri",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+13.800",
+      "interval": "+2.700",
+      "gapToLeaderSeconds": 13.8,
+      "intervalSeconds": 2.7,
+      "currentLap": 36,
+      "lastLapTime": "1:44.200",
+      "bestLapTime": "1:21.800",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.400", "seconds": 27.4, "status": "normal" },
+        { "sector": 2, "timeStr": "45.100", "seconds": 45.1, "status": "pit" },
+        { "sector": 3, "timeStr": "31.700", "seconds": 31.7, "status": "normal" }
+      ],
+      "currentSector": 1,
+      "tyre": { "compound": "HARD", "age": 1 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 16, "startLap": 1, "endLap": 16 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 19, "startLap": 17, "endLap": 35 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 1, "startLap": 36 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 35,
+      "inPit": false,
+      "speedTrapKmH": 351.2,
+      "drsEligible": false
+    },
+    {
+      "position": 4,
+      "driverNumber": 4,
+      "driverCode": "NOR",
+      "driverName": "Lando Norris",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+18.200",
+      "interval": "+4.400",
+      "gapToLeaderSeconds": 18.2,
+      "intervalSeconds": 4.4,
+      "currentLap": 36,
+      "lastLapTime": "1:22.100",
+      "bestLapTime": "1:21.850",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.100", "seconds": 27.1, "status": "personal-best" },
+        { "sector": 2, "timeStr": "27.500", "seconds": 27.5, "status": "personal-best" },
+        { "sector": 3, "timeStr": "27.500", "seconds": 27.5, "status": "normal" }
+      ],
+      "currentSector": 2,
+      "tyre": { "compound": "HARD", "age": 4 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 14, "startLap": 1, "endLap": 14 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 18, "startLap": 15, "endLap": 32 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 4, "startLap": 33 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 32,
+      "inPit": false,
+      "speedTrapKmH": 352.4,
+      "drsEligible": false
+    }
+  ],
+  "37": [
+    {
+      "position": 1,
+      "driverNumber": 16,
+      "driverCode": "LEC",
+      "driverName": "Charles Leclerc",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "LEADER",
+      "interval": "—",
+      "gapToLeaderSeconds": 0,
+      "intervalSeconds": 0,
+      "currentLap": 37,
+      "lastLapTime": "1:23.310",
+      "bestLapTime": "1:22.941",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.500", "seconds": 27.5, "status": "normal" },
+        { "sector": 2, "timeStr": "28.180", "seconds": 28.18, "status": "normal" },
+        { "sector": 3, "timeStr": "27.630", "seconds": 27.63, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 22 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 15, "startLap": 1, "endLap": 15 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 22, "startLap": 16 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 15,
+      "inPit": false,
+      "speedTrapKmH": 348.6,
+      "drsEligible": false
+    },
+    {
+      "position": 2,
+      "driverNumber": 81,
+      "driverCode": "PIA",
+      "driverName": "Oscar Piastri",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+12.100",
+      "interval": "+12.100",
+      "gapToLeaderSeconds": 12.1,
+      "intervalSeconds": 12.1,
+      "currentLap": 37,
+      "lastLapTime": "1:21.900",
+      "bestLapTime": "1:21.800",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.150", "seconds": 27.15, "status": "personal-best" },
+        { "sector": 2, "timeStr": "27.440", "seconds": 27.44, "status": "personal-best" },
+        { "sector": 3, "timeStr": "27.310", "seconds": 27.31, "status": "personal-best" }
+      ],
+      "currentSector": 2,
+      "tyre": { "compound": "HARD", "age": 2 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 16, "startLap": 1, "endLap": 16 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 19, "startLap": 17, "endLap": 35 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 2, "startLap": 36 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 35,
+      "inPit": false,
+      "speedTrapKmH": 351.2,
+      "drsEligible": false
+    },
+    {
+      "position": 3,
+      "driverNumber": 4,
+      "driverCode": "NOR",
+      "driverName": "Lando Norris",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+16.800",
+      "interval": "+4.700",
+      "gapToLeaderSeconds": 16.8,
+      "intervalSeconds": 4.7,
+      "currentLap": 37,
+      "lastLapTime": "1:21.432",
+      "bestLapTime": "1:21.432",
+      "isOverallFastestLap": true,
+      "sectors": [
+        { "sector": 1, "timeStr": "26.980", "seconds": 26.98, "status": "overall-best" },
+        { "sector": 2, "timeStr": "27.210", "seconds": 27.21, "status": "overall-best" },
+        { "sector": 3, "timeStr": "27.242", "seconds": 27.242, "status": "overall-best" }
+      ],
+      "currentSector": 1,
+      "tyre": { "compound": "HARD", "age": 5 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 14, "startLap": 1, "endLap": 14 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 18, "startLap": 15, "endLap": 32 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 5, "startLap": 33 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 32,
+      "inPit": false,
+      "speedTrapKmH": 352.4,
+      "drsEligible": false
+    },
+    {
+      "position": 4,
+      "driverNumber": 55,
+      "driverCode": "SAI",
+      "driverName": "Carlos Sainz",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "+17.500",
+      "interval": "+0.700",
+      "gapToLeaderSeconds": 17.5,
+      "intervalSeconds": 0.7,
+      "currentLap": 37,
+      "lastLapTime": "1:23.550",
+      "bestLapTime": "1:23.110",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.550", "seconds": 27.55, "status": "normal" },
+        { "sector": 2, "timeStr": "28.220", "seconds": 28.22, "status": "normal" },
+        { "sector": 3, "timeStr": "27.780", "seconds": 27.78, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 18 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 19, "startLap": 1, "endLap": 19 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 18, "startLap": 20 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 19,
+      "inPit": false,
+      "speedTrapKmH": 347.8,
+      "drsEligible": false
+    }
+  ],
+  "38": [
+    {
+      "position": 1,
+      "driverNumber": 16,
+      "driverCode": "LEC",
+      "driverName": "Charles Leclerc",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "LEADER",
+      "interval": "—",
+      "gapToLeaderSeconds": 0,
+      "intervalSeconds": 0,
+      "currentLap": 38,
+      "lastLapTime": "1:23.218",
+      "bestLapTime": "1:22.941",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.482", "seconds": 27.482, "status": "normal" },
+        { "sector": 2, "timeStr": "28.140", "seconds": 28.14, "status": "normal" },
+        { "sector": 3, "timeStr": "27.596", "seconds": 27.596, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 23 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 15, "startLap": 1, "endLap": 15 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 23, "startLap": 16 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 15,
+      "inPit": false,
+      "speedTrapKmH": 348.6,
+      "drsEligible": false
+    },
+    {
+      "position": 2,
+      "driverNumber": 81,
+      "driverCode": "PIA",
+      "driverName": "Oscar Piastri",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+11.240",
+      "interval": "+11.240",
+      "gapToLeaderSeconds": 11.24,
+      "intervalSeconds": 11.24,
+      "currentLap": 38,
+      "lastLapTime": "1:21.842",
+      "bestLapTime": "1:21.602",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.112", "seconds": 27.112, "status": "personal-best" },
+        { "sector": 2, "timeStr": "27.420", "seconds": 27.42, "status": "personal-best" },
+        { "sector": 3, "timeStr": "27.310", "seconds": 27.31, "status": "personal-best" }
+      ],
+      "currentSector": 2,
+      "tyre": { "compound": "HARD", "age": 3 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 16, "startLap": 1, "endLap": 16 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 19, "startLap": 17, "endLap": 35 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 3, "startLap": 36 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 35,
+      "inPit": false,
+      "speedTrapKmH": 351.2,
+      "drsEligible": false
+    },
+    {
+      "position": 3,
+      "driverNumber": 4,
+      "driverCode": "NOR",
+      "driverName": "Lando Norris",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+15.892",
+      "interval": "+4.652",
+      "gapToLeaderSeconds": 15.892,
+      "intervalSeconds": 4.652,
+      "currentLap": 38,
+      "lastLapTime": "1:21.432",
+      "bestLapTime": "1:21.432",
+      "isOverallFastestLap": true,
+      "sectors": [
+        { "sector": 1, "timeStr": "26.980", "seconds": 26.98, "status": "overall-best" },
+        { "sector": 2, "timeStr": "27.210", "seconds": 27.21, "status": "overall-best" },
+        { "sector": 3, "timeStr": "27.242", "seconds": 27.242, "status": "overall-best" }
+      ],
+      "currentSector": 1,
+      "tyre": { "compound": "HARD", "age": 6 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 14, "startLap": 1, "endLap": 14 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 18, "startLap": 15, "endLap": 32 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 6, "startLap": 33 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 32,
+      "inPit": false,
+      "speedTrapKmH": 352.4,
+      "drsEligible": true
+    },
+    {
+      "position": 4,
+      "driverNumber": 55,
+      "driverCode": "SAI",
+      "driverName": "Carlos Sainz",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "+18.115",
+      "interval": "+2.223",
+      "gapToLeaderSeconds": 18.115,
+      "intervalSeconds": 2.223,
+      "currentLap": 38,
+      "lastLapTime": "1:23.490",
+      "bestLapTime": "1:23.110",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.520", "seconds": 27.52, "status": "normal" },
+        { "sector": 2, "timeStr": "28.210", "seconds": 28.21, "status": "normal" },
+        { "sector": 3, "timeStr": "27.760", "seconds": 27.76, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 19 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 19, "startLap": 1, "endLap": 19 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 19, "startLap": 20 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 19,
+      "inPit": false,
+      "speedTrapKmH": 347.8,
+      "drsEligible": false
+    }
+  ],
+  "39": [
+    {
+      "position": 1,
+      "driverNumber": 16,
+      "driverCode": "LEC",
+      "driverName": "Charles Leclerc",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "LEADER",
+      "interval": "—",
+      "gapToLeaderSeconds": 0,
+      "intervalSeconds": 0,
+      "currentLap": 39,
+      "lastLapTime": "1:23.380",
+      "bestLapTime": "1:22.941",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.510", "seconds": 27.51, "status": "normal" },
+        { "sector": 2, "timeStr": "28.190", "seconds": 28.19, "status": "normal" },
+        { "sector": 3, "timeStr": "27.680", "seconds": 27.68, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 24 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 15, "startLap": 1, "endLap": 15 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 24, "startLap": 16 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 15,
+      "inPit": false,
+      "speedTrapKmH": 348.6,
+      "drsEligible": false
+    },
+    {
+      "position": 2,
+      "driverNumber": 81,
+      "driverCode": "PIA",
+      "driverName": "Oscar Piastri",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+10.320",
+      "interval": "+10.320",
+      "gapToLeaderSeconds": 10.32,
+      "intervalSeconds": 10.32,
+      "currentLap": 39,
+      "lastLapTime": "1:22.180",
+      "bestLapTime": "1:21.602",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.220", "seconds": 27.22, "status": "normal" },
+        { "sector": 2, "timeStr": "27.550", "seconds": 27.55, "status": "normal" },
+        { "sector": 3, "timeStr": "27.410", "seconds": 27.41, "status": "normal" }
+      ],
+      "currentSector": 2,
+      "tyre": { "compound": "HARD", "age": 4 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 16, "startLap": 1, "endLap": 16 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 19, "startLap": 17, "endLap": 35 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 4, "startLap": 36 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 35,
+      "inPit": false,
+      "speedTrapKmH": 351.2,
+      "drsEligible": false
+    },
+    {
+      "position": 3,
+      "driverNumber": 4,
+      "driverCode": "NOR",
+      "driverName": "Lando Norris",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+14.950",
+      "interval": "+4.630",
+      "gapToLeaderSeconds": 14.95,
+      "intervalSeconds": 4.63,
+      "currentLap": 39,
+      "lastLapTime": "1:21.980",
+      "bestLapTime": "1:21.432",
+      "isOverallFastestLap": true,
+      "sectors": [
+        { "sector": 1, "timeStr": "27.050", "seconds": 27.05, "status": "personal-best" },
+        { "sector": 2, "timeStr": "27.410", "seconds": 27.41, "status": "normal" },
+        { "sector": 3, "timeStr": "27.520", "seconds": 27.52, "status": "normal" }
+      ],
+      "currentSector": 1,
+      "tyre": { "compound": "HARD", "age": 7 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 14, "startLap": 1, "endLap": 14 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 18, "startLap": 15, "endLap": 32 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 7, "startLap": 33 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 32,
+      "inPit": false,
+      "speedTrapKmH": 352.4,
+      "drsEligible": false
+    },
+    {
+      "position": 4,
+      "driverNumber": 55,
+      "driverCode": "SAI",
+      "driverName": "Carlos Sainz",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "+19.040",
+      "interval": "+4.090",
+      "gapToLeaderSeconds": 19.04,
+      "intervalSeconds": 4.09,
+      "currentLap": 39,
+      "lastLapTime": "1:24.120",
+      "bestLapTime": "1:23.110",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.680", "seconds": 27.68, "status": "normal" },
+        { "sector": 2, "timeStr": "28.450", "seconds": 28.45, "status": "normal" },
+        { "sector": 3, "timeStr": "27.990", "seconds": 27.99, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 20 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 19, "startLap": 1, "endLap": 19 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 20, "startLap": 20 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 19,
+      "inPit": false,
+      "speedTrapKmH": 347.8,
+      "drsEligible": false
+    }
+  ],
+  "40": [
+    {
+      "position": 1,
+      "driverNumber": 16,
+      "driverCode": "LEC",
+      "driverName": "Charles Leclerc",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "LEADER",
+      "interval": "—",
+      "gapToLeaderSeconds": 0,
+      "intervalSeconds": 0,
+      "currentLap": 40,
+      "lastLapTime": "1:23.440",
+      "bestLapTime": "1:22.941",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.520", "seconds": 27.52, "status": "normal" },
+        { "sector": 2, "timeStr": "28.210", "seconds": 28.21, "status": "normal" },
+        { "sector": 3, "timeStr": "27.710", "seconds": 27.71, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 25 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 15, "startLap": 1, "endLap": 15 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 25, "startLap": 16 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 15,
+      "inPit": false,
+      "speedTrapKmH": 348.6,
+      "drsEligible": false
+    },
+    {
+      "position": 2,
+      "driverNumber": 81,
+      "driverCode": "PIA",
+      "driverName": "Oscar Piastri",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+9.420",
+      "interval": "+9.420",
+      "gapToLeaderSeconds": 9.42,
+      "intervalSeconds": 9.42,
+      "currentLap": 40,
+      "lastLapTime": "1:22.010",
+      "bestLapTime": "1:21.602",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.180", "seconds": 27.18, "status": "normal" },
+        { "sector": 2, "timeStr": "27.480", "seconds": 27.48, "status": "normal" },
+        { "sector": 3, "timeStr": "27.350", "seconds": 27.35, "status": "normal" }
+      ],
+      "currentSector": 2,
+      "tyre": { "compound": "HARD", "age": 5 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 16, "startLap": 1, "endLap": 16 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 19, "startLap": 17, "endLap": 35 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 5, "startLap": 36 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 35,
+      "inPit": false,
+      "speedTrapKmH": 351.2,
+      "drsEligible": false
+    },
+    {
+      "position": 3,
+      "driverNumber": 4,
+      "driverCode": "NOR",
+      "driverName": "Lando Norris",
+      "teamName": "McLaren",
+      "teamColor": "#FF8000",
+      "gap": "+14.120",
+      "interval": "+4.700",
+      "gapToLeaderSeconds": 14.12,
+      "intervalSeconds": 4.7,
+      "currentLap": 40,
+      "lastLapTime": "1:22.090",
+      "bestLapTime": "1:21.432",
+      "isOverallFastestLap": true,
+      "sectors": [
+        { "sector": 1, "timeStr": "27.110", "seconds": 27.11, "status": "normal" },
+        { "sector": 2, "timeStr": "27.440", "seconds": 27.44, "status": "normal" },
+        { "sector": 3, "timeStr": "27.540", "seconds": 27.54, "status": "normal" }
+      ],
+      "currentSector": 1,
+      "tyre": { "compound": "HARD", "age": 8 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 14, "startLap": 1, "endLap": 14 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 18, "startLap": 15, "endLap": 32 },
+        { "stintNumber": 3, "compound": "HARD", "lapsUsed": 8, "startLap": 33 }
+      ],
+      "pitCount": 2,
+      "lastPitLap": 32,
+      "inPit": false,
+      "speedTrapKmH": 352.4,
+      "drsEligible": false
+    },
+    {
+      "position": 4,
+      "driverNumber": 55,
+      "driverCode": "SAI",
+      "driverName": "Carlos Sainz",
+      "teamName": "Ferrari",
+      "teamColor": "#E8002D",
+      "gap": "+20.100",
+      "interval": "+5.980",
+      "gapToLeaderSeconds": 20.1,
+      "intervalSeconds": 5.98,
+      "currentLap": 40,
+      "lastLapTime": "1:24.320",
+      "bestLapTime": "1:23.110",
+      "sectors": [
+        { "sector": 1, "timeStr": "27.720", "seconds": 27.72, "status": "normal" },
+        { "sector": 2, "timeStr": "28.520", "seconds": 28.52, "status": "normal" },
+        { "sector": 3, "timeStr": "28.080", "seconds": 28.08, "status": "normal" }
+      ],
+      "currentSector": 3,
+      "tyre": { "compound": "HARD", "age": 21 },
+      "stints": [
+        { "stintNumber": 1, "compound": "MEDIUM", "lapsUsed": 19, "startLap": 1, "endLap": 19 },
+        { "stintNumber": 2, "compound": "HARD", "lapsUsed": 21, "startLap": 20 }
+      ],
+      "pitCount": 1,
+      "lastPitLap": 19,
+      "inPit": false,
+      "speedTrapKmH": 347.8,
+      "drsEligible": false
+    }
+  ]
+}

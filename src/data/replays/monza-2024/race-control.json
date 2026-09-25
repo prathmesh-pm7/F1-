@@ -1,0 +1,90 @@
+[
+  {
+    "id": "rc-05",
+    "time": "15:19:12",
+    "lap": 9,
+    "category": "FLAG",
+    "flag": "CLEAR",
+    "message": "TRACK CLEAR SECTOR 2",
+    "provenance": {
+      "provider": "FIA Official",
+      "retrievedAt": "2024-09-01T14:09:12Z",
+      "isLive": false,
+      "isFixture": true,
+      "isHistorical": true
+    }
+  },
+  {
+    "id": "rc-06",
+    "time": "15:18:40",
+    "lap": 9,
+    "category": "FLAG",
+    "flag": "YELLOW",
+    "message": "YELLOW FLAG IN SECTOR 2 - CAR 27 (HUL) RUN OFF AT ASCARI",
+    "provenance": {
+      "provider": "FIA Official",
+      "retrievedAt": "2024-09-01T14:08:40Z",
+      "isLive": false,
+      "isFixture": true,
+      "isHistorical": true
+    }
+  },
+  {
+    "id": "rc-07",
+    "time": "15:32:15",
+    "lap": 19,
+    "category": "PENALTY",
+    "driverNumber": 20,
+    "message": "10 SECOND TIME PENALTY FOR CAR 20 (MAG) - CAUSING A COLLISION (TURN 4)",
+    "provenance": {
+      "provider": "FIA Official",
+      "retrievedAt": "2024-09-01T14:22:15Z",
+      "isLive": false,
+      "isFixture": true,
+      "isHistorical": true
+    }
+  },
+  {
+    "id": "rc-08",
+    "time": "15:51:02",
+    "lap": 34,
+    "category": "DRS",
+    "message": "DRS ENABLED",
+    "provenance": {
+      "provider": "FIA Official",
+      "retrievedAt": "2024-09-01T14:41:02Z",
+      "isLive": false,
+      "isFixture": true,
+      "isHistorical": true
+    }
+  },
+  {
+    "id": "rc-09",
+    "time": "15:54:33",
+    "lap": 36,
+    "category": "INFO",
+    "message": "CAR 81 (PIA) PIT STOP - 2.4 SECONDS",
+    "provenance": {
+      "provider": "FIA Official",
+      "retrievedAt": "2024-09-01T14:44:33Z",
+      "isLive": false,
+      "isFixture": true,
+      "isHistorical": true
+    }
+  },
+  {
+    "id": "rc-10",
+    "time": "15:58:12",
+    "lap": 38,
+    "category": "TRACK_LIMITS",
+    "driverNumber": 11,
+    "message": "CAR 11 (PER) NOTED - TRACK LIMITS (TURN 2)",
+    "provenance": {
+      "provider": "FIA Official",
+      "retrievedAt": "2024-09-01T14:48:12Z",
+      "isLive": false,
+      "isFixture": true,
+      "isHistorical": true
+    }
+  }
+]

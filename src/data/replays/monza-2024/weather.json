@@ -1,0 +1,9 @@
+{
+  "airTemp": 33.6,
+  "trackTemp": 52.8,
+  "humidity": 38.4,
+  "pressure": 994.2,
+  "windSpeed": 2.1,
+  "windDirection": 142,
+  "rainfall": false
+}

@@ -11,7 +11,17 @@ export const VERIFIED_FIA_DOCUMENTS: FIADocument[] = [
     session: 'Race',
     type: 'Stewards Decision',
     documentUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-09-01T15:45:00Z',
+      lastUpdatedAt: '2024-09-01T15:45:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Official FIA Stewards Classification Document'
+    }
   },
   {
     id: 'fia-doc-48',
@@ -23,7 +33,17 @@ export const VERIFIED_FIA_DOCUMENTS: FIADocument[] = [
     session: 'Race',
     type: 'Stewards Decision',
     documentUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-09-01T13:42:00Z',
+      lastUpdatedAt: '2024-09-01T13:42:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Official Stewards Penalty Notice'
+    }
   },
   {
     id: 'fia-doc-39',
@@ -35,7 +55,17 @@ export const VERIFIED_FIA_DOCUMENTS: FIADocument[] = [
     session: 'Race',
     type: 'Grid / Entry List',
     documentUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-09-01T11:30:00Z',
+      lastUpdatedAt: '2024-09-01T11:30:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Official Starting Grid Classification'
+    }
   },
   {
     id: 'fia-doc-28',
@@ -47,7 +77,17 @@ export const VERIFIED_FIA_DOCUMENTS: FIADocument[] = [
     session: 'Qualifying',
     type: 'Race Director Notes',
     documentUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-31T15:35:00Z',
+      lastUpdatedAt: '2024-08-31T15:35:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Official Qualifying Times'
+    }
   },
   {
     id: 'fia-doc-14',
@@ -59,7 +99,17 @@ export const VERIFIED_FIA_DOCUMENTS: FIADocument[] = [
     session: 'General',
     type: 'Race Director Notes',
     documentUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-30T08:00:00Z',
+      lastUpdatedAt: '2024-08-30T08:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Official Race Director Guidelines'
+    }
   },
   {
     id: 'fia-doc-08',
@@ -71,6 +121,16 @@ export const VERIFIED_FIA_DOCUMENTS: FIADocument[] = [
     session: 'Scrutineering',
     type: 'Technical Delegate Report',
     documentUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
-    verified: true
+    verified: true,
+    provenance: {
+      provider: 'FIA Official',
+      sourceUrl: 'https://www.fia.com/documents/season/season-2024-2043/event/Italian%20Grand%20Prix',
+      retrievedAt: '2024-08-29T14:00:00Z',
+      lastUpdatedAt: '2024-08-29T14:00:00Z',
+      isLive: false,
+      isFixture: true,
+      isHistorical: true,
+      notes: 'Scrutineering Clearance Report'
+    }
   }
 ];

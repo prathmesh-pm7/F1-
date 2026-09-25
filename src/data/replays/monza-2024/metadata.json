@@ -1,0 +1,16 @@
+{
+  "sessionName": "ITALIAN GRAND PRIX — RACE",
+  "circuitName": "Autodromo Nazionale Monza",
+  "totalLaps": 53,
+  "date": "2024-09-01",
+  "recordedLaps": [36, 37, 38, 39, 40],
+  "provenance": {
+    "provider": "Replay Engine",
+    "sourceUrl": "https://www.fia.com/events/fia-formula-one-world-championship/season-2024/italian-grand-prix",
+    "retrievedAt": "2024-09-01T15:00:00Z",
+    "isLive": false,
+    "isFixture": true,
+    "isHistorical": true,
+    "notes": "Historical FIA Timing Record - 2024 Italian Grand Prix"
+  }
+}

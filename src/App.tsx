@@ -19,10 +19,10 @@ import { FiaDocumentsViewer } from './components/documents/FiaDocumentsViewer';
 import { JolpicaProvider } from './providers/jolpicaProvider';
 import { ReplayProvider } from './providers/replayProvider';
 import { LiveTimingProvider } from './providers/liveTimingProvider';
-import { MONZA_2024_RACE_RECORD } from './data/verifiedSessions';
 import { VERIFIED_TECHNICAL_UPDATES } from './data/technicalUpdates';
 import { VERIFIED_FIA_DOCUMENTS } from './data/fiaDocuments';
 import { VERIFIED_NEWS } from './data/verifiedNews';
+import { getCurrentSeason, SUPPORTED_HISTORICAL_SEASONS } from './config/season';
 
 import {
   LiveSessionSnapshot,
@@ -32,11 +32,15 @@ import {
   ConstructorStanding,
   Driver,
   Team,
-  Circuit
+  Circuit,
+  DataProvenance
 } from './types/f1';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('live');
+
+  // Active Season State - initialized dynamically rather than hardcoding 2024
+  const [selectedSeason, setSelectedSeason] = useState<number>(getCurrentSeason());
 
   // Providers
   const jolpicaProvider = useMemo(() => new JolpicaProvider(), []);
@@ -53,48 +57,102 @@ export default function App() {
   const replayEngine = replayProviderRef.current;
   const liveEngine = liveProviderRef.current;
 
-  // Mode: default to Replay mode (flagged clearly as REPLAY / FIXTURE DATA) so the user can immediately experience the live timing workstation
+  // Mode: default to Replay mode (flagged clearly as REPLAY / FIXTURE DATA) so the user can immediately experience the timing workstation
   const [isReplayMode, setIsReplayMode] = useState<boolean>(true);
 
   // Live session state
-  const [snapshot, setSnapshot] = useState<LiveSessionSnapshot>(MONZA_2024_RACE_RECORD);
+  const [snapshot, setSnapshot] = useState<LiveSessionSnapshot>(() => {
+    // Initial snapshot from replay engine
+    return replayEngine.getSnapshot();
+  });
+
   const [connectionState, setConnectionState] = useState<LiveConnectionState>('REPLAY');
   const [isReplayPlaying, setIsReplayPlaying] = useState<boolean>(false);
   const [replaySpeed, setReplaySpeed] = useState<number>(1);
 
   // F1 Season Data from Jolpica API
   const [schedule, setSchedule] = useState<GrandPrix[]>([]);
+  const [scheduleProvenance, setScheduleProvenance] = useState<DataProvenance | undefined>();
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
+
   const [driverStandings, setDriverStandings] = useState<DriverStanding[]>([]);
+  const [standingsProvenance, setStandingsProvenance] = useState<DataProvenance | undefined>();
+  const [standingsError, setStandingsError] = useState<string | null>(null);
+
   const [constructorStandings, setConstructorStandings] = useState<ConstructorStanding[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [circuits, setCircuits] = useState<Circuit[]>([]);
+
   const [isLoadingSeason, setIsLoadingSeason] = useState<boolean>(true);
 
-  // Initialize season data
+  // Load season data whenever selectedSeason changes
   useEffect(() => {
     let mounted = true;
 
     async function loadSeasonData() {
       try {
         setIsLoadingSeason(true);
-        const [sched, dStandings, cStandings, circs] = await Promise.all([
-          jolpicaProvider.getSchedule(2024),
-          jolpicaProvider.getDriverStandings(2024),
-          jolpicaProvider.getConstructorStandings(2024),
-          jolpicaProvider.getCircuits()
+        setScheduleError(null);
+        setStandingsError(null);
+
+        const [schedRes, dStandingsRes, cStandingsRes, circsRes] = await Promise.all([
+          jolpicaProvider.getSchedule(selectedSeason),
+          jolpicaProvider.getDriverStandings(selectedSeason),
+          jolpicaProvider.getConstructorStandings(selectedSeason),
+          jolpicaProvider.getCircuits(selectedSeason)
         ]);
 
-        if (mounted) {
-          setSchedule(sched);
-          setDriverStandings(dStandings);
-          setConstructorStandings(cStandings);
-          setDrivers(dStandings.map(s => s.driver));
-          setTeams(cStandings.map(s => s.team));
-          setCircuits(circs);
+        if (!mounted) return;
+
+        // Schedule
+        if (schedRes.status === 'SUCCESS') {
+          setSchedule(schedRes.data);
+          setScheduleProvenance(schedRes.provenance);
+        } else if (schedRes.status === 'EMPTY') {
+          setSchedule([]);
+          setScheduleProvenance(schedRes.provenance);
+          setScheduleError(schedRes.message);
+        } else {
+          setSchedule([]);
+          setScheduleProvenance(schedRes.provenance);
+          setScheduleError(schedRes.error);
         }
-      } catch (err) {
-        console.error('Failed to load season data from Jolpica provider:', err);
+
+        // Driver Standings
+        if (dStandingsRes.status === 'SUCCESS') {
+          setDriverStandings(dStandingsRes.data);
+          setDrivers(dStandingsRes.data.map(s => s.driver));
+          setStandingsProvenance(dStandingsRes.provenance);
+        } else if (dStandingsRes.status === 'EMPTY') {
+          setDriverStandings([]);
+          setDrivers([]);
+          setStandingsProvenance(dStandingsRes.provenance);
+          setStandingsError(dStandingsRes.message);
+        } else {
+          setDriverStandings([]);
+          setDrivers([]);
+          setStandingsProvenance(dStandingsRes.provenance);
+          setStandingsError(dStandingsRes.error);
+        }
+
+        // Constructor Standings
+        if (cStandingsRes.status === 'SUCCESS') {
+          setConstructorStandings(cStandingsRes.data);
+          setTeams(cStandingsRes.data.map(s => s.team));
+        } else {
+          setConstructorStandings([]);
+          setTeams([]);
+        }
+
+        // Circuits
+        if (circsRes.status === 'SUCCESS') {
+          setCircuits(circsRes.data);
+        } else {
+          setCircuits([]);
+        }
+      } catch (err: any) {
+        console.error('Failed to load season data:', err);
       } finally {
         if (mounted) setIsLoadingSeason(false);
       }
@@ -105,7 +163,7 @@ export default function App() {
     return () => {
       mounted = false;
     };
-  }, [jolpicaProvider]);
+  }, [selectedSeason, jolpicaProvider]);
 
   // Hook up provider snapshots based on active mode
   useEffect(() => {
@@ -127,7 +185,6 @@ export default function App() {
       unsubSnapshot = liveEngine.onSnapshot((newSnap) => {
         setSnapshot(newSnap);
       });
-      // Try connecting to live SignalR endpoint
       liveEngine.connect();
     }
 
@@ -168,6 +225,7 @@ export default function App() {
       setIsReplayMode(false);
       liveEngine.connect();
     } else {
+      liveEngine.disconnect();
       setIsReplayMode(true);
       replayEngine.connect();
     }
@@ -211,26 +269,64 @@ export default function App() {
       )}
 
       {activeTab === 'weekend' && (
-        <WeekendHub schedule={schedule} />
+        <WeekendHub
+          schedule={schedule}
+          selectedSeason={selectedSeason}
+          onSelectSeason={setSelectedSeason}
+          availableSeasons={SUPPORTED_HISTORICAL_SEASONS}
+          provenance={scheduleProvenance}
+          isLoading={isLoadingSeason}
+          error={scheduleError}
+        />
       )}
 
       {activeTab === 'standings' && (
         <StandingsWorkstation
           driverStandings={driverStandings}
           constructorStandings={constructorStandings}
+          selectedSeason={selectedSeason}
+          onSelectSeason={setSelectedSeason}
+          availableSeasons={SUPPORTED_HISTORICAL_SEASONS}
+          provenance={standingsProvenance}
+          isLoading={isLoadingSeason}
+          error={standingsError}
         />
       )}
 
       {activeTab === 'drivers' && (
-        <DriversDirectory drivers={drivers} />
+        <DriversDirectory
+          drivers={drivers}
+          selectedSeason={selectedSeason}
+          onSelectSeason={setSelectedSeason}
+          availableSeasons={SUPPORTED_HISTORICAL_SEASONS}
+          provenance={standingsProvenance}
+          isLoading={isLoadingSeason}
+          error={standingsError}
+        />
       )}
 
       {activeTab === 'teams' && (
-        <TeamsDirectory teams={teams} />
+        <TeamsDirectory
+          teams={teams}
+          selectedSeason={selectedSeason}
+          onSelectSeason={setSelectedSeason}
+          availableSeasons={SUPPORTED_HISTORICAL_SEASONS}
+          provenance={standingsProvenance}
+          isLoading={isLoadingSeason}
+          error={standingsError}
+        />
       )}
 
       {activeTab === 'circuits' && (
-        <CircuitsDirectory circuits={circuits} />
+        <CircuitsDirectory
+          circuits={circuits}
+          selectedSeason={selectedSeason}
+          onSelectSeason={setSelectedSeason}
+          availableSeasons={SUPPORTED_HISTORICAL_SEASONS}
+          provenance={scheduleProvenance}
+          isLoading={isLoadingSeason}
+          error={scheduleError}
+        />
       )}
 
       {activeTab === 'news' && (
