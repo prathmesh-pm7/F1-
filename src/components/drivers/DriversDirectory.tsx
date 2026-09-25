@@ -71,7 +71,7 @@ export const DriversDirectory: React.FC<Props> = ({
               }}
               className={`px-2.5 py-1 text-xs font-bold border transition-colors ${
                 selectedSeason === season
-                  ? 'bg-[#1c222b] text-white border-[#e10600]'
+                  ? 'bg-[#1c222b] text-white border-[var(--team-accent)]'
                   : 'bg-[#14171d] text-neutral-400 border-[#242c37] hover:text-white'
               }`}
             >
@@ -187,7 +187,7 @@ export const DriversDirectory: React.FC<Props> = ({
                 </div>
                 <div className="border border-[#222933] bg-[#0f1216] p-2.5">
                   <span className="text-[10px] text-neutral-400 uppercase">GRAND PRIX WINS</span>
-                  <div className="text-lg font-black text-amber-400 timing-cell">{selectedDriver.wins ?? 0} WINS</div>
+                  <div className="text-lg font-black text-[var(--team-accent)] timing-cell">{selectedDriver.wins ?? 0} WINS</div>
                 </div>
                 <div className="border border-[#222933] bg-[#0f1216] p-2.5">
                   <span className="text-[10px] text-neutral-400 uppercase">TELEMETRY CODE</span>
