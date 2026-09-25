@@ -53,6 +53,7 @@ export default function App() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [circuits, setCircuits] = useState<Circuit[]>([]);
   const [isLoadingSeason, setIsLoadingSeason] = useState(true);
+  const [showTeamSetup, setShowTeamSetup] = useState(false);
 
   useEffect(() => {
     try {
@@ -119,7 +120,8 @@ export default function App() {
       }
     }
     void loadSeasonData();
-    return () => { mounted = false; };
+    const refresh = window.setInterval(() => { void loadSeasonData(); }, 60_000);
+    return () => { mounted = false; window.clearInterval(refresh); };
   }, [selectedSeason, jolpicaProvider]);
 
   useEffect(() => {
@@ -138,9 +140,14 @@ export default function App() {
   }, [isReplayMode, replayEngine, liveEngine]);
 
   const favoriteTeam = teams.find(team => team.id === favoriteTeamId) ?? null;
+  useEffect(() => {
+    if (!isLoadingSeason && teams.length > 0 && !favoriteTeamId) setShowTeamSetup(true);
+  }, [isLoadingSeason, teams.length, favoriteTeamId]);
+
   const rootStyle = {
     '--team-accent': favoriteTeam?.color ?? '#8b929b',
-    '--team-accent-soft': favoriteTeam?.color ? `${favoriteTeam.color}26` : '#8b929b20'
+    '--team-accent-soft': favoriteTeam?.color ? `${favoriteTeam.color}20` : '#8b929b18',
+    '--team-accent-strong': favoriteTeam?.color ?? '#8b929b'
   } as React.CSSProperties;
 
   const handleSwitchToReplay = () => {
@@ -211,6 +218,26 @@ export default function App() {
         {activeTab === 'technical' && <TechnicalUpdatesFeed updates={VERIFIED_TECHNICAL_UPDATES} />}
         {activeTab === 'documents' && <FiaDocumentsViewer documents={VERIFIED_FIA_DOCUMENTS} />}
       </AppShell>
+      {showTeamSetup && teams.length > 0 && (
+        <div className="team-setup-overlay" role="dialog" aria-modal="true" aria-label="Choose your team">
+          <div className="team-setup-panel">
+            <div className="team-setup-kicker">PERSONAL WORKSPACE</div>
+            <h1>Choose your team</h1>
+            <p>Your team becomes the accent of the interface and its data gets priority throughout the app.</p>
+            <div className="team-setup-grid">
+              {teams.map(team => (
+                <button key={team.id} type="button" className="team-setup-team" style={{'--setup-color': team.color} as React.CSSProperties}
+                  onClick={() => { setFavoriteTeamId(team.id); setShowTeamSetup(false); setActiveTab('live'); }}>
+                  <span className="team-setup-swatch" />
+                  <span><strong>{team.name}</strong><small>{team.drivers?.join(' / ') || 'Drivers loading'}</small></span>
+                  <b>P{team.position ?? '—'}</b>
+                </button>
+              ))}
+            </div>
+            <button type="button" className="team-setup-later" onClick={() => setShowTeamSetup(false)}>CHOOSE LATER</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
