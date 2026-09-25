@@ -1,0 +1,6 @@
+{
+  "name": "F1 Pulse",
+  "description": "Professional Formula 1 live timing, race control, and championship intelligence workstation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
