@@ -32,7 +32,7 @@ export const WorkstationHeader: React.FC<Props> = ({ snapshot, connectionState, 
       <div className="f1-header-rule">
         <div className="f1-header-source">
           <LiveStatusIndicator state={connectionState} />
-          <span className="muted">{isReplayMode ? 'RECORDED SESSION / MONZA 2024' : 'OFFICIAL SIGNALR LINK'}</span>
+          <span className="muted">{isReplayMode ? 'RECORDED REPLAY' : 'LIVE CONNECTION'}</span>
         </div>
         <div className="f1-header-actions">
           <span className="f1-weather">{snapshot.weather.airTemp > 0 ? `AIR ${snapshot.weather.airTemp}°` : 'AIR —'} <span>/</span> {snapshot.weather.trackTemp > 0 ? `TRACK ${snapshot.weather.trackTemp}°` : 'TRACK —'}</span>
