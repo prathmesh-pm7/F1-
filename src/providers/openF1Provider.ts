@@ -73,4 +73,18 @@ export class OpenF1Provider {
     const provenance: DataProvenance = { provider:'OpenF1', sourceUrl:`${OPENF1_BASE}/session_result?session_key=${key}`, retrievedAt:new Date().toISOString(), lastUpdatedAt:new Date().toISOString(), isLive:false, isFixture:false, isHistorical:gp.season < new Date().getFullYear(), notes:'Historical session data from OpenF1' };
     return { sessionKey:key, sessionName:String(match.session_name), sessionType:String(match.session_type), startTime:String(match.date_start), endTime:String(match.date_end), circuitName:String(match.circuit_short_name ?? gp.circuit.name), circuitImageUrl:meeting.circuit_image, results, laps, pitStops, driverLineup:Array.from(driverMap.values()).map(toDriver), provenance };
   }
+  public async getSeasonDriverImages(year: number): Promise<Record<string, string>> {
+    const sessions = await this.get<JsonRecord[]>(`/sessions?year=${year}&session_name=Race`);
+    const latest = sessions.sort((a,b) => new Date(String(b.date_start)).getTime() - new Date(String(a.date_start)).getTime())[0];
+    if (!latest) return {};
+    const drivers = await this.get<JsonRecord[]>(`/drivers?session_key=${Number(latest.session_key)}`);
+    return drivers.reduce<Record<string,string>>((map, d) => {
+      if (d.headshot_url) {
+        map[String(d.driver_number)] = String(d.headshot_url);
+        if (d.name_acronym) map[String(d.name_acronym)] = String(d.headshot_url);
+      }
+      return map;
+    }, {});
+  }
+
 }
