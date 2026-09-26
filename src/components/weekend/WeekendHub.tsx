@@ -90,11 +90,14 @@ export const WeekendHub: React.FC<Props> = ({
                     <span className="text-[10px] text-neutral-200 font-semibold">{session.name}</span>
                     <span className={`text-[8px] tracking-[.08em] ${session.status === 'LIVE' ? 'text-[var(--team-accent)]' : session.status === 'COMPLETED' ? 'text-neutral-500' : 'text-neutral-300'}`}>{session.status}</span>
                     <span className="text-right text-[9px] text-neutral-600">{new Date(session.startTime).toLocaleString([], { weekday:'short', hour:'2-digit', minute:'2-digit', timeZoneName:'short' })}</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </section>
           )}
+          {selectedSession && sessionLoading && <div className="border-y border-[#242c37] p-5 text-center text-[9px] text-neutral-500">LOADING {selectedSession.name.toUpperCase()} DATA…</div>}
+          {selectedSession && sessionError && <div className="border-y border-[#242c37] p-4 text-[9px] text-neutral-500">{sessionError}</div>}
+          {selectedSession && sessionDetail && <div><SessionDetailPanel detail={sessionDetail} session={selectedSession} onClose={() => { setSelectedSession(null); setSessionDetail(null); }} /></div>}
         </>
       )}
     </div>
