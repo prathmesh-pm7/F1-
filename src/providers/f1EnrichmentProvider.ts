@@ -29,6 +29,7 @@ const LAP_RECORDS: Record<string, { time: string; driver: string; year: number }
   azerbaijan: { time: '1:43.009', driver: 'Charles Leclerc', year: 2019 },
   singapore: { time: '1:34.486', driver: 'Daniel Ricciardo', year: 2024 },
   'united states': { time: '1:36.169', driver: 'Charles Leclerc', year: 2019 },
+  'las vegas': { time: '1:34.876', driver: 'Lando Norris', year: 2024 },
   mexico: { time: '1:17.774', driver: 'Valtteri Bottas', year: 2021 },
   brazil: { time: '1:10.540', driver: 'Valtteri Bottas', year: 2018 },
   qatar: { time: '1:22.384', driver: 'Lando Norris', year: 2024 },
@@ -185,6 +186,7 @@ export class F1EnrichmentProvider {
           const info = await this.getJson<JsonRecord>(String(meeting.circuit_info_url));
           const corners = Array.isArray(info.corners) ? info.corners : [];
           result[country] = {
+        ...(meeting.circuit_short_name ? { [String(meeting.circuit_short_name).toLowerCase()]: base } : {}),
             ...base,
             turns: corners.length || undefined,
             circuitKey: Number(meeting.circuit_key) || undefined,
