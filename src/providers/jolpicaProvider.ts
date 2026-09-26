@@ -17,7 +17,11 @@ import {
   Driver,
   Team,
   Circuit,
-  DataProvenance
+  DataProvenance,
+  RaceWeekendData,
+  RaceResultEntry,
+  QualifyingResultEntry,
+  LapTimingEntry
 } from '../types/f1';
 import { getCurrentSeason } from '../config/season';
 
@@ -422,4 +426,65 @@ export class JolpicaProvider implements F1DataProvider {
       };
     }
   }
+
+  public async getRaceWeekendData(year: number, round: number): Promise<ProviderResult<RaceWeekendData>> {
+    const baseEndpoint = `/${year}/${round}`;
+    const provenance = this.createProvenance(`${baseEndpoint}/results.json`, year < getCurrentSeason());
+    try {
+      const [resultsJson, qualifyingJson, sprintJson, lapsJson, pitStopsJson] = await Promise.all([
+        this.fetchFromApi<any>(`${baseEndpoint}/results.json`),
+        this.fetchFromApi<any>(`${baseEndpoint}/qualifying.json`),
+        this.fetchFromApi<any>(`${baseEndpoint}/sprint.json`),
+        this.fetchFromApi<any>(`${baseEndpoint}/laps.json?limit=1000`),
+        this.fetchFromApi<any>(`${baseEndpoint}/pitstops.json?limit=1000`)
+      ]);
+
+      const race = resultsJson?.MRData?.RaceTable?.Races?.[0];
+      if (!race) return { status: 'EMPTY', data: { season: year, round, raceName: '', circuit: { id: '', name: '', location: '', country: '' }, raceResults: [], qualifying: [], sprintResults: [], laps: [], pitStops: [], provenance }, message: `No race data published for ${year} round ${round}`, provenance };
+
+      const mapResult = (item: any): RaceResultEntry => {
+        const driver = item.Driver ?? {};
+        const constructor = item.Constructor ?? {};
+        const constructorId = String(constructor.constructorId ?? 'unknown');
+        return {
+          position: Number.isFinite(Number(item.position)) ? Number(item.position) : null,
+          positionText: String(item.positionText ?? item.position ?? '—'),
+          driverId: String(driver.driverId ?? ''), driverCode: String(driver.code ?? '???'),
+          driverName: `${driver.givenName ?? ''} ${driver.familyName ?? ''}`.trim(),
+          driverNumber: Number(driver.permanentNumber ?? item.number ?? 0),
+          constructorId, teamName: String(constructor.name ?? '—'), teamColor: TEAM_COLORS[constructorId] ?? '#59636E',
+          grid: Number.isFinite(Number(item.grid)) ? Number(item.grid) : null,
+          lapsCompleted: Number.isFinite(Number(item.laps)) ? Number(item.laps) : null,
+          status: String(item.status ?? '—'), points: Number(item.points ?? 0),
+          finishTime: String(item.Time?.time ?? ''),
+          fastestLap: item.FastestLap ? { lap: Number(item.FastestLap.lap ?? 0), time: String(item.FastestLap.Time?.time ?? ''), averageSpeedKph: Number(item.FastestLap.AverageSpeed?.speed ?? 0) || undefined } : undefined
+        };
+      };
+      const raceResults: RaceResultEntry[] = Array.isArray(race.Results) ? race.Results.map(mapResult) : [];
+      const qRace = qualifyingJson?.MRData?.RaceTable?.Races?.[0];
+      const qualifying: QualifyingResultEntry[] = Array.isArray(qRace?.QualifyingResults) ? qRace.QualifyingResults.map((item: any) => {
+        const d=item.Driver??{}, c=item.Constructor??{}, cid=String(c.constructorId??'unknown');
+        return { position:Number.isFinite(Number(item.position))?Number(item.position):null, driverId:String(d.driverId??''), driverCode:String(d.code??'???'), driverName:`${d.givenName??''} ${d.familyName??''}`.trim(), driverNumber:Number(d.permanentNumber??item.number??0), constructorId:cid, teamName:String(c.name??'—'), teamColor:TEAM_COLORS[cid]??'#59636E', q1:item.Q1?.time??item.Q1, q2:item.Q2?.time??item.Q2, q3:item.Q3?.time??item.Q3 };
+      }) : [];
+      const sprintRace = sprintJson?.MRData?.RaceTable?.Races?.[0];
+      const sprintResults: SprintResultEntry[] = Array.isArray(sprintRace?.SprintResults) ? sprintRace.SprintResults.map(mapResult) : [];
+      const lapRaces = lapsJson?.MRData?.RaceTable?.Races ?? [];
+      const laps: LapTimingEntry[] = [];
+      for (const lr of lapRaces) for (const lap of (Array.isArray(lr.Laps) ? lr.Laps : [])) for (const timing of (Array.isArray(lap.Timings) ? lap.Timings : [])) {
+        laps.push({ lap: Number(lap.number ?? 0), driverId: String(timing.driverId ?? ''), driverCode: String(timing.driverId ?? '').slice(0,3).toUpperCase(), driverName: String(timing.driverId ?? ''), position: Number.isFinite(Number(timing.position)) ? Number(timing.position) : null, time: String(timing.time ?? '—') });
+      }
+      const pitRaces = pitStopsJson?.MRData?.RaceTable?.Races ?? [];
+      const pitStops = pitRaces.flatMap((pr: any) => Array.isArray(pr.PitStops) ? pr.PitStops.map((stop: any) => ({ stopNumber:Number(stop.stop??0), lap:Number(stop.lap??0), pitDurationStr:String(stop.duration??'—'), pitLaneDurationStr:String(stop.duration??'—'), durationSeconds:Number.parseFloat(String(stop.duration??'').replace(':','.')) || 0, timestamp:String(stop.time??''), driverId:String(stop.driverId??'') })) : []);
+      const circuitRaw = race.Circuit ?? {};
+      const location = circuitRaw.Location ?? {};
+      const circuit: Circuit = { id:String(circuitRaw.circuitId??''), name:String(circuitRaw.circuitName??''), location:String(location.locality??''), country:String(location.country??'') };
+      const winner = raceResults.find(r => r.position === 1);
+      const totalLaps = raceResults.reduce((max, r) => Math.max(max, r.lapsCompleted ?? 0), 0) || undefined;
+      const data: RaceWeekendData = { season:year, round, raceName:String(race.raceName??''), circuit, raceResults, qualifying, sprintResults, laps, pitStops, winner, totalLaps, provenance };
+      return { status: raceResults.length ? 'SUCCESS' : 'EMPTY', data, message: raceResults.length ? undefined : 'Race result is not published yet.', provenance } as ProviderResult<RaceWeekendData>;
+    } catch (err: any) {
+      return { status:'ERROR', error:err?.message ?? 'Failed to load race weekend data.', provenance };
+    }
+  }
+
 }
