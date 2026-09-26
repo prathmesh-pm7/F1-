@@ -204,6 +204,7 @@ export default function App() {
         {activeTab === 'teams' && (
           <TeamsDirectory
             teams={teams}
+            drivers={drivers}
             selectedSeason={selectedSeason}
             onSelectSeason={setSelectedSeason}
             availableSeasons={SUPPORTED_HISTORICAL_SEASONS}
