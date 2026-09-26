@@ -123,7 +123,7 @@ export default function App() {
     void loadSeasonData();
     const refresh = window.setInterval(() => { void loadSeasonData(); }, 60_000);
     return () => { mounted = false; window.clearInterval(refresh); };
-  }, [selectedSeason, jolpicaProvider]);
+  }, [selectedSeason, jolpicaProvider, openF1Provider]);
 
   useEffect(() => {
     let unsubSnapshot = () => {};
