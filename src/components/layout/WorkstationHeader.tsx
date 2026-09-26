@@ -18,9 +18,9 @@ export const WorkstationHeader: React.FC<Props> = ({ snapshot, connectionState, 
       <div className="f1-header-context">
         <div className="f1-context-primary">
           <span className="f1-red-rule" />
-          <span>{snapshot.sessionName}</span>
+          <span>{snapshot.sessionName || 'FORMULA 1'}</span>
           <span className="f1-sep">/</span>
-          <span className="muted">{snapshot.circuitName}</span>
+          <span className="muted">{snapshot.circuitName || 'CIRCUIT —'}</span>
         </div>
         <div className="f1-context-meta">
           <span className="f1-context-lap">{snapshot.currentLap > 0 ? `LAP ${snapshot.currentLap}/${snapshot.totalLaps || '—'}` : 'SESSION —'}</span>
@@ -28,7 +28,6 @@ export const WorkstationHeader: React.FC<Props> = ({ snapshot, connectionState, 
           <button type="button" className="f1-search-button" onClick={onOpenSearch}><Search className="w-3.5 h-3.5" /><span>SEARCH</span><kbd>⌘K</kbd></button>
         </div>
       </div>
-
       <div className="f1-header-rule">
         <div className="f1-header-source">
           <LiveStatusIndicator state={connectionState} />
