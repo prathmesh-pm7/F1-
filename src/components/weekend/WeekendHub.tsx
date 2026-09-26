@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { GrandPrix, DataProvenance, SessionDetail, SessionSchedule } from '../../types/f1';
+import { GrandPrix, DataProvenance, SessionDetail, SessionSchedule, Driver, Team } from '../../types/f1';
 import { SessionDetailPanel } from './SessionDetailPanel';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
   schedule: GrandPrix[];
+  drivers: Driver[];
+  teams: Team[];
   selectedSeason: number;
   onSelectSeason: (season: number) => void;
   availableSeasons?: number[];
@@ -21,7 +23,7 @@ const statusLabel: Record<GrandPrix['status'], string> = {
 };
 
 export const WeekendHub: React.FC<Props> = ({
-  schedule, selectedSeason, onSelectSeason, availableSeasons = [2026, 2025, 2024, 2023, 2022],
+  schedule, drivers, teams, selectedSeason, onSelectSeason, availableSeasons = [2026, 2025, 2024, 2023, 2022],
   provenance, isLoading, error, onLoadSession
 }) => {
   const firstRound = useMemo(() => schedule.find(gp => gp.status === 'CURRENT')?.round ?? schedule.find(gp => gp.status === 'UPCOMING')?.round ?? schedule[0]?.round ?? 1, [schedule]);
@@ -95,6 +97,45 @@ export const WeekendHub: React.FC<Props> = ({
               </div>
             </section>
           )}
+
+          {currentGP && drivers.length > 0 && (
+            <section className="border-y border-[#242c37] bg-[#0d1014]">
+              <div className="flex items-end justify-between gap-3 p-4 border-b border-[#1a1f25]">
+                <div>
+                  <div className="text-[8px] tracking-[.15em] text-[var(--team-accent)]">ENTRY LIST / ROUND {currentGP.round}</div>
+                  <h3 className="mt-1 text-sm font-bold text-white">DRIVER LINEUP</h3>
+                  <p className="mt-1 text-[9px] text-neutral-600">Season entry list for this weekend. Driver photos come from the session data provider when available.</p>
+                </div>
+                <span className="text-[8px] text-neutral-600">{drivers.length} DRIVERS</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-[#1a1f25]">
+                {teams.map(team => {
+                  const teamDrivers = drivers.filter(d => d.teamId === team.id);
+                  if (!teamDrivers.length) return null;
+                  return (
+                    <div key={team.id} className="bg-[#0b0e12] p-3 border-l-2" style={{borderLeftColor:team.color}}>
+                      <div className="flex items-center justify-between border-b border-[#171c22] pb-2">
+                        <span className="text-[9px] font-bold text-white">{team.name}</span>
+                        <span className="text-[8px] text-neutral-600">{team.powerUnit}</span>
+                      </div>
+                      <div className="mt-2 grid grid-cols-2 gap-2">
+                        {teamDrivers.slice(0,2).map(driver => (
+                          <div key={driver.id} className="flex items-center gap-2">
+                            {driver.headshotUrl ? <img src={driver.headshotUrl} alt="" className="w-10 h-10 object-contain object-bottom bg-[#080a0d]" loading="lazy" /> : <div className="w-10 h-10 bg-[#151a20] border border-[#242c37]" />}
+                            <div className="min-w-0">
+                              <div className="text-[9px] font-bold text-white truncate">{driver.fullName}</div>
+                              <div className="text-[8px] text-neutral-600">#{driver.number} · {driver.code}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
           {selectedSession && sessionLoading && <div className="border-y border-[#242c37] p-5 text-center text-[9px] text-neutral-500">LOADING {selectedSession.name.toUpperCase()} DATA…</div>}
           {selectedSession && sessionError && <div className="border-y border-[#242c37] p-4 text-[9px] text-neutral-500">{sessionError}</div>}
           {selectedSession && sessionDetail && <div><SessionDetailPanel detail={sessionDetail} session={selectedSession} onClose={() => { setSelectedSession(null); setSessionDetail(null); }} /></div>}
