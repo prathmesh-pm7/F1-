@@ -69,12 +69,13 @@ export default function App() {
       setScheduleError(null);
       setStandingsError(null);
       try {
-        const [schedRes, dStandingsRes, cStandingsRes, circsRes, headshots] = await Promise.all([
+        const [schedRes, dStandingsRes, cStandingsRes, circsRes, headshots, circuitMeta] = await Promise.all([
           jolpicaProvider.getSchedule(selectedSeason),
           jolpicaProvider.getDriverStandings(selectedSeason),
           jolpicaProvider.getConstructorStandings(selectedSeason),
           jolpicaProvider.getCircuits(selectedSeason),
-          openF1Provider.getSeasonDriverImages(selectedSeason).catch(() => ({}))
+          openF1Provider.getSeasonDriverImages(selectedSeason).catch(() => ({})),
+          openF1Provider.getSeasonCircuitMeta(selectedSeason).catch(() => ({}))
         ]);
         if (!mounted) return;
 
@@ -108,7 +109,7 @@ export default function App() {
           setTeams([]);
         }
 
-        if (circsRes.status === 'SUCCESS') setCircuits(circsRes.data);
+        if (circsRes.status === 'SUCCESS') setCircuits(circsRes.data.map(circuit => ({ ...circuit, ...(circuitMeta[circuit.country.toLowerCase()] ?? {}) })));
         else setCircuits([]);
       } catch (error: unknown) {
         if (mounted) {
