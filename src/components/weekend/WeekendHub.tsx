@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { GrandPrix, DataProvenance } from '../../types/f1';
+import { GrandPrix, DataProvenance, SessionDetail, SessionSchedule } from '../../types/f1';
+import { SessionDetailPanel } from './SessionDetailPanel';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
   provenance?: DataProvenance;
   isLoading?: boolean;
   error?: string | null;
+  onLoadSession?: (gp: GrandPrix, session: SessionSchedule) => Promise<SessionDetail>;
 }
 
 const statusLabel: Record<GrandPrix['status'], string> = {
@@ -20,11 +22,23 @@ const statusLabel: Record<GrandPrix['status'], string> = {
 
 export const WeekendHub: React.FC<Props> = ({
   schedule, selectedSeason, onSelectSeason, availableSeasons = [2026, 2025, 2024, 2023, 2022],
-  provenance, isLoading, error
+  provenance, isLoading, error, onLoadSession
 }) => {
   const firstRound = useMemo(() => schedule.find(gp => gp.status === 'CURRENT')?.round ?? schedule.find(gp => gp.status === 'UPCOMING')?.round ?? schedule[0]?.round ?? 1, [schedule]);
   const [selectedRound, setSelectedRound] = useState<number>(firstRound);
-  useEffect(() => { setSelectedRound(firstRound); }, [firstRound]);
+  const [selectedSession, setSelectedSession] = useState<SessionSchedule | null>(null);
+  const [sessionDetail, setSessionDetail] = useState<SessionDetail | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+  useEffect(() => { setSelectedRound(firstRound); setSelectedSession(null); setSessionDetail(null); }, [firstRound]);
+  const openSession = async (session: SessionSchedule) => {
+    setSelectedSession(session); setSessionDetail(null); setSessionError(null);
+    if (!onLoadSession) return;
+    setSessionLoading(true);
+    try { setSessionDetail(await onLoadSession(currentGP!, session)); }
+    catch (e) { setSessionError(e instanceof Error ? e.message : 'Session data unavailable.'); }
+    finally { setSessionLoading(false); }
+  };
   const currentGP = schedule.find(s => s.round === selectedRound) ?? schedule.find(s => s.status === 'CURRENT') ?? schedule.find(s => s.status === 'UPCOMING') ?? schedule[0];
 
   return (
@@ -71,7 +85,7 @@ export const WeekendHub: React.FC<Props> = ({
 
               <div className="divide-y divide-[#1a1f25]">
                 {currentGP.sessions.map(session => (
-                  <div key={session.id} className="grid grid-cols-[90px_1fr_110px_90px] items-center gap-3 px-4 py-3">
+                  <button key={session.id} type="button" onClick={() => void openSession(session)} className="w-full text-left grid grid-cols-[90px_1fr_110px_90px] items-center gap-3 px-4 py-3 hover:bg-[#12161b] border-t border-transparent hover:border-[var(--team-accent)]">
                     <span className="text-[9px] text-neutral-500">{session.type}</span>
                     <span className="text-[10px] text-neutral-200 font-semibold">{session.name}</span>
                     <span className={`text-[8px] tracking-[.08em] ${session.status === 'LIVE' ? 'text-[var(--team-accent)]' : session.status === 'COMPLETED' ? 'text-neutral-500' : 'text-neutral-300'}`}>{session.status}</span>
