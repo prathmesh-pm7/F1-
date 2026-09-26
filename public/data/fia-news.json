@@ -1,0 +1,56 @@
+[
+  {
+    "id": "fia-2026-09-25-q",
+    "title": "F1 – Russell dominates Baku qualifying as Antonelli crashes out in Q1",
+    "summary": "George Russell claimed pole for the 2026 Azerbaijan Grand Prix. The FIA report also records the qualifying classification and grid-impacting power-unit penalties affecting Aston Martin.",
+    "source": "FIA",
+    "sourceUrl": "https://www.fia.com/news/f1-russell-dominates-baku-qualifying-antonelli-crashes-out-q1",
+    "publishedAt": "2026-09-25T00:00:00Z",
+    "category": "FIA",
+    "verified": true,
+    "provenance": {
+      "provider": "FIA Official",
+      "sourceUrl": "https://www.fia.com/news/f1-russell-dominates-baku-qualifying-antonelli-crashes-out-q1",
+      "retrievedAt": "2026-09-26T15:03:04.481Z",
+      "isLive": false,
+      "isFixture": false,
+      "notes": "Initial official FIA snapshot; refreshed by the enrichment workflow."
+    }
+  },
+  {
+    "id": "fia-2026-09-24-fp1",
+    "title": "F1 – Russell tops FP1 in Baku ahead of Verstappen as hydraulic issue sidelines Antonelli",
+    "summary": "The FIA session report covers Russell leading FP1, Antonelli's hydraulic issue and the resulting Virtual Safety Car.",
+    "source": "FIA",
+    "sourceUrl": "https://www.fia.com/news/f1-russell-tops-fp1-baku-ahead-verstappen-hydraulic-issue-sidelines-anontelli",
+    "publishedAt": "2026-09-24T00:00:00Z",
+    "category": "FIA",
+    "verified": true,
+    "provenance": {
+      "provider": "FIA Official",
+      "sourceUrl": "https://www.fia.com/news/f1-russell-tops-fp1-baku-ahead-verstappen-hydraulic-issue-sidelines-anontelli",
+      "retrievedAt": "2026-09-26T15:03:04.485Z",
+      "isLive": false,
+      "isFixture": false,
+      "notes": "Initial official FIA snapshot; refreshed by the enrichment workflow."
+    }
+  },
+  {
+    "id": "fia-2026-09-21-commission",
+    "title": "Formula 1 Commission Meeting 21.09.26 – Media Statement",
+    "summary": "The FIA reported minor 2026 Sporting and Financial Regulation changes and agreed several 2027 regulation refinements, subject to WMSC approval.",
+    "source": "FIA",
+    "sourceUrl": "https://www.fia.com/news/formula-1-commission-meeting-210926-media-statement",
+    "publishedAt": "2026-09-21T00:00:00Z",
+    "category": "REGULATIONS",
+    "verified": true,
+    "provenance": {
+      "provider": "FIA Official",
+      "sourceUrl": "https://www.fia.com/news/formula-1-commission-meeting-210926-media-statement",
+      "retrievedAt": "2026-09-26T15:03:04.485Z",
+      "isLive": false,
+      "isFixture": false,
+      "notes": "Official FIA Commission statement."
+    }
+  }
+]
