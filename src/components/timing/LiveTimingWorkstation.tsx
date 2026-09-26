@@ -30,11 +30,25 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
   onConnectLive, onSwitchToReplay
 }) => {
   const [selectedDriver, setSelectedDriver] = useState<TimingEntry | null>(snapshot.entries[0] || null);
-  const favoriteEntries = favoriteTeam ? snapshot.entries.filter(entry => entry.teamName === favoriteTeam.name || entry.teamName === favoriteTeam.fullName) : [];
+  const favoriteEntries = favoriteTeam
+    ? snapshot.entries.filter(entry => entry.teamName === favoriteTeam.name || entry.teamName === favoriteTeam.fullName)
+    : [];
   const isLiveOffline = !isReplayMode && snapshot.entries.length === 0;
 
   return (
-    <div className="space-y-3 pb-8">
+    <div className="f1-race-control-screen">
+      <div className="f1-live-strip">
+        <div className="f1-live-strip-main">
+          <span className="f1-live-kicker">LIVE TIMING</span>
+          <span className="f1-live-session">{snapshot.sessionName || 'SESSION'}</span>
+          <span className="f1-live-circuit">{snapshot.circuitName || 'CIRCUIT —'}</span>
+        </div>
+        <div className="f1-live-strip-meta">
+          <span>{snapshot.currentLap > 0 ? `LAP ${snapshot.currentLap}/${snapshot.totalLaps || '—'}` : 'LAP —/—'}</span>
+          <span className={connectionState === 'LIVE' ? 'is-live' : ''}>{connectionState === 'LIVE' ? 'LIVE' : connectionState}</span>
+        </div>
+      </div>
+
       <FlagStatusBanner trackStatus={snapshot.trackStatus} />
 
       {isReplayMode && (
@@ -83,7 +97,7 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
         <div className="f1-provider-state">
           <div>
             <div className="f1-provider-title">LIVE TIMING NOT AVAILABLE</div>
-            <div className="f1-provider-copy">No current on-track timing snapshot has been received. The connection state is shown above; no timing values are fabricated.</div>
+            <div className="f1-provider-copy">No current on-track timing snapshot has been received. No timing values are fabricated.</div>
           </div>
           <div className="f1-provider-actions">
             <button type="button" onClick={onConnectLive}><RefreshCw className="w-3 h-3" /> RETRY LIVE</button>
@@ -93,19 +107,46 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
       )}
 
       <div className="f1-session-line">
-        <div><strong>{snapshot.sessionName}</strong><span>/</span><span>{snapshot.circuitName}</span><span>/</span><span>{snapshot.entries.length ? `${snapshot.entries.length} CARS CLASSIFIED` : 'NO TIMING SNAPSHOT'}</span></div>
-        {snapshot.fastestLap && <div><span>FASTEST</span><strong>{snapshot.fastestLap.time}</strong><span>{snapshot.fastestLap.driverCode} · L{snapshot.fastestLap.lap}</span></div>}
+        <div>
+          <strong>{snapshot.sessionName || 'SESSION'}</strong>
+          <span>/</span>
+          <span>{snapshot.circuitName || 'CIRCUIT —'}</span>
+          <span>/</span>
+          <span>{snapshot.entries.length ? `${snapshot.entries.length} CARS` : 'NO TIMING SNAPSHOT'}</span>
+        </div>
+        {snapshot.fastestLap && (
+          <div>
+            <span>FASTEST</span>
+            <strong>{snapshot.fastestLap.time}</strong>
+            <span>{snapshot.fastestLap.driverCode} · L{snapshot.fastestLap.lap}</span>
+          </div>
+        )}
       </div>
 
-      {snapshot.entries.length > 0 && <MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} />}
       {snapshot.entries.length > 0 && (
-        <section aria-label="Formula 1 Timing Table">
-          <TimingTable
-            entries={snapshot.entries}
-            selectedDriver={selectedDriver}
-            onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)}
-          />
-        </section>
+        <div className="f1-live-workspace">
+          <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
+            <div className="f1-section-heading">
+              <span>LIVE TIMING</span>
+              <span>{snapshot.entries.length} CARS</span>
+            </div>
+            <TimingTable
+              entries={snapshot.entries}
+              selectedDriver={selectedDriver}
+              onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)}
+            />
+          </section>
+
+          <aside className="f1-race-side">
+            <section className="f1-side-block" aria-label="Gap tracker">
+              <div className="f1-section-heading"><span>GAP / INTERVAL</span><span>LAP {snapshot.currentLap || '—'}</span></div>
+              <MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} />
+            </section>
+            <section className="f1-side-block" aria-label="Race control">
+              <RaceControlFeed messages={snapshot.raceControl} />
+            </section>
+          </aside>
+        </div>
       )}
 
       {selectedDriver && snapshot.entries.length > 0 && (
@@ -114,7 +155,11 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
         </section>
       )}
 
-      <section aria-label="Race Control Event Feed"><RaceControlFeed messages={snapshot.raceControl} /></section>
+      {snapshot.entries.length === 0 && (
+        <section aria-label="Race Control Event Feed" className="f1-race-control-empty">
+          <RaceControlFeed messages={snapshot.raceControl} />
+        </section>
+      )}
     </div>
   );
 };
