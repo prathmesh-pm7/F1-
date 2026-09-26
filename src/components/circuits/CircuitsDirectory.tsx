@@ -77,6 +77,7 @@ export const CircuitsDirectory: React.FC<Props> = ({
             {circuits.map((c) => (
               <div key={c.id} className="border border-[#242c37] bg-[#111418] overflow-hidden flex flex-col justify-between">
                 <div>
+                  {c.imageUrl && <img src={c.imageUrl} alt="" className="w-full h-36 object-cover border-b border-[#1c222b] mb-3 bg-[#0a0d10]" loading="lazy" />}
                   <div className="flex items-start justify-between border-b border-[#1c222b] pb-2 mb-3">
                     <div>
                       <h3 className="text-base font-bold text-white">{c.name}</h3>
@@ -90,7 +91,7 @@ export const CircuitsDirectory: React.FC<Props> = ({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 py-2 text-center border-b border-[#1c222b]">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 py-2 text-center border-b border-[#1c222b]">
                     <div className="bg-[#14171d] p-2 border border-[#222933]">
                       <span className="text-[10px] text-neutral-400 block">LENGTH</span>
                       <span className="text-white font-bold timing-cell">
@@ -105,9 +106,11 @@ export const CircuitsDirectory: React.FC<Props> = ({
                     </div>
                     <div className="bg-[#14171d] p-2 border border-[#222933]">
                       <span className="text-[10px] text-neutral-400 block">DRS ZONES</span>
-                      <span className="text-white font-bold timing-cell">
-                        {c.drsZones ?? '—'}
-                      </span>
+                      <span className="text-white font-bold timing-cell">{c.drsZones ?? '—'}</span>
+                    </div>
+                    <div className="bg-[#14171d] p-2 border border-[#222933]">
+                      <span className="text-[10px] text-neutral-400 block">TRACK TYPE</span>
+                      <span className="text-white font-bold">{c.circuitType ?? '—'}</span>
                     </div>
                   </div>
                 </div>
