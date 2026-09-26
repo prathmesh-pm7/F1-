@@ -77,7 +77,7 @@ export const CircuitsDirectory: React.FC<Props> = ({
             {circuits.map((c) => (
               <div key={c.id} className="border border-[#242c37] bg-[#111418] overflow-hidden flex flex-col justify-between">
                 <div>
-                  {c.imageUrl && <img src={c.imageUrl} alt="" className="w-full h-36 object-cover border-b border-[#1c222b] mb-3 bg-[#0a0d10]" loading="lazy" />}
+                  {c.imageUrl && <div className="w-full aspect-[16/7] min-h-28 max-h-56 overflow-hidden border-b border-[#1c222b] bg-[#0a0d10] flex items-center justify-center"><img src={c.imageUrl} alt="Circuit layout" className="w-full h-full object-contain p-3" loading="lazy" onError={(e) => { e.currentTarget.style.display = "none"; }} /></div>}
                   <div className="flex items-start justify-between border-b border-[#1c222b] pb-2 mb-3">
                     <div>
                       <h3 className="text-base font-bold text-white">{c.name}</h3>
@@ -115,9 +115,14 @@ export const CircuitsDirectory: React.FC<Props> = ({
                   </div>
                 </div>
 
+                  <div className="grid grid-cols-2 gap-2 py-2 border-b border-[#1c222b]">
+                    <div><span className="text-[9px] text-neutral-600 block">CIRCUIT RECORD</span><span className="text-white font-bold timing-cell">{c.lapRecord?.time ?? "—"}</span></div>
+                    <div className="text-right"><span className="text-[9px] text-neutral-600 block">RECORD HOLDER</span><span className="text-neutral-300">{c.lapRecord ? c.lapRecord.driver + " · " + c.lapRecord.year : "No verified record loaded"}</span></div>
+                  </div>
+
                 <div className="mt-3 pt-2 text-xs flex items-center justify-between">
                   <span className="text-neutral-400">LAP RECORD:</span>
-                  <span className="text-fuchsia-400 font-bold timing-cell">
+                  <span className="text-neutral-200 font-bold timing-cell">
                     {c.lapRecord ? `${c.lapRecord.time} (${c.lapRecord.driver}, ${c.lapRecord.year})` : '—'}
                   </span>
                 </div>
