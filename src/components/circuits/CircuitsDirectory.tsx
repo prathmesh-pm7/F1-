@@ -75,7 +75,7 @@ export const CircuitsDirectory: React.FC<Props> = ({
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {circuits.map((c) => (
-              <div key={c.id} className="border border-[#242c37] bg-[#111418] p-4 flex flex-col justify-between">
+              <div key={c.id} className="border border-[#242c37] bg-[#111418] overflow-hidden flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between border-b border-[#1c222b] pb-2 mb-3">
                     <div>
