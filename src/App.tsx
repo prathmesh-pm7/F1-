@@ -13,9 +13,10 @@ import { FiaDocumentsViewer } from './components/documents/FiaDocumentsViewer';
 import { JolpicaProvider } from './providers/jolpicaProvider';
 import { OpenF1Provider } from './providers/openF1Provider';
 import { ReplayProvider } from './providers/replayProvider';
+import { F1EnrichmentProvider } from './providers/f1EnrichmentProvider';
 import { LiveTimingProvider } from './providers/liveTimingProvider';
 import { getCurrentSeason, SUPPORTED_HISTORICAL_SEASONS } from './config/season';
-import { LiveSessionSnapshot, LiveConnectionState, GrandPrix, DriverStanding, ConstructorStanding, Driver, Team, Circuit, DataProvenance, SessionDetail, SessionSchedule } from './types/f1';
+import { LiveSessionSnapshot, LiveConnectionState, GrandPrix, DriverStanding, ConstructorStanding, Driver, Team, Circuit, DataProvenance, SessionDetail, SessionSchedule, NewsItem, TechnicalUpdate, FIADocument } from './types/f1';
 
 const FAVORITE_TEAM_KEY = 'f1-pulse.favorite-team';
 
@@ -28,6 +29,7 @@ export default function App() {
 
   const jolpicaProvider = useMemo(() => new JolpicaProvider(), []);
   const openF1Provider = useMemo(() => new OpenF1Provider(), []);
+  const enrichmentProvider = useMemo(() => new F1EnrichmentProvider(), []);
   const replayProviderRef = useRef<ReplayProvider | null>(null);
   const liveProviderRef = useRef<LiveTimingProvider | null>(null);
   if (!replayProviderRef.current) replayProviderRef.current = new ReplayProvider();
@@ -51,6 +53,9 @@ export default function App() {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [circuits, setCircuits] = useState<Circuit[]>([]);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [technicalUpdates, setTechnicalUpdates] = useState<TechnicalUpdate[]>([]);
+  const [fiaDocuments, setFiaDocuments] = useState<FIADocument[]>([]);
   const [isLoadingSeason, setIsLoadingSeason] = useState(true);
   const [showTeamSetup, setShowTeamSetup] = useState(false);
   const [teamSetupDismissed, setTeamSetupDismissed] = useState(false);
@@ -69,22 +74,27 @@ export default function App() {
       setScheduleError(null);
       setStandingsError(null);
       try {
-        const [schedRes, dStandingsRes, cStandingsRes, circsRes, headshots, circuitMeta] = await Promise.all([
+        const [schedRes, dStandingsRes, cStandingsRes, circsRes, headshots, circuitMeta, fiaNews, technical] = await Promise.all([
           jolpicaProvider.getSchedule(selectedSeason),
           jolpicaProvider.getDriverStandings(selectedSeason),
           jolpicaProvider.getConstructorStandings(selectedSeason),
           jolpicaProvider.getCircuits(selectedSeason),
           openF1Provider.getSeasonDriverImages(selectedSeason).catch(() => ({})),
-          openF1Provider.getSeasonCircuitMeta(selectedSeason).catch(() => ({}))
+          openF1Provider.getSeasonCircuitMeta(selectedSeason).catch(() => ({})),
+          enrichmentProvider.getFiaNews().catch(() => []),
+          enrichmentProvider.getTechnicalUpdates().catch(() => [])
         ]);
         if (!mounted) return;
+        setNews(fiaNews);
+        setTechnicalUpdates(technical);
 
         if (schedRes.status === 'SUCCESS') { setSchedule(schedRes.data); setScheduleProvenance(schedRes.provenance); }
         else { setSchedule([]); setScheduleProvenance(schedRes.provenance); setScheduleError(schedRes.status === 'EMPTY' ? schedRes.message : schedRes.error); }
 
         if (dStandingsRes.status === 'SUCCESS') {
           setDriverStandings(dStandingsRes.data);
-          setDrivers(dStandingsRes.data.map(s => ({ ...s.driver, headshotUrl: headshots[String(s.driver.number)] ?? headshots[s.driver.code] })));
+          setDrivers(dStandingsRes.data.map(s => ({ ...s.driver, headshotUrl: headshots[String(s.driver.number)] ?? headshots[s.driver.code], countryCode: s.driver.nationality })));
+          
           setStandingsProvenance(dStandingsRes.provenance);
         } else {
           setDriverStandings([]); setDrivers([]); setStandingsProvenance(dStandingsRes.provenance);
@@ -102,6 +112,7 @@ export default function App() {
           setConstructorStandings(cStandingsRes.data);
           setTeams(cStandingsRes.data.map(standing => ({
             ...standing.team,
+            chassis: selectedSeason === 2026 ? ({mclaren:'MCL40',mercedes:'W17',red_bull:'RB22',ferrari:'SF-26',williams:'FW48',rb:'VCARB03',aston_martin:'AMR26',haas:'VF-26',audi:'R26',alpine:'A526',cadillac:'MAC-26'} as Record<string,string>)[standing.team.id] : undefined,
             drivers: driverCodesByTeam.get(standing.team.id) ?? []
           })));
         } else {
@@ -125,7 +136,7 @@ export default function App() {
     void loadSeasonData();
     const refresh = window.setInterval(() => { void loadSeasonData(); }, 60_000);
     return () => { mounted = false; window.clearInterval(refresh); };
-  }, [selectedSeason, jolpicaProvider, openF1Provider]);
+  }, [selectedSeason, jolpicaProvider, openF1Provider, enrichmentProvider]);
 
   useEffect(() => {
     let unsubSnapshot = () => {};
@@ -198,7 +209,7 @@ export default function App() {
         connectionState={connectionState}
         isReplayMode={isReplayMode}
         onToggleProviderMode={handleToggleProviderMode}
-        searchData={{ drivers, teams, circuits, schedule, documents: [], technical: [] }}
+        searchData={{ drivers, teams, circuits, schedule, documents: fiaDocuments, technical: technicalUpdates }}
       >
         {activeTab === 'live' && (
           <LiveTimingWorkstation
@@ -235,9 +246,9 @@ export default function App() {
           />
         )}
         {activeTab === 'circuits' && <CircuitsDirectory circuits={circuits} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} />}
-        {activeTab === 'news' && <NewsBriefing news={[]} />}
-        {activeTab === 'technical' && <TechnicalUpdatesFeed updates={[]} />}
-        {activeTab === 'documents' && <FiaDocumentsViewer documents={[]} />}
+        {activeTab === 'news' && <NewsBriefing news={news} />}
+        {activeTab === 'technical' && <TechnicalUpdatesFeed updates={technicalUpdates} />}
+        {activeTab === 'documents' && <FiaDocumentsViewer documents={fiaDocuments} />}
       </AppShell>
       {showTeamSetup && teams.length > 0 && (
         <div className="team-setup-overlay" role="dialog" aria-modal="true" aria-label="Choose your team">
