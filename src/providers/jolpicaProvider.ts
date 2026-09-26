@@ -146,15 +146,21 @@ export class JolpicaProvider implements F1DataProvider {
           { key: 'Sprint', name: 'Sprint', type: 'SPRINT' },
           { key: 'Qualifying', name: 'Qualifying', type: 'QUALIFYING' },
         ];
-        const sessionData = sessionFields.flatMap(field => {
-          const value = isRecord(r[field.key]) ? r[field.key] : null;
-          if (!value) return [];
-          const date = String(value.date ?? raceDate);
-          const time = String(value.time ?? '');
-          if (!time) return [];
-          return [{ id: `${r.round}-${field.key.toLowerCase()}`, name: field.name, type: field.type, startTime: `${date}T${time}` }];
-        });
-        sessionData.push({ id: `${r.round}-race`, name: 'Grand Prix Race', type: 'RACE', startTime: raceStart });
+        const sessionData: Array<{ id: string; name: string; type: 'FP1' | 'FP2' | 'FP3' | 'QUALIFYING' | 'SPRINT' | 'RACE'; startTime: string }> = [];
+        for (const field of sessionFields) {
+          const rawSession = r[field.key];
+          if (!isRecord(rawSession)) continue;
+          const date = typeof rawSession.date === 'string' ? rawSession.date : raceDate;
+          const time = typeof rawSession.time === 'string' ? rawSession.time : '';
+          if (!time) continue;
+          sessionData.push({
+            id: String(r.round ?? roundNum) + '-' + field.key.toLowerCase(),
+            name: field.name,
+            type: field.type,
+            startTime: date + 'T' + time
+          });
+        }
+        sessionData.push({ id: String(r.round ?? roundNum) + '-race', name: 'Grand Prix Race', type: 'RACE', startTime: raceStart });
         const sessions = sessionData.map(session => ({ ...session, status: this.sessionStatus(session.startTime, session.type) }));
         const now = Date.now();
         const raceTime = new Date(raceStart).getTime();
@@ -180,7 +186,7 @@ export class JolpicaProvider implements F1DataProvider {
           countryCode: String(location.country ?? '').toUpperCase() || 'INT',
           date: raceDate,
           sessions,
-          isSprintWeekend: Boolean(sprintRaw),
+          isSprintWeekend: isRecord(r.Sprint) || isRecord(r.SprintQualifying),
           status
         };
       });
