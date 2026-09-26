@@ -280,3 +280,61 @@ export interface FIADocument {
   verified: boolean;
   provenance: DataProvenance;
 }
+
+export interface RaceResultEntry {
+  position: number | null;
+  positionText: string;
+  driverId: string;
+  driverCode: string;
+  driverName: string;
+  driverNumber: number;
+  constructorId: string;
+  teamName: string;
+  teamColor: string;
+  grid: number | null;
+  lapsCompleted: number | null;
+  status: string;
+  points: number;
+  finishTime: string;
+  fastestLap?: { lap: number; time: string; averageSpeedKph?: number };
+}
+
+export interface QualifyingResultEntry {
+  position: number | null;
+  driverId: string;
+  driverCode: string;
+  driverName: string;
+  driverNumber: number;
+  constructorId: string;
+  teamName: string;
+  teamColor: string;
+  q1?: string;
+  q2?: string;
+  q3?: string;
+}
+
+export interface SprintResultEntry extends RaceResultEntry {}
+
+export interface LapTimingEntry {
+  lap: number;
+  driverId: string;
+  driverCode: string;
+  driverName: string;
+  position: number | null;
+  time: string;
+}
+
+export interface RaceWeekendData {
+  season: number;
+  round: number;
+  raceName: string;
+  circuit: Circuit;
+  raceResults: RaceResultEntry[];
+  qualifying: QualifyingResultEntry[];
+  sprintResults: SprintResultEntry[];
+  laps: LapTimingEntry[];
+  pitStops: PitStop[] & { driverId?: string }[];
+  winner?: RaceResultEntry;
+  totalLaps?: number;
+  provenance: DataProvenance;
+}
