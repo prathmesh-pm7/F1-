@@ -487,4 +487,19 @@ export class JolpicaProvider implements F1DataProvider {
     }
   }
 
+  public toSessionDetail(data: RaceWeekendData, session: { name: string; type: string }): import('../types/f1').SessionDetail {
+    const isQualifying = session.type === 'QUALIFYING';
+    const isSprint = session.type === 'SPRINT';
+    const sourceUrl = data.provenance.sourceUrl;
+    const baseResults = isQualifying ? data.qualifying.map(r => ({ position:r.position, driverNumber:r.driverNumber, driverId:r.driverId, driverCode:r.driverCode, driverName:r.driverName, teamName:r.teamName, teamColor:r.teamColor, bestLap:r.q3 ?? r.q2 ?? r.q1, gap:undefined, laps:0 })) : (isSprint ? data.sprintResults : data.raceResults).map(r => ({ position:r.position, driverNumber:r.driverNumber, driverId:r.driverId, driverCode:r.driverCode, driverName:r.driverName, teamName:r.teamName, teamColor:r.teamColor, bestLap:r.finishTime || r.fastestLap?.time, gap:r.position === 1 ? 'LEADER' : r.finishTime || '—', laps:r.lapsCompleted ?? 0, dnf:/retired|accident|disqualified|not classified/i.test(r.status), dns:/did not start/i.test(r.status), dsq:/disqualified/i.test(r.status) }));
+    return {
+      sessionKey: Number(String(data.season) + String(data.round).padStart(2, '0')),
+      sessionName: session.name, sessionType: session.type, startTime:'', endTime:'', circuitName:data.circuit.name,
+      results:baseResults,
+      laps:data.laps.map(l => ({ lapNumber:l.lap, driverNumber:Number(l.driverId) || 0, driverCode:l.driverCode, driverName:l.driverName, lapTime:l.time })),
+      pitStops:data.pitStops.map(p => ({ driverNumber:0, driverCode:p.driverId ?? '—', driverName:p.driverId ?? '—', lap:p.lap, stopDuration:p.durationSeconds || undefined, laneDuration:undefined })),
+      driverLineup:data.raceResults.map(r => ({ id:r.driverId, code:r.driverCode, number:r.driverNumber, firstName:r.driverName.split(' ')[0] ?? '', lastName:r.driverName.split(' ').slice(1).join(' '), fullName:r.driverName, nationality:'', teamId:r.constructorId, teamName:r.teamName, teamColor:r.teamColor })),
+      provenance:{ ...data.provenance, sourceUrl, notes:'Fallback session detail from Jolpica F1' }
+    };
+  }
 }
