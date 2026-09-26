@@ -141,6 +141,8 @@ export interface Driver {
   careerStarts?: number;
   permanentNumber?: number;
   headshotUrl?: string;
+  countryCode?: string;
+  chassis?: string;
 }
 
 export interface Team {
@@ -157,6 +159,8 @@ export interface Team {
   points?: number;
   wins?: number;
   podiums?: number;
+  chassis?: string;
+  carImageUrl?: string;
 }
 
 export interface DriverStanding {
@@ -187,6 +191,10 @@ export interface Circuit {
   circuitType?: string;
   latitude?: number;
   longitude?: number;
+  countryFlagUrl?: string;
+  circuitKey?: number;
+  circuitInfoUrl?: string;
+  trackRotation?: number;
   lapRecord?: {
     time: string;
     driver: string;
