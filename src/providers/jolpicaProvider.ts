@@ -200,7 +200,7 @@ export class JolpicaProvider implements F1DataProvider {
 
   public async getDriverStandings(year?: number): Promise<ProviderResult<DriverStanding[]>> {
     const targetYear = year ?? getCurrentSeason();
-    const endpoint = `/${targetYear}/driverStandings.json`;
+    const endpoint = `/${targetYear}/driverstandings.json`;
     const provenance = this.createProvenance(endpoint, targetYear < getCurrentSeason());
 
     try {
@@ -269,7 +269,7 @@ export class JolpicaProvider implements F1DataProvider {
 
   public async getConstructorStandings(year?: number): Promise<ProviderResult<ConstructorStanding[]>> {
     const targetYear = year ?? getCurrentSeason();
-    const endpoint = `/${targetYear}/constructorStandings.json`;
+    const endpoint = `/${targetYear}/constructorstandings.json`;
     const provenance = this.createProvenance(endpoint, targetYear < getCurrentSeason());
 
     try {
