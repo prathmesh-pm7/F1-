@@ -86,8 +86,8 @@ export interface TimingEntry {
   teamColor: string; // Hex color
   gap: string; // e.g. "LEADER", "+1.428", "1 LAP"
   interval: string; // e.g. "—", "+0.312"
-  gapToLeaderSeconds: number;
-  intervalSeconds: number;
+  gapToLeaderSeconds?: number;
+  intervalSeconds?: number;
   currentLap: number;
   lastLapTime: string;
   bestLapTime: string;
