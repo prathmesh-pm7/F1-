@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LiveSessionSnapshot, TimingEntry, LiveConnectionState, Team } from '../../types/f1';
 import { FlagStatusBanner } from '../race-control/FlagStatusBanner';
 import { TimingTable } from './TimingTable';
@@ -33,7 +33,19 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
   const favoriteEntries = favoriteTeam
     ? snapshot.entries.filter(entry => entry.teamName === favoriteTeam.name || entry.teamName === favoriteTeam.fullName)
     : [];
-  const isLiveOffline = !isReplayMode && snapshot.entries.length === 0;
+  useEffect(() => {
+    setSelectedDriver(current => {
+      if (!current) return null;
+      return snapshot.entries.find(entry => entry.driverNumber === current.driverNumber) ?? null;
+    });
+  }, [snapshot.entries]);
+
+  const isLiveOffline = !isReplayMode && (
+    connectionState === 'PROVIDER_UNAVAILABLE' ||
+    connectionState === 'ERROR' ||
+    connectionState === 'STALE' ||
+    snapshot.entries.length === 0
+  );
 
   return (
     <div className="f1-race-control-screen">
