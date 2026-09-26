@@ -68,7 +68,7 @@ export const TeamsDirectory: React.FC<Props> = ({
           {teams.map(team => {
             const followed = team.id === favoriteTeamId;
             return (
-              <div key={team.id} onClick={() => setSelectedTeam(team)} className={`grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_150px] gap-0 px-3 min-h-12 items-center border-t border-[#1a1f25] hover:bg-[#11151a] cursor-pointer ${followed ? 'bg-[#11151a]' : ''}`}>
+              <div key={team.id} onClick={() => setSelectedTeam(team)} className={`grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_100px_150px] gap-0 px-3 min-h-12 items-center border-t border-[#1a1f25] hover:bg-[#11151a] cursor-pointer ${followed ? 'bg-[#11151a]' : ''}`}>
                 <span className="text-neutral-500 timing-cell">P{team.position ?? '—'}</span>
                 <span className="flex items-center gap-2 text-white font-bold">
                   <i className="w-1.5 h-5" style={{ backgroundColor: team.color }} />
@@ -76,7 +76,8 @@ export const TeamsDirectory: React.FC<Props> = ({
                 </span>
                 <span className="timing-cell text-neutral-200">{team.points ?? '—'}</span>
                 <span className="timing-cell text-neutral-300">{team.wins ?? 0}</span>
-                <span className="timing-cell text-neutral-400">{team.drivers?.join(' / ') || '—'}</span>\n                <span className="timing-cell text-neutral-300">{team.chassis ?? '—'}</span>
+                <span className="timing-cell text-neutral-400">{team.drivers?.join(' / ') || '—'}</span>
+<span className="timing-cell text-neutral-300">{team.chassis ?? '—'}</span>
                 <span className="text-right">
                   <button type="button" onClick={() => onSelectFavorite?.(followed ? null : team.id)}
                     className="px-2 py-1 border border-[#2a313a] text-[8px] tracking-[.08em] text-neutral-500 hover:text-white hover:border-[var(--team-accent)]">
