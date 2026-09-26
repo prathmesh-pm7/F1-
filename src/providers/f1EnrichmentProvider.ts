@@ -59,6 +59,10 @@ export class F1EnrichmentProvider {
   }
 
   public async getFiaNews(limit = 20): Promise<NewsItem[]> {
+    try {
+      const local = await this.getJson<NewsItem[]>('/data/fia-news.json');
+      if (Array.isArray(local) && local.length) return local.slice(0, limit);
+    } catch { /* fall through to official RSS */ }
     const [newsXml, pressXml] = await Promise.all([
       this.getText(FIA_NEWS_RSS),
       this.getText(FIA_PRESS_RSS)
@@ -89,6 +93,10 @@ export class F1EnrichmentProvider {
   }
 
   public async getTechnicalUpdates(limit = 30): Promise<TechnicalUpdate[]> {
+    try {
+      const local = await this.getJson<TechnicalUpdate[]>('/data/technical-updates.json');
+      if (Array.isArray(local) && local.length) return local.slice(0, limit);
+    } catch { /* fall through to official F1 RSS */ }
     const xml = await this.getText(F1_RSS);
     const items = this.parseRss(xml);
     const technicalPattern = /upgrade|technical|floor|diffuser|sidepod|front wing|rear wing|suspension|engine cover|cooling|chassis|power unit|brake duct|aero|car update|new specification/i;
