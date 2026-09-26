@@ -1,9 +1,10 @@
-import React from 'react';
-import { Team, DataProvenance } from '../../types/f1';
+import React, { useState } from 'react';
+import { Team, Driver, DataProvenance } from '../../types/f1';
 import { EmptyState } from '../shared/EmptyState';
 
 interface Props {
   teams: Team[];
+  drivers?: Driver[];
   selectedSeason: number;
   onSelectSeason: (season: number) => void;
   availableSeasons?: number[];
@@ -15,10 +16,11 @@ interface Props {
 }
 
 export const TeamsDirectory: React.FC<Props> = ({
-  teams, selectedSeason, onSelectSeason, availableSeasons = [2026, 2025, 2024, 2023, 2022],
+  teams, drivers = [], selectedSeason, onSelectSeason, availableSeasons = [2026, 2025, 2024, 2023, 2022],
   provenance, isLoading, error, favoriteTeamId, onSelectFavorite
 }) => {
   const favorite = teams.find(team => team.id === favoriteTeamId) ?? null;
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
   return (
     <div className="space-y-4 font-mono text-xs text-neutral-300 pb-8">
@@ -66,7 +68,7 @@ export const TeamsDirectory: React.FC<Props> = ({
           {teams.map(team => {
             const followed = team.id === favoriteTeamId;
             return (
-              <div key={team.id} className={`grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_150px] gap-0 px-3 min-h-12 items-center border-t border-[#1a1f25] hover:bg-[#11151a] ${followed ? 'bg-[#11151a]' : ''}`}>
+              <div key={team.id} onClick={() => setSelectedTeam(team)} className={`grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_150px] gap-0 px-3 min-h-12 items-center border-t border-[#1a1f25] hover:bg-[#11151a] cursor-pointer ${followed ? 'bg-[#11151a]' : ''}`}>
                 <span className="text-neutral-500 timing-cell">P{team.position ?? '—'}</span>
                 <span className="flex items-center gap-2 text-white font-bold">
                   <i className="w-1.5 h-5" style={{ backgroundColor: team.color }} />
@@ -85,6 +87,23 @@ export const TeamsDirectory: React.FC<Props> = ({
             );
           })}
         </div>
+      )}
+
+      {selectedTeam && (
+        <section className="border border-[#2e3744] bg-[#111418] p-4">
+          <div className="flex items-start justify-between border-b border-[#242c37] pb-3 mb-4">
+            <div><div className="text-[8px] tracking-[.15em]" style={{color:selectedTeam.color}}>TEAM PROFILE</div><h3 className="mt-1 text-lg font-black text-white">{selectedTeam.fullName}</h3><div className="mt-1 text-[9px] text-neutral-500">{selectedTeam.powerUnit} · {selectedTeam.base}</div></div>
+            <button type="button" onClick={() => setSelectedTeam(null)} className="px-2 py-1 border border-[#2a313a] text-[8px] text-neutral-500 hover:text-white">CLOSE</button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {drivers.filter(d => selectedTeam.drivers?.includes(d.code)).map(d => (
+              <div key={d.id} className="border border-[#242c37] bg-[#0d1014] flex items-center gap-4 p-3">
+                {d.headshotUrl ? <img src={d.headshotUrl} alt={d.fullName} className="w-24 h-24 object-contain object-bottom bg-[#090b0e]" loading="lazy" /> : <div className="w-24 h-24 bg-[#151a20]" />}
+                <div><div className="text-[8px] text-neutral-600">DRIVER / {d.code}</div><div className="mt-1 text-sm font-bold text-white">{d.fullName}</div><div className="mt-1 text-[9px] text-neutral-500">#{d.number} · {d.nationality || '—'}</div><div className="mt-2 text-[9px] text-neutral-400">{d.points ?? 0} PTS · {d.wins ?? 0} WINS</div></div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );
