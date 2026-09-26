@@ -87,4 +87,13 @@ export class OpenF1Provider {
     }, {});
   }
 
+  public async getSeasonCircuitMeta(year: number): Promise<Record<string, { imageUrl?: string; circuitType?: string }>> {
+    const meetings = await this.get<JsonRecord[]>(`/meetings?year=${year}`);
+    return meetings.reduce<Record<string, { imageUrl?: string; circuitType?: string }>>((map, meeting) => {
+      const key = String(meeting.country_name ?? meeting.circuit_short_name ?? '').toLowerCase();
+      if (key) map[key] = { imageUrl: meeting.circuit_image, circuitType: meeting.circuit_type };
+      return map;
+    }, {});
+  }
+
 }
