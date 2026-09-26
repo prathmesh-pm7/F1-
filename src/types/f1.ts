@@ -140,6 +140,7 @@ export interface Driver {
   careerPoles?: number;
   careerStarts?: number;
   permanentNumber?: number;
+  headshotUrl?: string;
 }
 
 export interface Team {
@@ -182,6 +183,9 @@ export interface Circuit {
   lengthKm?: number;
   turns?: number;
   drsZones?: number;
+  imageUrl?: string;
+  latitude?: number;
+  longitude?: number;
   lapRecord?: {
     time: string;
     driver: string;
@@ -336,5 +340,37 @@ export interface RaceWeekendData {
   pitStops: PitStop[] & { driverId?: string }[];
   winner?: RaceResultEntry;
   totalLaps?: number;
+  provenance: DataProvenance;
+}
+
+
+export interface SessionResultEntry {
+  position: number | null;
+  driverNumber: number;
+  driverId?: string;
+  driverCode: string;
+  driverName: string;
+  teamName: string;
+  teamColor: string;
+  bestLap?: string;
+  gap?: string;
+  laps: number;
+  dnf?: boolean;
+  dns?: boolean;
+  dsq?: boolean;
+}
+
+export interface SessionDetail {
+  sessionKey: number;
+  sessionName: string;
+  sessionType: string;
+  startTime: string;
+  endTime: string;
+  circuitName: string;
+  circuitImageUrl?: string;
+  results: SessionResultEntry[];
+  laps: Array<{ lapNumber: number; driverNumber: number; driverCode: string; driverName: string; lapTime: string; sector1?: string; sector2?: string; sector3?: string; speedTrap?: number }>;
+  pitStops: Array<{ driverNumber: number; driverCode: string; driverName: string; lap: number; stopDuration?: number; laneDuration?: number }>;
+  driverLineup: Driver[];
   provenance: DataProvenance;
 }
