@@ -121,7 +121,14 @@ export default function App() {
         }
 
         if (circsRes.status === 'SUCCESS') {
-          setCircuits(circsRes.data.map(circuit => ({ ...circuit, ...(circuitMeta[circuit.country.toLowerCase()] ?? {}), ...(circuitMeta[circuit.name.toLowerCase()] ?? {}), ...(circuitMeta[circuit.location.toLowerCase()] ?? {}) })));
+          setCircuits(circsRes.data.map(circuit => {
+            const countryMeta = circuitMeta[circuit.country.toLowerCase()] ?? {};
+            const nameMeta = circuitMeta[circuit.name.toLowerCase()] ?? {};
+            const locationMeta = circuitMeta[circuit.location.toLowerCase()] ?? {};
+            // Venue-specific keys win over country-level keys. This matters for seasons with
+            // multiple races in the same country (USA, Spain, and other rotating venues).
+            return { ...circuit, ...countryMeta, ...nameMeta, ...locationMeta };
+          }));
         } else setCircuits([]);
       } catch (error: unknown) {
         if (mounted) {
@@ -186,14 +193,20 @@ export default function App() {
   const loadSession = async (gp: GrandPrix, session: SessionSchedule): Promise<SessionDetail> => {
     try {
       // OpenF1 is the detailed session source for FP1/FP2/FP3, qualifying, sprint and race.
-      return await openF1Provider.getSessionDetail(gp, session);
+      const detail = await openF1Provider.getSessionDetail(gp, session);
+      if (!detail.startTime) detail.startTime = session.startTime;
+      if (!detail.endTime) detail.endTime = new Date(new Date(session.startTime).getTime() + (session.type === 'RACE' ? 120 : session.type === 'SPRINT' ? 60 : 60) * 60_000).toISOString();
+      return detail;
     } catch (openF1Error) {
       // Race/qualifying/sprint results have a free Jolpica fallback, so a finished race
       // still shows its winner/classification if OpenF1 is temporarily unavailable.
       if (session.type === 'RACE' || session.type === 'QUALIFYING' || session.type === 'SPRINT') {
         const fallback = await jolpicaProvider.getRaceWeekendData(gp.season, gp.round);
         if (fallback.status === 'SUCCESS') {
-          return jolpicaProvider.toSessionDetail(fallback.data, session);
+          const detail = jolpicaProvider.toSessionDetail(fallback.data, session);
+          detail.startTime = session.startTime;
+          detail.endTime = new Date(new Date(session.startTime).getTime() + (session.type === 'RACE' ? 120 : session.type === 'SPRINT' ? 60 : 60) * 60_000).toISOString();
+          return detail;
         }
       }
       throw openF1Error;
