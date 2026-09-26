@@ -11,6 +11,7 @@ import { NewsBriefing } from './components/news/NewsBriefing';
 import { TechnicalUpdatesFeed } from './components/technical/TechnicalUpdatesFeed';
 import { FiaDocumentsViewer } from './components/documents/FiaDocumentsViewer';
 import { JolpicaProvider } from './providers/jolpicaProvider';
+import { OpenF1Provider } from './providers/openF1Provider';
 import { ReplayProvider } from './providers/replayProvider';
 import { LiveTimingProvider } from './providers/liveTimingProvider';
 import { getCurrentSeason, SUPPORTED_HISTORICAL_SEASONS } from './config/season';
@@ -26,6 +27,7 @@ export default function App() {
   });
 
   const jolpicaProvider = useMemo(() => new JolpicaProvider(), []);
+  const openF1Provider = useMemo(() => new OpenF1Provider(), []);
   const replayProviderRef = useRef<ReplayProvider | null>(null);
   const liveProviderRef = useRef<LiveTimingProvider | null>(null);
   if (!replayProviderRef.current) replayProviderRef.current = new ReplayProvider();
@@ -67,11 +69,12 @@ export default function App() {
       setScheduleError(null);
       setStandingsError(null);
       try {
-        const [schedRes, dStandingsRes, cStandingsRes, circsRes] = await Promise.all([
+        const [schedRes, dStandingsRes, cStandingsRes, circsRes, headshots] = await Promise.all([
           jolpicaProvider.getSchedule(selectedSeason),
           jolpicaProvider.getDriverStandings(selectedSeason),
           jolpicaProvider.getConstructorStandings(selectedSeason),
-          jolpicaProvider.getCircuits(selectedSeason)
+          jolpicaProvider.getCircuits(selectedSeason),
+          openF1Provider.getSeasonDriverImages(selectedSeason).catch(() => ({}))
         ]);
         if (!mounted) return;
 
@@ -80,7 +83,7 @@ export default function App() {
 
         if (dStandingsRes.status === 'SUCCESS') {
           setDriverStandings(dStandingsRes.data);
-          setDrivers(dStandingsRes.data.map(s => s.driver));
+          setDrivers(dStandingsRes.data.map(s => ({ ...s.driver, headshotUrl: headshots[String(s.driver.number)] ?? headshots[s.driver.code] })));
           setStandingsProvenance(dStandingsRes.provenance);
         } else {
           setDriverStandings([]); setDrivers([]); setStandingsProvenance(dStandingsRes.provenance);
@@ -195,7 +198,7 @@ export default function App() {
             onSwitchToReplay={handleSwitchToReplay}
           />
         )}
-        {activeTab === 'weekend' && <WeekendHub schedule={schedule} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} />}
+        {activeTab === 'weekend' && <WeekendHub schedule={schedule} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} onLoadSession={(gp, session) => openF1Provider.getSessionDetail(gp, session)} />}
         {activeTab === 'standings' && <StandingsWorkstation driverStandings={driverStandings} constructorStandings={constructorStandings} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={standingsProvenance} isLoading={isLoadingSeason} error={standingsError} />}
         {activeTab === 'drivers' && <DriversDirectory drivers={drivers} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={standingsProvenance} isLoading={isLoadingSeason} error={standingsError} />}
         {activeTab === 'teams' && (
