@@ -191,16 +191,19 @@ export class F1EnrichmentProvider {
             circuitKey: Number(meeting.circuit_key) || undefined,
             trackRotation: Number(info.rotation) || undefined
           };
-          result[country] = enriched;
+          if (!result[country]) result[country] = enriched;
           if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
+          if (meeting.location) result[String(meeting.location).toLowerCase()] = enriched;
         } catch {
           const enriched = { ...base, circuitKey: Number(meeting.circuit_key) || undefined };
-          result[country] = enriched;
+          if (!result[country]) result[country] = enriched;
           if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
+          if (meeting.location) result[String(meeting.location).toLowerCase()] = enriched;
         }
       } else {
-        result[country] = base;
+        if (!result[country]) result[country] = base;
         if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = base;
+        if (meeting.location) result[String(meeting.location).toLowerCase()] = base;
       }
     }));
     return result;
