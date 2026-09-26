@@ -154,10 +154,7 @@ export const DriversDirectory: React.FC<Props> = ({
             <div className="border border-[#2e3744] bg-[#14181f] p-4">
               <div className="flex items-center justify-between border-b border-[#242c37] pb-3 mb-3">
                 <div className="flex items-center gap-3">
-                  <span
-                    className="w-2.5 h-8 inline-block"
-                    style={{ backgroundColor: selectedDriver.teamColor }}
-                  />
+                  {selectedDriver.headshotUrl ? <img src={selectedDriver.headshotUrl} alt={selectedDriver.fullName} className="w-16 h-16 object-contain object-bottom border border-[#242c37] bg-[#0b0e11]" loading="lazy" /> : <span className="w-2.5 h-8 inline-block" style={{ backgroundColor: selectedDriver.teamColor }} />}
                   <div>
                     <h3 className="text-base font-black text-white">
                       {selectedDriver.fullName} {selectedDriver.number ? `(#${selectedDriver.number})` : ''}
