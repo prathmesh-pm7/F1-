@@ -99,7 +99,7 @@ export const DriversDirectory: React.FC<Props> = ({
         />
       ) : (
         <>
-          {/* Directory Table */}
+          {/* Directory Table + inline driver profiles */}
           <div className="border border-[#242c37] bg-[#111418] overflow-x-auto">
             <table className="w-full border-collapse text-left">
               <thead>
@@ -115,84 +115,60 @@ export const DriversDirectory: React.FC<Props> = ({
               </thead>
               <tbody className="divide-y divide-[#1c222b]">
                 {filtered.map((drv) => (
-                  <tr
-                    key={drv.id}
-                    onClick={() => setSelectedDriver(drv)}
-                    className="hover:bg-[#161a20] cursor-pointer transition-colors"
-                  >
-                    <td className="py-2 px-3 text-center text-neutral-400 font-bold timing-cell">
-                      {drv.number ? `#${drv.number}` : '—'}
-                    </td>
-                    <td className="py-2 px-3">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-1.5 h-3.5 inline-block shrink-0"
-                          style={{ backgroundColor: drv.teamColor }}
-                        />
-                        <span className="font-bold text-white tracking-wide">{drv.fullName}</span>
-                      </div>
-                    </td>
-                    <td className="py-2 px-3 font-bold text-neutral-300">{drv.code}</td>
-                    <td className="py-2 px-3 text-neutral-300"><div>{drv.teamName}</div><div className="text-[9px] text-neutral-600">{drv.chassis ?? '—'}</div></td>
-                    <td className="py-2 px-3 text-right font-bold text-white timing-cell">
-                      {drv.points ?? 0}
-                    </td>
-                    <td className="py-2 px-3 text-center text-neutral-200 timing-cell">
-                      {drv.wins ?? 0}
-                    </td>
-                    <td className="py-2 px-3 text-center font-bold text-neutral-300 timing-cell">
-                      {drv.championshipPosition ? `P${drv.championshipPosition}` : '—'}
-                    </td>
-                  </tr>
+                  <React.Fragment key={drv.id}>
+                    <tr
+                      onClick={() => setSelectedDriver(selectedDriver?.id === drv.id ? null : drv)}
+                      className={`hover:bg-[#161a20] cursor-pointer transition-colors ${selectedDriver?.id === drv.id ? 'bg-[#151a20]' : ''}`}
+                    >
+                      <td className="py-2 px-3 text-center text-neutral-400 font-bold timing-cell">{drv.number ? `#${drv.number}` : '—'}</td>
+                      <td className="py-2 px-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-1.5 h-3.5 inline-block shrink-0" style={{ backgroundColor: drv.teamColor }} />
+                          <span className="font-bold text-white tracking-wide">{drv.fullName}</span>
+                        </div>
+                      </td>
+                      <td className="py-2 px-3 font-bold text-neutral-300">{drv.code}</td>
+                      <td className="py-2 px-3 text-neutral-300"><div>{drv.teamName}</div><div className="text-[9px] text-neutral-600">{drv.chassis ?? '—'}</div></td>
+                      <td className="py-2 px-3 text-right font-bold text-white timing-cell">{drv.points ?? 0}</td>
+                      <td className="py-2 px-3 text-center text-neutral-200 timing-cell">{drv.wins ?? 0}</td>
+                      <td className="py-2 px-3 text-center font-bold text-neutral-300 timing-cell">{drv.championshipPosition ? `P${drv.championshipPosition}` : '—'}</td>
+                    </tr>
+                    {selectedDriver?.id === drv.id && (
+                      <tr>
+                        <td colSpan={7} className="p-0">
+                          <div className="border-t border-[#2e3744] bg-[#0d1014] p-4">
+                            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#242c37] pb-3 mb-3">
+                              <div className="flex items-center gap-3">
+                                {drv.headshotUrl ? (
+                                  <img src={drv.headshotUrl} alt={drv.fullName} className="w-20 h-20 object-contain object-bottom border border-[#242c37] bg-[#090b0e]" loading="lazy" />
+                                ) : (
+                                  <div className="w-20 h-20 border border-[#242c37] bg-[#151a20] flex items-end">
+                                    <span className="w-full h-1" style={{ backgroundColor: drv.teamColor }} />
+                                  </div>
+                                )}
+                                <div>
+                                  <div className="text-[8px] tracking-[.15em] text-neutral-600">DRIVER PROFILE / {drv.code}</div>
+                                  <h3 className="mt-1 text-base font-black text-white">{drv.fullName} <span className="text-neutral-500">#{drv.number}</span></h3>
+                                  <div className="mt-1 text-[10px] text-neutral-400">{drv.teamName} · {drv.chassis ?? 'CAR —'} · {drv.nationality || '—'}</div>
+                                </div>
+                              </div>
+                              <button type="button" onClick={(e) => { e.stopPropagation(); setSelectedDriver(null); }} className="px-2 py-1 border border-[#2a313a] text-[8px] text-neutral-500 hover:text-white">CLOSE</button>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                              <div className="border border-[#222933] bg-[#111418] p-2"><span className="text-[8px] text-neutral-600">CHAMPIONSHIP</span><strong className="block mt-1 text-white timing-cell">{drv.championshipPosition ? `P${drv.championshipPosition}` : '—'}</strong></div>
+                              <div className="border border-[#222933] bg-[#111418] p-2"><span className="text-[8px] text-neutral-600">POINTS</span><strong className="block mt-1 text-white timing-cell">{drv.points ?? 0}</strong></div>
+                              <div className="border border-[#222933] bg-[#111418] p-2"><span className="text-[8px] text-neutral-600">WINS</span><strong className="block mt-1 text-white timing-cell">{drv.wins ?? 0}</strong></div>
+                              <div className="border border-[#222933] bg-[#111418] p-2"><span className="text-[8px] text-neutral-600">PODIUMS</span><strong className="block mt-1 text-white timing-cell">{drv.podiums ?? 0}</strong></div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
           </div>
-
-          {/* Driver Detail Drawer */}
-          {selectedDriver && (
-            <div className="border border-[#2e3744] bg-[#14181f] p-4">
-              <div className="flex items-center justify-between border-b border-[#242c37] pb-3 mb-3">
-                <div className="flex items-center gap-3">
-                  {selectedDriver.headshotUrl ? <img src={selectedDriver.headshotUrl} alt={selectedDriver.fullName} className="w-16 h-16 object-contain object-bottom border border-[#242c37] bg-[#0b0e11]" loading="lazy" /> : <span className="w-2.5 h-8 inline-block" style={{ backgroundColor: selectedDriver.teamColor }} />}
-                  <div>
-                    <h3 className="text-base font-black text-white">
-                      {selectedDriver.fullName} {selectedDriver.number ? `(#${selectedDriver.number})` : ''}
-                    </h3>
-                    <span className="text-[11px] text-neutral-400">{selectedDriver.teamName} · {selectedDriver.chassis ?? 'CAR —'}</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedDriver(null)}
-                  className="text-neutral-400 hover:text-white px-2 py-1 bg-[#1a2028] border border-[#2e3744]"
-                >
-                  CLOSE
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="border border-[#222933] bg-[#0f1216] p-2.5">
-                  <span className="text-[10px] text-neutral-400 uppercase">CHAMPIONSHIP RANK</span>
-                  <div className="text-lg font-black text-white timing-cell">
-                    {selectedDriver.championshipPosition ? `P${selectedDriver.championshipPosition}` : '—'}
-                  </div>
-                </div>
-                <div className="border border-[#222933] bg-[#0f1216] p-2.5">
-                  <span className="text-[10px] text-neutral-400 uppercase">SEASON POINTS</span>
-                  <div className="text-lg font-black text-white timing-cell">{selectedDriver.points ?? 0} PTS</div>
-                </div>
-                <div className="border border-[#222933] bg-[#0f1216] p-2.5">
-                  <span className="text-[10px] text-neutral-400 uppercase">GRAND PRIX WINS</span>
-                  <div className="text-lg font-black text-[var(--team-accent)] timing-cell">{selectedDriver.wins ?? 0} WINS</div>
-                </div>
-                <div className="border border-[#222933] bg-[#0f1216] p-2.5">
-                  <span className="text-[10px] text-neutral-400 uppercase">TELEMETRY CODE</span>
-                  <div className="text-lg font-black text-neutral-200 timing-cell">{selectedDriver.code}</div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Provenance */}
         </>
