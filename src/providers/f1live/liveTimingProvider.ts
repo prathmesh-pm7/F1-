@@ -82,14 +82,11 @@ export class LiveTimingProvider implements F1LiveProvider {
     const { stream, data } = msg;
     if (!data) return;
 
-    let hasTimingUpdate = false;
-
     switch (stream) {
       case 'TimingData': {
         const updates = parseTimingData(data);
         if (updates.length > 0) {
           this.stateStore.mergeTimingData(updates);
-          hasTimingUpdate = true;
           this.hasReceivedRealTimingData = true;
         }
         break;
@@ -98,7 +95,6 @@ export class LiveTimingProvider implements F1LiveProvider {
         const appMap = parseTimingAppData(data);
         if (appMap.size > 0) {
           this.stateStore.mergeTimingAppData(appMap);
-          hasTimingUpdate = true;
         }
         break;
       }
@@ -177,6 +173,8 @@ export class LiveTimingProvider implements F1LiveProvider {
   public async connect(): Promise<void> {
     try {
       this.hasReceivedRealTimingData = false;
+      this.lastPacketTimestamp = null;
+      this.stateStore.reset();
       this.setState('CONNECTING');
       this.startStaleDetector();
       await this.client.connect();
