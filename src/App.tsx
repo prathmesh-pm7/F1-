@@ -80,7 +80,7 @@ export default function App() {
           jolpicaProvider.getConstructorStandings(selectedSeason),
           jolpicaProvider.getCircuits(selectedSeason),
           openF1Provider.getSeasonDriverImages(selectedSeason).catch(() => ({})),
-          openF1Provider.getSeasonCircuitMeta(selectedSeason).catch(() => ({})),
+          enrichmentProvider.getSeasonCircuitEnrichment(selectedSeason).catch(() => ({})),
           enrichmentProvider.getFiaNews().catch(() => []),
           enrichmentProvider.getTechnicalUpdates().catch(() => [])
         ]);
@@ -93,7 +93,7 @@ export default function App() {
 
         if (dStandingsRes.status === 'SUCCESS') {
           setDriverStandings(dStandingsRes.data);
-          setDrivers(dStandingsRes.data.map(s => ({ ...s.driver, headshotUrl: headshots[String(s.driver.number)] ?? headshots[s.driver.code], countryCode: s.driver.nationality })));
+          setDrivers(dStandingsRes.data.map(s => ({ ...s.driver, headshotUrl: headshots[String(s.driver.number)] ?? headshots[s.driver.code], countryCode: s.driver.nationality, chassis: selectedSeason === 2026 ? ({mclaren:'MCL40',mercedes:'W17',red_bull:'RB22',ferrari:'SF-26',williams:'FW48',rb:'VCARB03',aston_martin:'AMR26',haas:'VF-26',audi:'R26',alpine:'A526',cadillac:'MAC-26'} as Record<string,string>)[s.driver.teamId] : undefined })));
           
           setStandingsProvenance(dStandingsRes.provenance);
         } else {
