@@ -185,18 +185,22 @@ export class F1EnrichmentProvider {
         try {
           const info = await this.getJson<JsonRecord>(String(meeting.circuit_info_url));
           const corners = Array.isArray(info.corners) ? info.corners : [];
-          result[country] = {
-        ...(meeting.circuit_short_name ? { [String(meeting.circuit_short_name).toLowerCase()]: base } : {}),
+          const enriched = {
             ...base,
             turns: corners.length || undefined,
             circuitKey: Number(meeting.circuit_key) || undefined,
             trackRotation: Number(info.rotation) || undefined
           };
+          result[country] = enriched;
+          if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
         } catch {
-          result[country] = { ...base, circuitKey: Number(meeting.circuit_key) || undefined };
+          const enriched = { ...base, circuitKey: Number(meeting.circuit_key) || undefined };
+          result[country] = enriched;
+          if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
         }
       } else {
         result[country] = base;
+        if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = base;
       }
     }));
     return result;
