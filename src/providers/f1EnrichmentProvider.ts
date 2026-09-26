@@ -9,6 +9,31 @@ const TEAM_COLORS: Record<string, string> = {
   williams: '#64C4FF', rb: '#6692FF', aston_martin: '#229971', haas: '#B6BABD',
   audi: '#BB0A30', alpine: '#0093CC', cadillac: '#C7C8CA'
 };
+const LAP_RECORDS: Record<string, { time: string; driver: string; year: number }> = {
+  australia: { time: '1:19.813', driver: 'Charles Leclerc', year: 2024 },
+  china: { time: '1:32.238', driver: 'Michael Schumacher', year: 2004 },
+  japan: { time: '1:30.983', driver: 'Lewis Hamilton', year: 2019 },
+  bahrain: { time: '1:31.447', driver: 'Pedro de la Rosa', year: 2005 },
+  'saudi arabia': { time: '1:30.734', driver: 'Lewis Hamilton', year: 2021 },
+  miami: { time: '1:29.708', driver: 'Max Verstappen', year: 2024 },
+  'emilia-romagna': { time: '1:15.484', driver: 'Lewis Hamilton', year: 2020 },
+  monaco: { time: '1:12.909', driver: 'Lewis Hamilton', year: 2021 },
+  spain: { time: '1:11.383', driver: 'Lando Norris', year: 2024 },
+  canada: { time: '1:13.078', driver: 'Valtteri Bottas', year: 2019 },
+  austria: { time: '1:05.619', driver: 'Carlos Sainz', year: 2020 },
+  'great britain': { time: '1:27.097', driver: 'Max Verstappen', year: 2020 },
+  belgium: { time: '1:44.701', driver: 'Sergio Perez', year: 2024 },
+  hungary: { time: '1:16.627', driver: 'Lewis Hamilton', year: 2020 },
+  netherlands: { time: '1:10.621', driver: 'Lewis Hamilton', year: 2021 },
+  italy: { time: '1:21.046', driver: 'Rubens Barrichello', year: 2004 },
+  azerbaijan: { time: '1:43.009', driver: 'Charles Leclerc', year: 2019 },
+  singapore: { time: '1:34.486', driver: 'Daniel Ricciardo', year: 2024 },
+  'united states': { time: '1:36.169', driver: 'Charles Leclerc', year: 2019 },
+  mexico: { time: '1:17.774', driver: 'Valtteri Bottas', year: 2021 },
+  brazil: { time: '1:10.540', driver: 'Valtteri Bottas', year: 2018 },
+  qatar: { time: '1:22.384', driver: 'Lando Norris', year: 2024 },
+  'abu dhabi': { time: '1:22.109', driver: 'Michael Schumacher', year: 2004 },
+};
 const TEAM_ALIASES: Array<[string, string]> = [
   ['McLaren', 'mclaren'], ['Mercedes', 'mercedes'], ['Red Bull', 'red_bull'], ['Ferrari', 'ferrari'],
   ['Williams', 'williams'], ['Racing Bulls', 'rb'], ['Aston Martin', 'aston_martin'],
@@ -152,7 +177,8 @@ export class F1EnrichmentProvider {
         latitude: Number(meeting.latitude) || undefined,
         longitude: Number(meeting.longitude) || undefined,
         countryFlagUrl: meeting.country_flag,
-        circuitInfoUrl: meeting.circuit_info_url
+        circuitInfoUrl: meeting.circuit_info_url,
+        lapRecord: LAP_RECORDS[country]
       };
       if (meeting.circuit_info_url) {
         try {
