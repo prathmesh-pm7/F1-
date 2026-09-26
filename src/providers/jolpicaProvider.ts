@@ -469,9 +469,19 @@ export class JolpicaProvider implements F1DataProvider {
       const sprintRace = sprintJson?.MRData?.RaceTable?.Races?.[0];
       const sprintResults: SprintResultEntry[] = Array.isArray(sprintRace?.SprintResults) ? sprintRace.SprintResults.map(mapResult) : [];
       const lapRaces = lapsJson?.MRData?.RaceTable?.Races ?? [];
+      const driverById = new Map(raceResults.map(r => [r.driverId, r]));
       const laps: LapTimingEntry[] = [];
       for (const lr of lapRaces) for (const lap of (Array.isArray(lr.Laps) ? lr.Laps : [])) for (const timing of (Array.isArray(lap.Timings) ? lap.Timings : [])) {
-        laps.push({ lap: Number(lap.number ?? 0), driverId: String(timing.driverId ?? ''), driverCode: String(timing.driverId ?? '').slice(0,3).toUpperCase(), driverName: String(timing.driverId ?? ''), position: Number.isFinite(Number(timing.position)) ? Number(timing.position) : null, time: String(timing.time ?? '—') });
+        const driverId = String(timing.driverId ?? '');
+        const driver = driverById.get(driverId);
+        laps.push({
+          lap: Number(lap.number ?? 0),
+          driverId,
+          driverCode: driver?.driverCode ?? driverId.slice(0, 3).toUpperCase(),
+          driverName: driver?.driverName ?? driverId,
+          position: Number.isFinite(Number(timing.position)) ? Number(timing.position) : null,
+          time: String(timing.time ?? '—')
+        });
       }
       const pitRaces = pitStopsJson?.MRData?.RaceTable?.Races ?? [];
       const pitStops = pitRaces.flatMap((pr: any) => Array.isArray(pr.PitStops) ? pr.PitStops.map((stop: any) => ({ stopNumber:Number(stop.stop??0), lap:Number(stop.lap??0), pitDurationStr:String(stop.duration??'—'), pitLaneDurationStr:String(stop.duration??'—'), durationSeconds:Number.parseFloat(String(stop.duration??'').replace(':','.')) || 0, timestamp:String(stop.time??''), driverId:String(stop.driverId??'') })) : []);
@@ -491,7 +501,17 @@ export class JolpicaProvider implements F1DataProvider {
     const isQualifying = session.type === 'QUALIFYING';
     const isSprint = session.type === 'SPRINT';
     const sourceUrl = data.provenance.sourceUrl;
-    const baseResults = isQualifying ? data.qualifying.map(r => ({ position:r.position, driverNumber:r.driverNumber, driverId:r.driverId, driverCode:r.driverCode, driverName:r.driverName, teamName:r.teamName, teamColor:r.teamColor, bestLap:r.q3 ?? r.q2 ?? r.q1, gap:undefined, laps:0 })) : (isSprint ? data.sprintResults : data.raceResults).map(r => ({ position:r.position, driverNumber:r.driverNumber, driverId:r.driverId, driverCode:r.driverCode, driverName:r.driverName, teamName:r.teamName, teamColor:r.teamColor, bestLap:r.finishTime || r.fastestLap?.time, gap:r.position === 1 ? 'LEADER' : r.finishTime || '—', laps:r.lapsCompleted ?? 0, dnf:/retired|accident|disqualified|not classified/i.test(r.status), dns:/did not start/i.test(r.status), dsq:/disqualified/i.test(r.status) }));
+    const baseResults = isQualifying
+      ? data.qualifying.map(r => ({ position:r.position, driverNumber:r.driverNumber, driverId:r.driverId, driverCode:r.driverCode, driverName:r.driverName, teamName:r.teamName, teamColor:r.teamColor, bestLap:r.q3 ?? r.q2 ?? r.q1, gap:undefined, laps:0 }))
+      : (isSprint ? data.sprintResults : data.raceResults).map(r => ({
+        position:r.position, driverNumber:r.driverNumber, driverId:r.driverId, driverCode:r.driverCode,
+        driverName:r.driverName, teamName:r.teamName, teamColor:r.teamColor,
+        bestLap:r.fastestLap?.time,
+        gap:r.position === 1 ? 'LEADER' : r.finishTime || '—',
+        laps:r.lapsCompleted ?? 0,
+        dnf:/retired|accident|disqualified|not classified/i.test(r.status),
+        dns:/did not start/i.test(r.status), dsq:/disqualified/i.test(r.status)
+      }));
     return {
       sessionKey: Number(String(data.season) + String(data.round).padStart(2, '0')),
       sessionName: session.name, sessionType: session.type, startTime:'', endTime:'', circuitName:data.circuit.name,
