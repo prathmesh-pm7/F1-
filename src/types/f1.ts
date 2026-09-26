@@ -184,6 +184,7 @@ export interface Circuit {
   turns?: number;
   drsZones?: number;
   imageUrl?: string;
+  circuitType?: string;
   latitude?: number;
   longitude?: number;
   lapRecord?: {
