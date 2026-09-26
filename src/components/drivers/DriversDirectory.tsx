@@ -107,7 +107,7 @@ export const DriversDirectory: React.FC<Props> = ({
                   <th className="py-2 px-3 text-center w-12">#</th>
                   <th className="py-2 px-3">DRIVER</th>
                   <th className="py-2 px-3">CODE</th>
-                  <th className="py-2 px-3">TEAM</th>
+                  <th className="py-2 px-3">TEAM / CAR</th>
                   <th className="py-2 px-3 text-right">POINTS</th>
                   <th className="py-2 px-3 text-center">WINS</th>
                   <th className="py-2 px-3 text-center">CHAMP POS</th>
@@ -133,7 +133,7 @@ export const DriversDirectory: React.FC<Props> = ({
                       </div>
                     </td>
                     <td className="py-2 px-3 font-bold text-neutral-300">{drv.code}</td>
-                    <td className="py-2 px-3 text-neutral-300">{drv.teamName}</td>
+                    <td className="py-2 px-3 text-neutral-300"><div>{drv.teamName}</div><div className="text-[9px] text-neutral-600">{drv.chassis ?? '—'}</div></td>
                     <td className="py-2 px-3 text-right font-bold text-white timing-cell">
                       {drv.points ?? 0}
                     </td>
@@ -159,7 +159,7 @@ export const DriversDirectory: React.FC<Props> = ({
                     <h3 className="text-base font-black text-white">
                       {selectedDriver.fullName} {selectedDriver.number ? `(#${selectedDriver.number})` : ''}
                     </h3>
-                    <span className="text-[11px] text-neutral-400">{selectedDriver.teamName}</span>
+                    <span className="text-[11px] text-neutral-400">{selectedDriver.teamName} · {selectedDriver.chassis ?? 'CAR —'}</span>
                   </div>
                 </div>
                 <button
