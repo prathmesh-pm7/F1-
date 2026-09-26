@@ -15,7 +15,7 @@ import { OpenF1Provider } from './providers/openF1Provider';
 import { ReplayProvider } from './providers/replayProvider';
 import { LiveTimingProvider } from './providers/liveTimingProvider';
 import { getCurrentSeason, SUPPORTED_HISTORICAL_SEASONS } from './config/season';
-import { LiveSessionSnapshot, LiveConnectionState, GrandPrix, DriverStanding, ConstructorStanding, Driver, Team, Circuit, DataProvenance } from './types/f1';
+import { LiveSessionSnapshot, LiveConnectionState, GrandPrix, DriverStanding, ConstructorStanding, Driver, Team, Circuit, DataProvenance, SessionDetail, SessionSchedule } from './types/f1';
 
 const FAVORITE_TEAM_KEY = 'f1-pulse.favorite-team';
 
@@ -109,8 +109,9 @@ export default function App() {
           setTeams([]);
         }
 
-        if (circsRes.status === 'SUCCESS') setCircuits(circsRes.data.map(circuit => ({ ...circuit, ...(circuitMeta[circuit.country.toLowerCase()] ?? {}) })));
-        else setCircuits([]);
+        if (circsRes.status === 'SUCCESS') {
+          setCircuits(circsRes.data.map(circuit => ({ ...circuit, ...(circuitMeta[circuit.country.toLowerCase()] ?? {}) })));
+        } else setCircuits([]);
       } catch (error: unknown) {
         if (mounted) {
           const message = error instanceof Error ? error.message : 'Unable to load season data.';
@@ -171,6 +172,23 @@ export default function App() {
     } else handleSwitchToReplay();
   };
 
+  const loadSession = async (gp: GrandPrix, session: SessionSchedule): Promise<SessionDetail> => {
+    try {
+      // OpenF1 is the detailed session source for FP1/FP2/FP3, qualifying, sprint and race.
+      return await openF1Provider.getSessionDetail(gp, session);
+    } catch (openF1Error) {
+      // Race/qualifying/sprint results have a free Jolpica fallback, so a finished race
+      // still shows its winner/classification if OpenF1 is temporarily unavailable.
+      if (session.type === 'RACE' || session.type === 'QUALIFYING' || session.type === 'SPRINT') {
+        const fallback = await jolpicaProvider.getRaceWeekendData(gp.season, gp.round);
+        if (fallback.status === 'SUCCESS') {
+          return jolpicaProvider.toSessionDetail(fallback.data, session);
+        }
+      }
+      throw openF1Error;
+    }
+  };
+
   return (
     <div style={rootStyle}>
       <AppShell
@@ -199,7 +217,7 @@ export default function App() {
             onSwitchToReplay={handleSwitchToReplay}
           />
         )}
-        {activeTab === 'weekend' && <WeekendHub schedule={schedule} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} onLoadSession={(gp, session) => openF1Provider.getSessionDetail(gp, session)} />}
+        {activeTab === 'weekend' && <WeekendHub schedule={schedule} drivers={drivers} teams={teams} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} onLoadSession={loadSession} />}
         {activeTab === 'standings' && <StandingsWorkstation driverStandings={driverStandings} constructorStandings={constructorStandings} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={standingsProvenance} isLoading={isLoadingSeason} error={standingsError} />}
         {activeTab === 'drivers' && <DriversDirectory drivers={drivers} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={standingsProvenance} isLoading={isLoadingSeason} error={standingsError} />}
         {activeTab === 'teams' && (
