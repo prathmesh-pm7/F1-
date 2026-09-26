@@ -121,7 +121,7 @@ export default function App() {
         }
 
         if (circsRes.status === 'SUCCESS') {
-          setCircuits(circsRes.data.map(circuit => ({ ...circuit, ...(circuitMeta[circuit.country.toLowerCase()] ?? {}) })));
+          setCircuits(circsRes.data.map(circuit => ({ ...circuit, ...(circuitMeta[circuit.country.toLowerCase()] ?? {}), ...(circuitMeta[circuit.name.toLowerCase()] ?? {}), ...(circuitMeta[circuit.location.toLowerCase()] ?? {}) })));
         } else setCircuits([]);
       } catch (error: unknown) {
         if (mounted) {
