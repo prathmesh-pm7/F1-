@@ -62,8 +62,8 @@ export const TeamsDirectory: React.FC<Props> = ({
        error ? <EmptyState type="not-found" title={`SEASON ${selectedSeason} CONSTRUCTORS UNAVAILABLE`} message={error} /> :
        teams.length === 0 ? <EmptyState type="no-data" title={`NO CONSTRUCTORS LISTED FOR ${selectedSeason}`} message="No constructor standings are available from the selected provider." /> : (
         <div className="border-y border-[#242c37]">
-          <div className="grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_150px] gap-0 px-3 h-8 items-center bg-[#0b0e11] text-[8px] tracking-[.1em] text-neutral-600">
-            <span>POS</span><span>TEAM</span><span>POINTS</span><span>WINS</span><span>DRIVERS</span><span className="text-right">FOLLOW</span>
+          <div className="grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_100px_150px] gap-0 px-3 h-8 items-center bg-[#0b0e11] text-[8px] tracking-[.1em] text-neutral-600">
+            <span>POS</span><span>TEAM</span><span>POINTS</span><span>WINS</span><span>DRIVERS</span><span>CAR</span><span className="text-right">FOLLOW</span>
           </div>
           {teams.map(team => {
             const followed = team.id === favoriteTeamId;
@@ -76,7 +76,7 @@ export const TeamsDirectory: React.FC<Props> = ({
                 </span>
                 <span className="timing-cell text-neutral-200">{team.points ?? '—'}</span>
                 <span className="timing-cell text-neutral-300">{team.wins ?? 0}</span>
-                <span className="timing-cell text-neutral-400">{team.drivers?.join(' / ') || '—'}</span>
+                <span className="timing-cell text-neutral-400">{team.drivers?.join(' / ') || '—'}</span>\n                <span className="timing-cell text-neutral-300">{team.chassis ?? '—'}</span>
                 <span className="text-right">
                   <button type="button" onClick={() => onSelectFavorite?.(followed ? null : team.id)}
                     className="px-2 py-1 border border-[#2a313a] text-[8px] tracking-[.08em] text-neutral-500 hover:text-white hover:border-[var(--team-accent)]">
@@ -92,7 +92,7 @@ export const TeamsDirectory: React.FC<Props> = ({
       {selectedTeam && (
         <section className="border border-[#2e3744] bg-[#111418] p-4">
           <div className="flex items-start justify-between border-b border-[#242c37] pb-3 mb-4">
-            <div><div className="text-[8px] tracking-[.15em]" style={{color:selectedTeam.color}}>TEAM PROFILE</div><h3 className="mt-1 text-lg font-black text-white">{selectedTeam.fullName}</h3><div className="mt-1 text-[9px] text-neutral-500">{selectedTeam.powerUnit} · {selectedTeam.base}</div></div>
+            <div><div className="text-[8px] tracking-[.15em]" style={{color:selectedTeam.color}}>TEAM PROFILE</div><h3 className="mt-1 text-lg font-black text-white">{selectedTeam.fullName}</h3><div className="mt-1 text-[9px] text-neutral-500">{selectedTeam.chassis ?? 'CAR —'} · {selectedTeam.powerUnit} · {selectedTeam.base}</div></div>
             <button type="button" onClick={() => setSelectedTeam(null)} className="px-2 py-1 border border-[#2a313a] text-[8px] text-neutral-500 hover:text-white">CLOSE</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
