@@ -5,7 +5,8 @@ interface Props { detail: SessionDetail; session: SessionSchedule; onClose: () =
 
 export const SessionDetailPanel: React.FC<Props> = ({ detail, onClose }) => {
   const [lapFilter, setLapFilter] = useState<number | 'ALL'>('ALL');
-  const lapRows = useMemo(() => lapFilter === 'ALL' ? detail.laps : detail.laps.filter(l => l.lapNumber === lapFilter), [detail.laps, lapFilter]);
+  const [driverFilter, setDriverFilter] = useState<string>('ALL');
+  const lapRows = useMemo(() => detail.laps.filter(l => (lapFilter === 'ALL' || l.lapNumber === lapFilter) && (driverFilter === 'ALL' || l.driverCode === driverFilter)), [detail.laps, lapFilter, driverFilter]);
   const maxLap = detail.laps.reduce((m, l) => Math.max(m, l.lapNumber), 0);
   const winner = detail.results.find(r => r.position === 1);
 
@@ -47,15 +48,21 @@ export const SessionDetailPanel: React.FC<Props> = ({ detail, onClose }) => {
         </div>
 
         <div className="mt-5 f1-section-heading"><span>LAP-BY-LAP</span><span>{maxLap ? 'LAP 1–' + maxLap : 'NO LAP DATA'}</span></div>
-        {maxLap > 0 && (
-          <div className="flex items-center gap-2 mb-2">
+        {detail.laps.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             <button onClick={() => setLapFilter('ALL')} className={'px-2 py-1 border text-[8px] ' + (lapFilter === 'ALL' ? 'border-[var(--team-accent)] text-white' : 'border-[#242c37] text-neutral-500')}>ALL LAPS</button>
             <select value={lapFilter === 'ALL' ? 'ALL' : lapFilter} onChange={e => setLapFilter(e.target.value === 'ALL' ? 'ALL' : Number(e.target.value))} className="bg-[#0f1216] border border-[#242c37] text-[9px] text-neutral-300 px-2 py-1">
-              <option value="ALL">Select lap…</option>
+              <option value="ALL">SELECT LAP</option>
               {Array.from({ length: maxLap }, (_, i) => <option key={i + 1} value={i + 1}>Lap {i + 1}</option>)}
             </select>
+            <select value={driverFilter} onChange={e => setDriverFilter(e.target.value)} className="bg-[#0f1216] border border-[#242c37] text-[9px] text-neutral-300 px-2 py-1">
+              <option value="ALL">ALL DRIVERS</option>
+              {Array.from(new Set(detail.laps.map(l => l.driverCode))).sort().map(code => <option key={code} value={code}>{code}</option>)}
+            </select>
+            <span className="text-[8px] text-neutral-600">{lapRows.length} LAP RECORDS</span>
           </div>
         )}
+
         <div className="max-h-[420px] overflow-auto border-y border-[#1c222b]">
           <table className="w-full min-w-[760px] text-left">
             <thead className="sticky top-0 bg-[#0b0e12]"><tr className="text-[8px] text-neutral-600 border-b border-[#1c222b]"><th className="p-2">LAP</th><th className="p-2">DRIVER</th><th className="p-2">LAP TIME</th><th className="p-2">S1</th><th className="p-2">S2</th><th className="p-2">S3</th><th className="p-2">SPEED TRAP</th></tr></thead>
@@ -75,6 +82,19 @@ export const SessionDetailPanel: React.FC<Props> = ({ detail, onClose }) => {
               {detail.pitStops.map((p, i) => <div key={i} className="bg-[#0d1014] p-2"><div className="text-[9px] text-white">{p.driverName} <span className="text-neutral-600">{p.driverCode}</span></div><div className="text-[8px] text-neutral-500 mt-1">LAP {p.lap} · STOP {p.stopDuration ? p.stopDuration.toFixed(1) + 's' : '—'}</div></div>)}
             </div>
           </>
+        )}
+        {detail.driverLineup.length > 0 && (
+          <div className="mt-5 f1-section-heading"><span>SESSION ENTRY LIST</span><span>{detail.driverLineup.length} DRIVERS</span></div>
+        )}
+        {detail.driverLineup.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#1c222b] mb-5">
+            {detail.driverLineup.map(d => (
+              <div key={d.id} className="bg-[#0d1014] p-2 flex items-center gap-2">
+                {d.headshotUrl ? <img src={d.headshotUrl} alt="" className="w-9 h-9 object-contain object-bottom bg-[#080a0d]" loading="lazy" /> : <div className="w-9 h-9 bg-[#151a20]" />}
+                <div className="min-w-0"><div className="text-[9px] text-white font-bold truncate">{d.fullName}</div><div className="text-[8px] text-neutral-600">{d.code} · #{d.number}</div></div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </section>
