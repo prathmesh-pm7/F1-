@@ -155,6 +155,18 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
 
       {snapshot.entries.length > 0 && (
         <div className="f1-live-workspace">
+          <details className="f1-timing-guide">
+            <summary>TIMING GUIDE <span>What do these numbers mean?</span></summary>
+            <div className="f1-timing-guide-grid">
+              <div><strong>Gap to leader</strong><span>Time behind P1</span></div>
+              <div><strong>Interval</strong><span>Time behind the car ahead</span></div>
+              <div><strong>Last lap</strong><span>Most recent completed lap</span></div>
+              <div><strong>Best lap</strong><span>Fastest lap of the session</span></div>
+              <div><strong>Sector 1–3</strong><span>Times for each part of the lap</span></div>
+              <div><strong>Tyre / age</strong><span>Compound and laps on this set</span></div>
+            </div>
+          </details>
+
           <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
             <div className="f1-section-heading">
               <span>LIVE TIMING</span>
