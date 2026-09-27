@@ -11,7 +11,7 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
   if (!entry) return null;
 
   return (
-    <div className="border border-[#242c37] bg-[#111418] p-4 font-mono text-xs text-neutral-300">
+    <div className="f1-driver-telemetry border border-[#242c37] bg-[#111418] p-4 font-mono text-xs text-neutral-300">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#242c37] pb-3 mb-3">
         <div className="flex items-center gap-3">
@@ -46,7 +46,7 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
       {/* Primary Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
         <div className="border border-[#1f2632] bg-[#161a20] p-2">
-          <div className="text-[10px] text-neutral-400 uppercase">GAP TO P1</div>
+          <div className="text-[10px] text-neutral-400 uppercase">GAP TO LEADER</div>
           <div className="text-sm font-bold text-white timing-cell">{entry.gap}</div>
         </div>
 
@@ -62,14 +62,14 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
 
         <div className="border border-[#1f2632] bg-[#161a20] p-2">
           <div className="text-[10px] text-neutral-400 uppercase">BEST LAP</div>
-          <div className="text-sm font-bold text-fuchsia-400 timing-cell">{entry.bestLapTime}</div>
+          <div className="text-sm font-bold timing-cell f1-driver-accent-value">{entry.bestLapTime}</div>
         </div>
       </div>
 
       {/* Sector Times */}
       <div className="border border-[#1f2632] bg-[#161a20] p-3 mb-4">
         <div className="text-[10px] text-neutral-400 uppercase font-bold mb-2">
-          SECTOR SPLIT TIMES (LAP {entry.currentLap})
+          SECTOR TIMES · LAP {entry.currentLap}
         </div>
         <div className="grid grid-cols-3 gap-2">
           {entry.sectors.map((sec, idx) => (
@@ -95,7 +95,7 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
       {/* Tyre Stint Strategy & Pit History */}
       <div className="border border-[#1f2632] bg-[#161a20] p-3 mb-4">
         <div className="flex items-center justify-between text-[10px] text-neutral-400 uppercase font-bold mb-2">
-          <span>TYRE STRATEGY & STINTS</span>
+          <span>TYRE STRATEGY</span>
           <span>{entry.pitCount} PIT STOP{entry.pitCount !== 1 ? 'S' : ''}</span>
         </div>
 
@@ -130,11 +130,11 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
       <div className="flex items-center justify-between text-[11px] text-neutral-400 border-t border-[#1c222b] pt-2">
         <span className="flex items-center gap-1.5">
           <Gauge className="w-3.5 h-3.5 text-neutral-400" />
-          <span>SPEED TRAP: <strong className="text-white">{entry.speedTrapKmH !== undefined ? `${entry.speedTrapKmH.toFixed(1)} km/h` : '—'}</strong></span>
+          <span>SPEED TRAP <strong className="text-white">{entry.speedTrapKmH !== undefined ? `${entry.speedTrapKmH.toFixed(1)} km/h` : '—'}</strong></span>
         </span>
         <span className="flex items-center gap-1.5">
           <Flame className="w-3.5 h-3.5 text-amber-400" />
-          <span>DRS ZONE: <strong className={entry.drsEligible === true ? 'text-emerald-400' : entry.drsEligible === false ? 'text-neutral-400' : 'text-neutral-500'}>{entry.drsEligible === true ? 'ELIGIBLE' : entry.drsEligible === false ? 'INELIGIBLE' : '—'}</strong></span>
+          <span>DRS <strong className={entry.drsEligible === true ? 'text-emerald-400' : entry.drsEligible === false ? 'text-neutral-400' : 'text-neutral-500'}>{entry.drsEligible === true ? 'ELIGIBLE' : entry.drsEligible === false ? 'INELIGIBLE' : '—'}</strong></span>
         </span>
       </div>
     </div>
