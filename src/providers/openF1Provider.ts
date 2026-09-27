@@ -35,8 +35,12 @@ export class OpenF1Provider {
     const wanted = this.sessionName(session.type);
     const country = encodeURIComponent(gp.country);
     const sessions = await this.get<JsonRecord[]>(`/sessions?year=${gp.season}&country_name=${country}&session_name=${encodeURIComponent(wanted)}`);
-    const match = sessions.find(s => Math.abs(new Date(s.date_start).getTime() - new Date(session.startTime).getTime()) < 36 * 60 * 60 * 1000) ?? sessions[0];
-    if (!match) throw new Error(`${wanted} data is not published for ${gp.officialName} yet.`);
+    const target = new Date(session.startTime).getTime();
+    const match = sessions
+      .filter(s => Number.isFinite(new Date(String(s.date_start)).getTime()))
+      .filter(s => Math.abs(new Date(String(s.date_start)).getTime() - target) < 36 * 60 * 60 * 1000)
+      .sort((a, b) => Math.abs(new Date(String(a.date_start)).getTime() - target) - Math.abs(new Date(String(b.date_start)).getTime() - target))[0];
+    if (!match) throw new Error(`${wanted} data is not published for ${gp.officialName} in ${gp.season}.`);
 
     const key = Number(match.session_key);
     const [rawResults, rawLaps, rawPit, rawDrivers, rawPositions, rawWeather, rawRaceControl, meetings] = await Promise.all([
