@@ -7,16 +7,51 @@ type JsonRecord = Record<string, any>;
 export class OpenF1Provider {
   public name = 'OpenF1';
   private cache = new Map<string, { data: any; expiry: number }>();
-  private ttl = 60_000;
+  private ttl = 5 * 60_000;
+  private requestQueue: Promise<void> = Promise.resolve();
+  private lastRequestAt = 0;
+  private minRequestGap = 350;
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => window.setTimeout(resolve, ms));
+  }
 
   private async get<T>(path: string): Promise<T> {
     const cached = this.cache.get(path);
     if (cached && cached.expiry > Date.now()) return cached.data as T;
-    const res = await fetch(`${OPENF1_BASE}${path}`, { headers: { Accept: 'application/json' } });
-    if (!res.ok) throw new Error(`OpenF1 HTTP ${res.status}`);
-    const data = await res.json();
-    this.cache.set(path, { data, expiry: Date.now() + this.ttl });
-    return data as T;
+
+    // OpenF1 is rate limited. Serialize uncached requests so a Promise.all of
+    // session endpoints does not burst the public API with simultaneous calls.
+    let release!: () => void;
+    const turn = new Promise<void>(resolve => { release = resolve; });
+    const previous = this.requestQueue;
+    this.requestQueue = previous.then(() => turn);
+    await previous;
+    try {
+      const gap = Date.now() - this.lastRequestAt;
+      if (gap < this.minRequestGap) await this.sleep(this.minRequestGap - gap);
+
+      let res = await fetch(`${OPENF1_BASE}${path}`, { headers: { Accept: 'application/json' } });
+      this.lastRequestAt = Date.now();
+      if (res.status === 429) {
+        const retryAfter = Number(res.headers.get('Retry-After'));
+        const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
+          ? Math.min(retryAfter * 1000, 15_000)
+          : 5_000;
+        await this.sleep(waitMs);
+        res = await fetch(`${OPENF1_BASE}${path}`, { headers: { Accept: 'application/json' } });
+        this.lastRequestAt = Date.now();
+      }
+      if (!res.ok) {
+        if (res.status === 429) throw new Error('OpenF1 rate limited. Please retry in a few seconds.');
+        throw new Error(`OpenF1 HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      this.cache.set(path, { data, expiry: Date.now() + this.ttl });
+      return data as T;
+    } finally {
+      release();
+    }
   }
 
   private sessionName(type: SessionSchedule['type']): string {
