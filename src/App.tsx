@@ -203,6 +203,19 @@ export default function App() {
     replayEngine.connect();
   };
 
+  const handleReplayRace = async (gp: GrandPrix) => {
+    const raceSession = gp.sessions.find(session => session.type === 'RACE');
+    if (!raceSession) throw new Error('Race session is unavailable for this weekend.');
+    liveEngine.disconnect();
+    replayEngine.pause();
+    setIsReplayPlaying(false);
+    setIsReplayMode(true);
+    setConnectionState('REPLAY');
+    await replayEngine.loadRace(gp, raceSession);
+    setSnapshot(replayEngine.getSnapshot());
+    setActiveTab('live');
+  };
+
   const handleToggleProviderMode = () => {
     if (isReplayMode) {
       replayEngine.pause();
@@ -264,7 +277,7 @@ export default function App() {
             onSwitchToReplay={handleSwitchToReplay}
           />
         )}
-        {activeTab === 'weekend' && <WeekendHub schedule={schedule} drivers={drivers} teams={teams} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} onLoadSession={loadSession} />}
+        {activeTab === 'weekend' && <WeekendHub schedule={schedule} drivers={drivers} teams={teams} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={scheduleProvenance} isLoading={isLoadingSeason} error={scheduleError} onLoadSession={loadSession} onReplayRace={handleReplayRace} />}
         {activeTab === 'standings' && <StandingsWorkstation driverStandings={driverStandings} constructorStandings={constructorStandings} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={standingsProvenance} isLoading={isLoadingSeason} error={standingsError} />}
         {activeTab === 'drivers' && <DriversDirectory drivers={drivers} selectedSeason={selectedSeason} onSelectSeason={setSelectedSeason} availableSeasons={SUPPORTED_HISTORICAL_SEASONS} provenance={standingsProvenance} isLoading={isLoadingSeason} error={standingsError} />}
         {activeTab === 'teams' && (
