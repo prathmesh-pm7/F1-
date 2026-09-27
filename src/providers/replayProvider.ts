@@ -299,6 +299,7 @@ export class ReplayProvider implements F1LiveProvider {
 
   private generateSnapshot(lap: number): LiveSessionSnapshot {
     if (!this.session) return this.emptySnapshot();
+    const session = this.session;
     const entries = Array.from(this.session.drivers.keys())
       .map(number => this.entryFor(number, lap))
       .filter((entry): entry is TimingEntry => Boolean(entry))
@@ -326,7 +327,7 @@ export class ReplayProvider implements F1LiveProvider {
         message: String(m.message ?? m.category ?? 'Race control update'),
         provenance: {
           provider: 'OpenF1',
-          sourceUrl: `${OPENF1_BASE}/race_control?session_key=${this.session.sessionKey}`,
+          sourceUrl: `${OPENF1_BASE}/race_control?session_key=${session.sessionKey}`,
           retrievedAt: new Date().toISOString(),
           isLive: false,
           isFixture: false,
