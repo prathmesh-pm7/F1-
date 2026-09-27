@@ -80,7 +80,7 @@ export default function App() {
       setScheduleError(null);
       setStandingsError(null);
       try {
-        const [schedRes, dStandingsRes, cStandingsRes, circsRes, headshots, circuitMeta, fiaNews, technical] = await Promise.all([
+        const [schedRes, dStandingsRes, cStandingsRes, circsRes, headshotsRaw, circuitMetaRaw, fiaNews, technical] = await Promise.all([
           jolpicaProvider.getSchedule(selectedSeason),
           jolpicaProvider.getDriverStandings(selectedSeason),
           jolpicaProvider.getConstructorStandings(selectedSeason),
@@ -91,6 +91,8 @@ export default function App() {
           enrichmentProvider.getTechnicalUpdates().catch(() => [])
         ]);
         if (!mounted) return;
+        const headshots = headshotsRaw as Record<string, string>;
+        const circuitMeta = circuitMetaRaw as Record<string, Partial<Circuit>>;
         setNews(fiaNews);
         setTechnicalUpdates(technical);
 
