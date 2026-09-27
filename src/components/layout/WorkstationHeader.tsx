@@ -12,7 +12,17 @@ interface Props {
 }
 
 export const WorkstationHeader: React.FC<Props> = ({ snapshot, connectionState, onOpenSearch, onToggleProviderMode, isReplayMode }) => {
-  const stateLabel = connectionState === 'LIVE' ? 'LIVE' : connectionState === 'REPLAY' ? 'REPLAY' : connectionState === 'STALE' ? 'STALE' : connectionState === 'PROVIDER_UNAVAILABLE' ? 'UNAVAILABLE' : connectionState;
+  const stateLabel = connectionState === 'LIVE'
+    ? 'LIVE'
+    : connectionState === 'REPLAY'
+      ? 'REPLAY'
+      : connectionState === 'STALE'
+        ? 'STALE'
+        : connectionState === 'PROVIDER_UNAVAILABLE'
+          ? 'PROVIDER UNAVAILABLE'
+          : connectionState === 'DISCONNECTED'
+            ? 'NO LIVE SESSION'
+            : connectionState;
   return (
     <header className="f1-header">
       <div className="f1-header-context">
@@ -31,7 +41,7 @@ export const WorkstationHeader: React.FC<Props> = ({ snapshot, connectionState, 
       <div className="f1-header-rule">
         <div className="f1-header-source">
           <LiveStatusIndicator state={connectionState} />
-          <span className="muted">{isReplayMode ? 'RECORDED REPLAY' : 'LIVE CONNECTION'}</span>
+          <span className="muted">{isReplayMode ? 'RECORDED REPLAY' : connectionState === 'DISCONNECTED' ? 'NO SESSION SCHEDULED' : 'LIVE CONNECTION'}</span>
         </div>
         <div className="f1-header-actions">
           <span className="f1-weather">{snapshot.weather.airTemp > 0 ? `AIR ${snapshot.weather.airTemp}°` : 'AIR —'} <span>/</span> {snapshot.weather.trackTemp > 0 ? `TRACK ${snapshot.weather.trackTemp}°` : 'TRACK —'}</span>
