@@ -21,6 +21,7 @@ import {
   RaceWeekendData,
   RaceResultEntry,
   QualifyingResultEntry,
+  SprintResultEntry,
   LapTimingEntry
 } from '../types/f1';
 import { getCurrentSeason } from '../config/season';
