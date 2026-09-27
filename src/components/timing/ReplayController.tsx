@@ -5,6 +5,8 @@ interface Props {
   currentLap: number;
   totalLaps: number;
   recordedLaps?: number[];
+  sessionName?: string;
+  circuitName?: string;
   isPlaying: boolean;
   playbackSpeed: number;
   onPlay: () => void;
@@ -24,10 +26,13 @@ export const ReplayController: React.FC<Props> = ({
   onPause,
   onStepLap,
   onSetSpeed,
-  onJumpToLap
+  onJumpToLap,
+  sessionName = 'RECORDED SESSION',
+  circuitName = 'CIRCUIT'
 }) => {
-  const minLap = recordedLaps[0] || 36;
-  const maxLap = recordedLaps[recordedLaps.length - 1] || 40;
+  const laps = recordedLaps?.length ? recordedLaps : Array.from({ length: totalLaps }, (_, i) => i + 1);
+  const minLap = laps[0] ?? 1;
+  const maxLap = laps[laps.length - 1] ?? totalLaps;
 
   return (
     <div className="border border-amber-900/60 bg-[#12110d] px-3 py-2 text-xs font-mono text-neutral-300">
@@ -36,10 +41,10 @@ export const ReplayController: React.FC<Props> = ({
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/10 border border-amber-500/40 text-amber-300 text-[11px] font-bold">
             <AlertTriangle className="w-3 h-3 text-amber-400" />
-            <span>REPLAY / HISTORICAL FIXTURE DATA</span>
+            <span>REPLAY / HISTORICAL DATA</span>
           </div>
           <span className="text-neutral-400 text-[11px] hidden sm:inline">
-            FIA Official Timing Record · Italian GP (Monza 2024) · Recorded Laps {minLap}-{maxLap}
+            RECORDED TIMING · {sessionName} · {circuitName} · LAPS {minLap}-{maxLap}
           </span>
         </div>
 
@@ -92,7 +97,7 @@ export const ReplayController: React.FC<Props> = ({
 
           {/* Recorded Lap Buttons */}
           <div className="flex items-center border border-[#2e3744] bg-[#161a20]">
-            {recordedLaps.map((lap) => (
+            {laps.map((lap) => (
               <button
                 key={lap}
                 type="button"
@@ -126,12 +131,11 @@ export const ReplayController: React.FC<Props> = ({
             ))}
           </div>
 
-          {/* Reset to Lap 38 */}
           <button
             type="button"
-            onClick={() => onJumpToLap(38)}
+            onClick={() => onJumpToLap(minLap)}
             className="p-1.5 bg-[#161a20] border border-[#2e3744] hover:bg-[#252c38] text-neutral-400 hover:text-white"
-            title="Reset to Lap 38 (Piastri Chase)"
+            title={`Reset to Lap ${minLap}`}
           >
             <RotateCcw className="w-3 h-3" />
           </button>
