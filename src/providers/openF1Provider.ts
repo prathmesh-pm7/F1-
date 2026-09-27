@@ -39,11 +39,13 @@ export class OpenF1Provider {
     if (!match) throw new Error(`${wanted} data is not published for ${gp.officialName} yet.`);
 
     const key = Number(match.session_key);
-    const [rawResults, rawLaps, rawPit, rawDrivers, rawPositions, meetings] = await Promise.all([
+    const [rawResults, rawLaps, rawPit, rawDrivers, rawPositions, rawWeather, rawRaceControl, meetings] = await Promise.all([
       this.get<JsonRecord[]>(`/session_result?session_key=${key}`),
       this.get<JsonRecord[]>(`/laps?session_key=${key}`),
       this.get<JsonRecord[]>(`/pit?session_key=${key}`),
       this.get<JsonRecord[]>(`/drivers?session_key=${key}`),
+      this.get<JsonRecord[]>(`/weather?session_key=${key}`),
+      this.get<JsonRecord[]>(`/race_control?session_key=${key}`),
       this.get<JsonRecord[]>(`/position?session_key=${key}`),
       this.get<JsonRecord[]>(`/meetings?year=${gp.season}&country_name=${country}`)
     ]);
@@ -92,7 +94,7 @@ export class OpenF1Provider {
     const pitStops = rawPit.map(p => { const d=driverMap.get(Number(p.driver_number))??{}; return { driverNumber:Number(p.driver_number), driverCode:String(d.name_acronym??'???'), driverName:String(d.full_name??d.broadcast_name??'Unknown'), lap:Number(p.lap_number), stopDuration:Number(p.stop_duration)||undefined, laneDuration:Number(p.lane_duration)||undefined }; });
     const meeting = meetings[0] ?? {};
     const provenance: DataProvenance = { provider:'OpenF1', sourceUrl:`${OPENF1_BASE}/session_result?session_key=${key}`, retrievedAt:new Date().toISOString(), lastUpdatedAt:new Date().toISOString(), isLive:false, isFixture:false, isHistorical:gp.season < new Date().getFullYear(), notes:'Historical session data from OpenF1' };
-    return { sessionKey:key, sessionName:String(match.session_name), sessionType:String(match.session_type), startTime:String(match.date_start), endTime:String(match.date_end), circuitName:String(match.circuit_short_name ?? gp.circuit.name), circuitImageUrl:meeting.circuit_image, results, laps, pitStops, driverLineup:Array.from(driverMap.values()).map(toDriver), provenance };
+    return { sessionKey:key, sessionName:String(match.session_name), sessionType:String(match.session_type), startTime:String(match.date_start), endTime:String(match.date_end), circuitName:String(match.circuit_short_name ?? gp.circuit.name), circuitImageUrl:meeting.circuit_image, results, laps, pitStops, driverLineup:Array.from(driverMap.values()).map(toDriver), weather, raceControl, provenance };
   }
   public async getSeasonDriverImages(year: number): Promise<Record<string, string>> {
     // Always prefer the current-season F1 headshots returned by OpenF1's latest
