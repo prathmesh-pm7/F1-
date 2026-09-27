@@ -200,6 +200,13 @@ export class ReplayProvider implements F1LiveProvider {
 
   public async loadRace(gp: GrandPrix, session: SessionSchedule): Promise<void> {
     this.pause();
+    // Clear the previous replay immediately. If a historical request fails or is
+    // rate-limited, the UI must never continue displaying the previous race as if
+    // it were the newly selected weekend.
+    this.session = null;
+    this.recordedLaps = [];
+    this.currentLapIndex = 0;
+    this.broadcastSnapshot();
     const wanted = encodeURIComponent('Race');
     const sessions = await this.get<JsonRecord[]>(`/sessions?year=${gp.season}&session_name=${wanted}`);
     const target = new Date(session.startTime).getTime();
