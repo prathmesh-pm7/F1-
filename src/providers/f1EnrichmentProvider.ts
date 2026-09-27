@@ -41,6 +41,23 @@ const TEAM_ALIASES: Array<[string, string]> = [
   ['Haas', 'haas'], ['Audi', 'audi'], ['Alpine', 'alpine'], ['Cadillac', 'cadillac']
 ];
 
+// Official/current circuit lengths are kept as season facts because the MultiViewer
+// circuit geometry endpoint exposes corners/markers, not a reliable circuit-length field.
+const TRACK_FACTS: Record<string, { lengthKm: number; turns?: number }> = {
+  australia: { lengthKm: 5.278, turns: 14 }, china: { lengthKm: 5.451, turns: 16 },
+  japan: { lengthKm: 5.807, turns: 18 }, bahrain: { lengthKm: 5.412, turns: 15 },
+  'saudi arabia': { lengthKm: 6.174, turns: 27 }, miami: { lengthKm: 5.412, turns: 19 },
+  canada: { lengthKm: 4.361, turns: 14 }, monaco: { lengthKm: 3.337, turns: 19 },
+  spain: { lengthKm: 4.657, turns: 14 }, austria: { lengthKm: 4.326, turns: 10 },
+  'great britain': { lengthKm: 5.891, turns: 18 }, belgium: { lengthKm: 7.004, turns: 19 },
+  hungary: { lengthKm: 4.381, turns: 14 }, netherlands: { lengthKm: 4.259, turns: 14 },
+  italy: { lengthKm: 5.793, turns: 11 }, madrid: { lengthKm: 5.414, turns: 22 },
+  azerbaijan: { lengthKm: 6.003, turns: 20 }, singapore: { lengthKm: 4.940, turns: 19 },
+  'united states': { lengthKm: 5.513, turns: 20 }, mexico: { lengthKm: 4.304, turns: 17 },
+  brazil: { lengthKm: 4.309, turns: 15 }, 'las vegas': { lengthKm: 6.201, turns: 17 },
+  qatar: { lengthKm: 5.419, turns: 16 }, 'abu dhabi': { lengthKm: 5.281, turns: 16 }
+};
+
 type JsonRecord = Record<string, any>;
 
 const clean = (value: string) => value.replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -172,7 +189,10 @@ export class F1EnrichmentProvider {
     await Promise.all(meetings.map(async meeting => {
       const country = String(meeting.country_name ?? '').toLowerCase();
       if (!country) return;
-      const base: Partial<Circuit> = { imageUrl: meeting.circuit_image, circuitType: meeting.circuit_type, latitude: Number(meeting.latitude) || undefined, longitude: Number(meeting.longitude) || undefined, countryFlagUrl: meeting.country_flag, circuitInfoUrl: meeting.circuit_info_url, circuitKey: Number(meeting.circuit_key) || undefined, lapRecord: LAP_RECORDS[country] };
+      const circuitName = String(meeting.circuit_short_name ?? '').toLowerCase();
+      const location = String(meeting.location ?? '').toLowerCase();
+      const fact = TRACK_FACTS[circuitName] ?? TRACK_FACTS[location] ?? TRACK_FACTS[country];
+      const base: Partial<Circuit> = { imageUrl: meeting.circuit_image, circuitType: meeting.circuit_type, latitude: Number(meeting.latitude) || undefined, longitude: Number(meeting.longitude) || undefined, countryFlagUrl: meeting.country_flag, circuitInfoUrl: meeting.circuit_info_url, circuitKey: Number(meeting.circuit_key) || undefined, lapRecord: LAP_RECORDS[country], lengthKm: fact?.lengthKm, turns: fact?.turns };
       let enriched: Partial<Circuit> = base;
       if (meeting.circuit_info_url) {
         try {
@@ -180,7 +200,7 @@ export class F1EnrichmentProvider {
           const corners = Array.isArray(info.corners) ? info.corners : [];
           const lengthKm = Number(info.length ?? info.circuit_length ?? info.track_length ?? info.length_km);
           const drsZones = Number(info.drs_zones ?? info.drsZones ?? info.number_of_drs_zones);
-          enriched = { ...base, lengthKm: Number.isFinite(lengthKm) && lengthKm > 0 ? lengthKm : undefined, turns: corners.length || undefined, drsZones: Number.isFinite(drsZones) && drsZones > 0 ? drsZones : undefined, trackRotation: Number(info.rotation) || undefined };
+          enriched = { ...base, lengthKm: base.lengthKm ?? (Number.isFinite(lengthKm) && lengthKm > 0 ? lengthKm : undefined), turns: base.turns ?? (corners.length || undefined), drsZones: year < 2026 && Number.isFinite(drsZones) && drsZones > 0 ? drsZones : undefined, straightModeZones: year >= 2026 ? (Number.isFinite(drsZones) && drsZones > 0 ? drsZones : undefined) : undefined, trackRotation: Number(info.rotation) || undefined };
         } catch { enriched = base; }
       }
       if (!result[country]) result[country] = enriched;
