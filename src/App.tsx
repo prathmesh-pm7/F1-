@@ -178,10 +178,17 @@ export default function App() {
     if (!isLoadingSeason && teams.length > 0 && !favoriteTeam && !teamSetupDismissed) setShowTeamSetup(true);
   }, [isLoadingSeason, teams.length, favoriteTeam, teamSetupDismissed]);
 
+  // The selected team is the visual theme for the entire workspace.
+  // Keep the source team colour as the single accent and derive softer/brighter
+  // variants in CSS so every screen reacts immediately when the favourite changes.
+  const favoriteColor = favoriteTeam?.color ?? '#e10600';
   const rootStyle = {
-    '--team-accent': favoriteTeam?.color ?? '#8b929b',
-    '--team-accent-soft': favoriteTeam?.color ? `${favoriteTeam.color}20` : '#8b929b18',
-    '--team-accent-strong': favoriteTeam?.color ?? '#8b929b'
+    '--team-accent': favoriteColor,
+    '--team-accent-soft': `color-mix(in srgb, ${favoriteColor} 16%, transparent)`,
+    '--team-accent-strong': favoriteColor,
+    '--f1-red': favoriteColor,
+    '--f1-red-bright': `color-mix(in srgb, ${favoriteColor} 72%, white)`,
+    '--f1-red-soft': `color-mix(in srgb, ${favoriteColor} 16%, transparent)`
   } as React.CSSProperties;
 
   const handleSwitchToReplay = () => {
