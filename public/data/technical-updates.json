@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "technical-0-2026-09-27T11:51:02.973702+00:00",
+    "team": "Ferrari",
+    "teamColor": "#E8002D",
+    "component": "Chassis & Weight",
+    "updateType": "Aerodynamic",
+    "weekend": "RECENT",
+    "submissionDate": "2026-09-27",
+    "summary": "Leclerc urges Ferrari to ‘bring upgrades to close the gap’",
+    "technicalDescription": "Charles Leclerc was left concerned by Ferrari’s deficit to their rivals in the Azerbaijan Grand Prix.",
+    "source": "Formula 1",
+    "sourceUrl": "https://www.formula1.com/en/latest/article/we-were-quite-far-off-leclerc-urges-ferrari-to-bring-upgrades-to-close-the-gap-after-baku.6zFmpztQcYlGBeNtCK6CF9",
+    "status": "REPORTED",
+    "provenance": {
+      "provider": "Curated Technical",
+      "sourceUrl": "https://www.formula1.com/en/latest/article/we-were-quite-far-off-leclerc-urges-ferrari-to-bring-upgrades-to-close-the-gap-after-baku.6zFmpztQcYlGBeNtCK6CF9",
+      "retrievedAt": "2026-09-27T11:51:00.940317+00:00",
+      "isLive": false,
+      "isFixture": false,
+      "notes": "Official Formula 1 technical/news publication; not an FIA filing."
+    }
+  }
+]
