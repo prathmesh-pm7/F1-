@@ -61,6 +61,15 @@ export class F1SignalRClient {
       this.setStatus('CONNECTING');
 
       try {
+        // F1's current SignalR Core service uses a load-balancer cookie during
+        // negotiation. Browsers cannot set a Cookie header on WebSocket, so we
+        // first let the server establish its cross-origin cookie before opening
+        // the socket. This mirrors the current FastF1 connection flow.
+        void fetch(`${this.url.replace(/^wss:/, 'https:')}/negotiate?negotiateVersion=1`, {
+          method: 'OPTIONS',
+          credentials: 'include',
+          mode: 'cors'
+        }).catch(() => undefined);
         this.ws = new WebSocket(this.url);
 
         const timeout = setTimeout(() => {
