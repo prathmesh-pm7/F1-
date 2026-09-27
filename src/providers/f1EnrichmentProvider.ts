@@ -170,45 +170,23 @@ export class F1EnrichmentProvider {
     const meetings = await this.getJson<JsonRecord[]>(`${OPENF1_BASE}/meetings?year=${year}`);
     const result: Record<string, Partial<Circuit>> = {};
     await Promise.all(meetings.map(async meeting => {
-      const country = String(meeting.country_name ?? '').toLowerCase();
-      if (!country) return;
-      const base: Partial<Circuit> = {
-        imageUrl: meeting.circuit_image,
-        circuitType: meeting.circuit_type,
-        latitude: Number(meeting.latitude) || undefined,
-        longitude: Number(meeting.longitude) || undefined,
-        countryFlagUrl: meeting.country_flag,
-        circuitInfoUrl: meeting.circuit_info_url,
-        lapRecord: LAP_RECORDS[country]
-      };
-      if (meeting.circuit_info_url) {
-        try {
-          const info = await this.getJson<JsonRecord>(String(meeting.circuit_info_url));
-          const corners = Array.isArray(info.corners) ? info.corners : [];
-          const enriched = {
-            ...base,
-            turns: corners.length || undefined,
-            circuitKey: Number(meeting.circuit_key) || undefined,
-            trackRotation: Number(info.rotation) || undefined
-          };
-          if (!result[country]) result[country] = enriched;
-          if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
-          if (meeting.location) result[String(meeting.location).toLowerCase()] = enriched;
-        } catch {
-          const enriched = { ...base, circuitKey: Number(meeting.circuit_key) || undefined };
-          if (!result[country]) result[country] = enriched;
-          if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
-          if (meeting.location) result[String(meeting.location).toLowerCase()] = enriched;
-        }
-      } else {
-        if (!result[country]) result[country] = base;
-        if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = base;
-        if (meeting.location) result[String(meeting.location).toLowerCase()] = base;
-      }
-    }));
-    return result;
+      const country = String(meeting.country_name ?? '').toLowerCase(); if (!country) return;
+      const base: Partial<Circuit> = { imageUrl: meeting.circuit_image, circuitType: meeting.circuit_type, latitude: Number(meeting.latitude) || undefined, longitude: Number(meeting.longitude) || undefined, countryFlagUrl: meeting.country_flag, circuitInfoUrl: meeting.circuit_info_url, circuitKey: Number(meeting.circuit_key) || undefined, lapRecord: LAP_RECORDS[country] };
+      let enriched: Partial<Circuit> = base;
+      if (meeting.circuit_info_url) { try {
+        const info = await this.getJson<JsonRecord>(String(meeting.circuit_info_url));
+        const corners = Array.isArray(info.corners) ? info.corners : [];
+        const lengthKm = Number(info.length ?? info.circuit_length ?? info.track_length ?? info.length_km);
+        const drsZones = Number(info.drs_zones ?? info.drsZones ?? info.number_of_drs_zones);
+        const rec = info.lap_record ?? info.lapRecord;
+        const infoLap = rec && typeof rec === 'object' ? { time:String(rec.time ?? rec.lap_time ?? ''), driver:String(rec.driver ?? rec.driver_name ?? ''), year:Number(rec.year ?? 0) } : undefined;
+        enriched = { ...base, lengthKm:Number.isFinite(lengthKm)&&lengthKm>0?lengthKm:undefined, turns:corners.length||undefined, drsZones:Number.isFinite(drsZones)&&drsZones>0?drsZones:undefined, trackRotation:Number(info.rotation)||undefined, lapRecord:infoLap?.time?infoLap:base.lapRecord };
+      } catch { enriched = base; } }
+      if (!result[country]) result[country] = enriched;
+      if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
+      if (meeting.location) result[String(meeting.location).toLowerCase()] = enriched;
+    })); return result;
   }
-
   public async getSessionDrivers(sessionKey: number): Promise<Driver[]> {
     const rows = await this.getJson<JsonRecord[]>(`${OPENF1_BASE}/drivers?session_key=${sessionKey}`);
     return rows.map(d => ({
@@ -225,4 +203,12 @@ export class F1EnrichmentProvider {
       headshotUrl: d.headshot_url
     }));
   }
-}
+}  public async getSeasonDriverImages(year: number): Promise<Record<string, string>> {
+    const sessions = await this.get<JsonRecord[]>(`${OPENF1_BASE}/sessions?year=${year}&session_name=Race`);
+    const latest = sessions.sort((a,b) => new Date(String(b.date_start)).getTime() - new Date(String(a.date_start)).getTime())[0];
+    if (!latest) return {};
+    const drivers = await this.get<JsonRecord[]>(`${OPENF1_BASE}/drivers?session_key=${Number(latest.session_key)}`);
+    const images = drivers.reduce<Record<string,string>>((map, d) => { if (d.headshot_url) { map[String(d.driver_number)] = String(d.headshot_url); if (d.name_acronym) map[String(d.name_acronym)] = String(d.headshot_url); } return map; }, {});
+    if (year === 2026 && !images['41']) { images['41'] = 'https://media.formula1.com/image/upload/c_fill,w_720/q_auto/v1740000001/common/f1/2026/racingbulls/arvlin01/2026racingbullsarvlin01right.webp'; images['LIN'] = images['41']; }
+    return images;
+  }
