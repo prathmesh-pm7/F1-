@@ -9,7 +9,7 @@ export const CircuitsDirectory:React.FC<Props>=({circuits,selectedSeason,onSelec
  <div className="f1-circuit-grid">{circuits.map((c,i)=><article key={c.id} className="f1-circuit-card">
   <div className="f1-circuit-image">{c.imageUrl?<img src={c.imageUrl} alt={c.name} loading="lazy" onError={e=>{e.currentTarget.style.display='none'}}/>:<span>TRACK / {String(i+1).padStart(2,'0')}</span>}<div className="f1-circuit-overlay"><b>R{String(i+1).padStart(2,'0')}</b><span>F1</span></div></div>
   <div className="f1-circuit-body"><div className="f1-circuit-title"><div><span>{c.country}</span><h2>{c.name}</h2><p><MapPin/> {c.location}</p></div><span className="f1-grade">GRADE 1</span></div>
-   <div className="f1-circuit-stats"><div><span>LENGTH</span><strong>{c.lengthKm?c.lengthKm+' km':'—'}</strong></div><div><span>TURNS</span><strong>{c.turns??'—'}</strong></div><div><span>DRS</span><strong>{c.drsZones??'—'}</strong></div><div><span>TYPE</span><strong>{c.circuitType??'—'}</strong></div></div>
+   <div className="f1-circuit-stats"><div><span>LENGTH</span><strong>{c.lengthKm?c.lengthKm+' km':'—'}</strong></div><div><span>TURNS</span><strong>{c.turns??'—'}</strong></div><div><span>{selectedSeason >= 2026 ? 'AERO' : 'DRS'}</span><strong>{selectedSeason >= 2026 ? 'ACTIVE' : (c.drsZones ?? '—')}</strong></div><div><span>TYPE</span><strong>{c.circuitType??'—'}</strong></div></div>
    <div className="f1-record-card"><div><span>CIRCUIT RECORD</span><strong>{c.lapRecord?.time??'—'}</strong></div><div><span>DRIVER</span><strong>{c.lapRecord?.driver??'Record unavailable'}</strong><small>{c.lapRecord?.year??''}</small></div></div>
   </div>
  </article>)}</div>}
