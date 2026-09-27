@@ -1060,3 +1060,42 @@
 @media (max-width: 480px) {
   .f1-timing-guide summary span { display: none; }
 }
+
+
+.f1-driver-telemetry {
+  border-color: #27272e !important;
+  background: #0f0f12 !important;
+  color: #c7c7cd;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.f1-driver-telemetry .text-fuchsia-400 {
+  color: var(--f1-red) !important;
+}
+
+.f1-driver-telemetry .f1-driver-accent-value {
+  color: var(--f1-red) !important;
+}
+
+.f1-driver-telemetry [class*="bg-[#161a20]"] {
+  background: #111115 !important;
+}
+
+.f1-driver-telemetry [class*="bg-[#111418]"] {
+  background: #0c0c0f !important;
+}
+
+.f1-driver-telemetry [class*="border-[#1f2632]"],
+.f1-driver-telemetry [class*="border-[#252e3b]"],
+.f1-driver-telemetry [class*="border-[#222934]"] {
+  border-color: #25252c !important;
+}
+
+.f1-driver-telemetry .text-\[10px\] {
+  letter-spacing: .05em;
+}
+
+.f1-driver-telemetry .text-\[9px\] {
+  letter-spacing: .04em;
+}
