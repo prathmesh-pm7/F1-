@@ -190,6 +190,7 @@ export interface Circuit {
   lengthKm?: number;
   turns?: number;
   drsZones?: number;
+  straightModeZones?: number;
   imageUrl?: string;
   circuitType?: string;
   latitude?: number;
