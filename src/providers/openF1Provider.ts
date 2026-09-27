@@ -39,11 +39,12 @@ export class OpenF1Provider {
     if (!match) throw new Error(`${wanted} data is not published for ${gp.officialName} yet.`);
 
     const key = Number(match.session_key);
-    const [rawResults, rawLaps, rawPit, rawDrivers, meetings] = await Promise.all([
+    const [rawResults, rawLaps, rawPit, rawDrivers, rawPositions, meetings] = await Promise.all([
       this.get<JsonRecord[]>(`/session_result?session_key=${key}`),
       this.get<JsonRecord[]>(`/laps?session_key=${key}`),
       this.get<JsonRecord[]>(`/pit?session_key=${key}`),
       this.get<JsonRecord[]>(`/drivers?session_key=${key}`),
+      this.get<JsonRecord[]>(`/position?session_key=${key}`),
       this.get<JsonRecord[]>(`/meetings?year=${gp.season}&country_name=${country}`)
     ]);
 
@@ -56,11 +57,31 @@ export class OpenF1Provider {
       teamColor: `#${String(d.team_colour ?? '59636E').replace('#','')}`, headshotUrl: d.headshot_url
     });
 
-    const results: SessionResultEntry[] = rawResults.map(r => {
+    // Some historical practice sessions have a complete position stream even when
+    // /session_result is delayed. Keep the classification usable by falling back to
+    // each driver's latest recorded position in that session.
+    const latestPosition = new Map<number, number>();
+    for (const p of rawPositions) {
+      const driverNumber = Number(p.driver_number);
+      const position = Number(p.position);
+      if (!Number.isFinite(driverNumber) || !Number.isFinite(position)) continue;
+      const previous = latestPosition.get(driverNumber);
+      if (previous == null || new Date(String(p.date)).getTime() >= 0) latestPosition.set(driverNumber, position);
+    }
+    const resultRows = rawResults.length > 0 ? rawResults : Array.from(driverMap.keys()).map(driver_number => ({
+      driver_number,
+      position: latestPosition.get(driver_number),
+      duration: undefined,
+      gap_to_leader: undefined,
+      number_of_laps: 0,
+      dnf: false, dns: false, dsq: false
+    }));
+
+    const results: SessionResultEntry[] = resultRows.map(r => {
       const d = driverMap.get(Number(r.driver_number)) ?? {};
       const duration = Array.isArray(r.duration) ? r.duration[0] : r.duration;
       const gap = r.gap_to_leader == null ? (Number(r.position) === 1 ? 'LEADER' : '—') : (typeof r.gap_to_leader === 'number' ? `+${r.gap_to_leader.toFixed(3)}` : String(r.gap_to_leader));
-      return { position: Number.isFinite(Number(r.position)) ? Number(r.position) : null, driverNumber: Number(r.driver_number), driverId: String(d.driver_number ?? ''), driverCode: String(d.name_acronym ?? '???'), driverName: String(d.full_name ?? d.broadcast_name ?? 'Unknown'), teamName: String(d.team_name ?? '—'), teamColor: `#${String(d.team_colour ?? '59636E').replace('#','')}`, bestLap: this.secondsToTime(duration), gap, laps: Number(r.number_of_laps ?? 0), dnf: Boolean(r.dnf), dns: Boolean(r.dns), dsq: Boolean(r.dsq) };
+      return { position: Number.isFinite(Number(r.position)) ? Number(r.position) : (latestPosition.get(Number(r.driver_number)) ?? null), driverNumber: Number(r.driver_number), driverId: String(d.driver_number ?? ''), driverCode: String(d.name_acronym ?? '???'), driverName: String(d.full_name ?? d.broadcast_name ?? 'Unknown'), teamName: String(d.team_name ?? '—'), teamColor: `#${String(d.team_colour ?? '59636E').replace('#','')}`, bestLap: this.secondsToTime(duration), gap, laps: Number(r.number_of_laps ?? 0), dnf: Boolean(r.dnf), dns: Boolean(r.dns), dsq: Boolean(r.dsq) };
     });
 
     const laps = rawLaps.map(l => {
