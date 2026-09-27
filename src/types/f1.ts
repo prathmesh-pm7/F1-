@@ -139,6 +139,9 @@ export interface Driver {
   podiums?: number;
   careerPoles?: number;
   careerStarts?: number;
+  careerWins?: number;
+  careerPodiums?: number;
+  placeOfBirth?: string;
   permanentNumber?: number;
   headshotUrl?: string;
   countryCode?: string;
