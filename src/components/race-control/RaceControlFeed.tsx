@@ -6,7 +6,7 @@ interface Props {
   className?: string;
 }
 
-export const RaceControlFeed: React.FC<Props> = ({ messages, className = '' }) => {
+const formatRaceTime = (value: string) => {\n  const date = new Date(value);\n  if (!Number.isNaN(date.getTime())) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });\n  const match = value.match(/(\\d{2}:\\d{2}(?::\\d{2})?)/);\n  return match?.[1] ?? value;\n};\n\nexport const RaceControlFeed: React.FC<Props> = ({ messages, className = '' }) => {
   const [filter, setFilter] = useState<string>('ALL');
 
   const filteredMessages = messages.filter((m) => {
@@ -46,7 +46,7 @@ export const RaceControlFeed: React.FC<Props> = ({ messages, className = '' }) =
         ) : (
           filteredMessages.map(msg => (
             <div key={msg.id} className="f1-race-log-row">
-              <span className="rc-time">{msg.time}</span>
+              <span className="rc-time">{formatRaceTime(msg.time)}</span>
               <span className={`rc-type ${getTypeClass(msg.category, msg.flag)}`}>{msg.flag || msg.category}</span>
               <span className="rc-message">{msg.message}</span>
             </div>
