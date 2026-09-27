@@ -346,7 +346,7 @@ export interface RaceWeekendData {
   qualifying: QualifyingResultEntry[];
   sprintResults: SprintResultEntry[];
   laps: LapTimingEntry[];
-  pitStops: PitStop[] & { driverId?: string }[];
+  pitStops: Array<PitStop & { driverId?: string }>;
   winner?: RaceResultEntry;
   totalLaps?: number;
   provenance: DataProvenance;
