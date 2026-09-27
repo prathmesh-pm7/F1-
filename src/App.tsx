@@ -209,9 +209,12 @@ export default function App() {
     liveEngine.disconnect();
     replayEngine.pause();
     setIsReplayPlaying(false);
+    // Load the requested race before enabling replay mode. Otherwise the
+    // replay-mode effect can concurrently call connect(), which loads its
+    // default latest-race session and overwrites the user's selection.
+    await replayEngine.loadRace(gp, raceSession);
     setIsReplayMode(true);
     setConnectionState('REPLAY');
-    await replayEngine.loadRace(gp, raceSession);
     setSnapshot(replayEngine.getSnapshot());
     setActiveTab('live');
   };
