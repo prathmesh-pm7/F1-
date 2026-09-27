@@ -35,7 +35,7 @@ export const ReplayController: React.FC<Props> = ({
   const maxLap = laps[laps.length - 1] ?? totalLaps;
 
   return (
-    <div className="border border-amber-900/60 bg-[#12110d] px-3 py-2 text-xs font-mono text-neutral-300">
+    <div className="f1-replay-controller border border-amber-900/60 bg-[#12110d] px-3 py-2 text-xs text-neutral-300">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Replay Notice Label */}
         <div className="flex items-center gap-2">
