@@ -10,7 +10,8 @@
  */
 
 import { F1LiveProvider } from './types';
-import { LiveSessionSnapshot, LiveConnectionState, RaceControlMessage, TimingEntry, TyreCompound } from '../types/f1';
+import { LiveSessionSnapshot, LiveConnectionState, RaceControlMessage, TimingEntry, TyreCompound, TyreStint } from '../types/f1';
+import { GrandPrix, SessionSchedule } from '../types/f1';
 
 const OPENF1_BASE = 'https://api.openf1.org/v1';
 
@@ -39,6 +40,8 @@ interface ReplaySession {
   positions: JsonRecord[];
   raceControl: JsonRecord[];
   weather: JsonRecord[];
+  stints: JsonRecord[];
+  pitStops: JsonRecord[];
 }
 
 const formatSeconds = (value: unknown): string => {
@@ -55,7 +58,7 @@ const emptySector = (sector: 1 | 2 | 3) => ({
 });
 
 export class ReplayProvider implements F1LiveProvider {
-  public name = 'Replay Engine (latest completed race)';
+  public name = 'Replay Engine (historical race archive)';
   private state: LiveConnectionState = 'REPLAY';
   private snapshotListeners: ((snapshot: LiveSessionSnapshot) => void)[] = [];
   private stateListeners: ((state: LiveConnectionState, reason?: string) => void)[] = [];
@@ -157,6 +160,22 @@ export class ReplayProvider implements F1LiveProvider {
     return this.session ? this.generateSnapshot(this.getCurrentLap()) : this.emptySnapshot();
   }
 
+  public async loadRace(gp: GrandPrix, session: SessionSchedule): Promise<void> {
+    this.pause();
+    const wanted = encodeURIComponent('Race');
+    const country = encodeURIComponent(gp.country);
+    const sessions = await this.get<JsonRecord[]>(`/sessions?year=${gp.season}&country_name=${country}&session_name=${wanted}`);
+    const target = new Date(session.startTime).getTime();
+    const match = sessions
+      .filter(s => Number.isFinite(new Date(String(s.date_start)).getTime()))
+      .sort((a, b) => Math.abs(new Date(String(a.date_start)).getTime() - target) - Math.abs(new Date(String(b.date_start)).getTime() - target))[0];
+    if (!match) throw new Error(`Race replay data is not published for ${gp.officialName}.`);
+    await this.loadSessionRecord(match, gp.season);
+    this.state = 'REPLAY';
+    this.notifyState();
+    this.broadcastSnapshot();
+  }
+
   private async loadLatestRace(): Promise<void> {
     const year = new Date().getUTCFullYear();
     const sessions = await this.get<JsonRecord[]>(`/sessions?year=${year}&session_name=Race`);
@@ -166,15 +185,20 @@ export class ReplayProvider implements F1LiveProvider {
       .sort((a, b) => new Date(String(b.date_start)).getTime() - new Date(String(a.date_start)).getTime());
     const match = completed[0];
     if (!match) throw new Error('No completed race is available for replay.');
+    await this.loadSessionRecord(match, year);
+  }
 
+  private async loadSessionRecord(match: JsonRecord, year: number): Promise<void> {
     const key = Number(match.session_key);
-    const [rawResults, rawLaps, rawDrivers, rawPositions, rawRaceControl, rawWeather, meetings] = await Promise.all([
+    const [rawResults, rawLaps, rawDrivers, rawPositions, rawRaceControl, rawWeather, rawStints, rawPitStops, meetings] = await Promise.all([
       this.get<JsonRecord[]>(`/session_result?session_key=${key}`),
       this.get<JsonRecord[]>(`/laps?session_key=${key}`),
       this.get<JsonRecord[]>(`/drivers?session_key=${key}`),
       this.get<JsonRecord[]>(`/position?session_key=${key}`),
       this.get<JsonRecord[]>(`/race_control?session_key=${key}`),
       this.get<JsonRecord[]>(`/weather?session_key=${key}`),
+      this.get<JsonRecord[]>(`/stints?session_key=${key}`),
+      this.get<JsonRecord[]>(`/pit?session_key=${key}`),
       this.get<JsonRecord[]>(`/meetings?year=${year}`)
     ]);
 
@@ -214,7 +238,9 @@ export class ReplayProvider implements F1LiveProvider {
       drivers,
       positions: rawPositions,
       raceControl: rawRaceControl,
-      weather: rawWeather
+      weather: rawWeather,
+      stints: rawStints,
+      pitStops: rawPitStops
     };
 
     this.recordedLaps = Array.from({ length: totalLaps }, (_, i) => i + 1);
@@ -265,7 +291,7 @@ export class ReplayProvider implements F1LiveProvider {
     if (!this.session) return null;
     const d = this.session.drivers.get(driverNumber) ?? {};
     const result = this.session.results.find(r => Number(r.driver_number) === driverNumber) ?? {};
-    const position = this.positionAtLapEnd(driverNumber, lap) ?? (Number(result.position) || 0);
+    const position = this.positionAtLapEnd(driverNumber, lap);
     if (!position) return null;
 
     const teamName = String(d.team_name ?? '—');
@@ -273,6 +299,18 @@ export class ReplayProvider implements F1LiveProvider {
     const lapRows = this.session.laps.filter(l => l.driverNumber === driverNumber && l.lapNumber <= lap);
     const current = lapRows.find(l => l.lapNumber === lap);
     const lastLap = current?.lapTime ?? '—';
+    const stints: TyreStint[] = this.session.stints
+      .filter(s => Number(s.driver_number) === driverNumber && Number(s.lap_start ?? 0) <= lap)
+      .sort((a, b) => Number(a.stint_number ?? 0) - Number(b.stint_number ?? 0))
+      .map(s => ({
+        stintNumber: Number(s.stint_number ?? 0),
+        compound: String(s.compound ?? 'UNKNOWN').toUpperCase() as TyreCompound,
+        lapsUsed: Math.max(0, Math.min(lap, Number(s.lap_end ?? lap)) - Number(s.lap_start ?? 1) + 1),
+        startLap: Number(s.lap_start ?? 0),
+        endLap: Number(s.lap_end ?? 0) || undefined,
+        isNew: Boolean(s.tyre_age_at_start === 0)
+      }));
+    const pits = this.session.pitStops.filter(p => Number(p.driver_number) === driverNumber && Number(p.lap_number ?? 0) <= lap);
 
     return {
       position,
@@ -289,9 +327,13 @@ export class ReplayProvider implements F1LiveProvider {
       bestLapTime: this.bestLap(driverNumber),
       sectors: [emptySector(1), emptySector(2), emptySector(3)],
       currentSector: 1,
-      tyre: { compound: 'UNKNOWN' as TyreCompound, age: 0 },
-      stints: [],
-      pitCount: 0,
+      tyre: (() => {
+        const currentStint = stints.find(s => s.startLap <= lap && (!s.endLap || lap <= s.endLap)) ?? stints[stints.length - 1];
+        return { compound: currentStint?.compound ?? 'UNKNOWN' as TyreCompound, age: currentStint ? Math.max(0, lap - currentStint.startLap + 1) : 0 };
+      })(),
+      stints,
+      pitCount: pits.length,
+      lastPitLap: pits.length ? Number(pits[pits.length - 1].lap_number) : undefined,
       inPit: false,
       pitOut: false
     };
@@ -335,7 +377,9 @@ export class ReplayProvider implements F1LiveProvider {
         }
       }));
 
-    const weather = this.session.weather[this.session.weather.length - 1] ?? {};
+    const weather = [...this.session.weather]
+      .filter(w => !Number.isFinite(lap) || !this.session?.laps.length || new Date(String(w.date ?? '')).getTime() <= Math.max(...this.session.laps.filter(l => l.lapNumber <= lap && l.dateStart).map(l => new Date(String(l.dateStart)).getTime() + (l.lapDuration ?? 0) * 1000), 0))
+      .at(-1) ?? this.session.weather[0] ?? {};
     return {
       sessionName: `${this.session.meetingName} · ${this.session.sessionName}`,
       circuitName: this.session.circuitName,
