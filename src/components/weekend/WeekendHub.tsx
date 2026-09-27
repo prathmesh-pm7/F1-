@@ -7,7 +7,7 @@ const statusLabel:Record<GrandPrix['status'],string>={COMPLETED:'COMPLETED',CURR
 export const WeekendHub:React.FC<Props>=({schedule,drivers,teams,selectedSeason,onSelectSeason,availableSeasons=[2026,2025,2024,2023,2022],isLoading,error,onLoadSession,onReplayRace})=>{
  const firstRound=useMemo(()=>schedule.find(g=>g.status==='CURRENT')?.round??schedule.find(g=>g.status==='UPCOMING')?.round??schedule[0]?.round??1,[schedule]); const [selectedRound,setSelectedRound]=useState(firstRound); const [selectedSession,setSelectedSession]=useState<SessionSchedule|null>(null); const [sessionDetail,setSessionDetail]=useState<SessionDetail|null>(null); const [sessionLoading,setSessionLoading]=useState(false); const [sessionError,setSessionError]=useState<string|null>(null);
  useEffect(()=>{setSelectedRound(firstRound);setSelectedSession(null);setSessionDetail(null)},[firstRound]);
- const currentGP=schedule.find(g=>g.round===selectedRound)??schedule.find(g=>g.status==='CURRENT')??schedule.find(g=>g.status==='UPCOMING')??schedule[0];
+ const currentGP=schedule.find(g=>g.round===selectedRound)??schedule[0];
  const openSession=async(s:SessionSchedule)=>{setSelectedSession(s);setSessionDetail(null);setSessionError(null);if(!onLoadSession||!currentGP)return;setSessionLoading(true);try{setSessionDetail(await onLoadSession(currentGP,s))}catch(e){setSessionError(e instanceof Error?e.message:'Session data unavailable.')}finally{setSessionLoading(false)}};
  return <div className="f1-info-page">
   <div className="f1-page-hero"><div><span className="f1-page-kicker">FORMULA 1 SEASON {selectedSeason}</span><h1>RACE WEEKENDS</h1><p>Calendar, session schedule, driver line-up and complete weekend results.</p></div><div className="f1-season-switch">{availableSeasons.map(s=><button key={s} onClick={()=>{onSelectSeason(s);setSelectedRound(1)}} className={selectedSeason===s?'is-active':''}>{s}</button>)}</div></div>
@@ -27,7 +27,7 @@ export const WeekendHub:React.FC<Props>=({schedule,drivers,teams,selectedSeason,
             <div className="mt-1 text-[8px] text-neutral-500">{g.circuit.name} · {g.circuit.location}</div>
           </button>
           <div className="mt-3 flex gap-2">
-            <button type="button" onClick={()=>setSelectedRound(g.round)} className="flex-1 border border-[#2a313a] px-2 py-1 text-[8px] text-neutral-400 hover:text-white">OPEN WEEKEND</button>
+            <button type="button" onClick={()=>{setSelectedRound(g.round);window.setTimeout(()=>document.querySelector('.f1-weekend-hero')?.scrollIntoView({behavior:'smooth',block:'start'}),0)}} className="flex-1 border border-[#2a313a] px-2 py-1 text-[8px] text-neutral-400 hover:text-white">OPEN WEEKEND</button>
             {onReplayRace&&<button type="button" onClick={()=>void onReplayRace(g)} className="border border-[var(--team-accent)] px-2 py-1 text-[8px] text-[var(--team-accent)] hover:text-white">REPLAY RACE</button>}
           </div>
         </div>
