@@ -13,7 +13,7 @@ export const TimingRow: React.FC<Props>=({entry,isSelected,onSelect})=>{
     <td className="timing-cell hide-md">{entry.currentLap||'—'}</td><td className="timing-cell hide-sm">{entry.lastLapTime||'—'}</td>
     <td className="timing-cell hide-lg">{entry.bestLapTime||'—'}</td><td className={`timing-cell hide-lg ${sectorClass(entry.sectors[0]?.status||'')}`}>{entry.sectors[0]?.timeStr||'—'}</td>
     <td className={`timing-cell hide-lg ${sectorClass(entry.sectors[1]?.status||'')}`}>{entry.sectors[1]?.timeStr||'—'}</td><td className={`timing-cell hide-lg ${sectorClass(entry.sectors[2]?.status||'')}`}>{entry.sectors[2]?.timeStr||'—'}</td>
-    <td><span className={`f1-tyre ${tyreClass[tyre]||'tyre-unknown'}`} title={`${tyre} / ${entry.tyre.age} laps`}>{tyre==='UNKNOWN'?'—':tyre[0]}</span><span className="tyre-age">{entry.tyre.age||0}</span></td>
+    <td className="tyre-cell"><span className={`f1-tyre ${tyreClass[tyre]||'tyre-unknown'}`} title={`${tyre} / ${entry.tyre.age} laps`}>{tyre==='UNKNOWN'?'—':tyre[0]}</span><span className="tyre-name">{tyre==='UNKNOWN'?'UNKNOWN':tyre}</span><span className="tyre-age">{entry.tyre.age||0}L</span></td>
     <td className="timing-cell pit-cell">{entry.pitCount}</td>
   </tr>;
 };
