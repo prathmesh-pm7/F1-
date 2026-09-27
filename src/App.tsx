@@ -167,7 +167,9 @@ export default function App() {
         void liveEngine.connect();
       } else {
         liveEngine.disconnect();
-        setConnectionState('PROVIDER_UNAVAILABLE');
+        // There is no live provider to connect to between scheduled sessions.
+        // Show a neutral disconnected state instead of falsely reporting a provider outage.
+        setConnectionState('DISCONNECTED');
       }
     }
     return () => { unsubSnapshot(); unsubState(); };
