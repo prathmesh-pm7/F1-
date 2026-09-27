@@ -31,6 +31,16 @@ export const SessionDetailPanel: React.FC<Props> = ({ detail, onClose }) => {
       )}
 
       <div className="p-4">
+        {(detail.weather || detail.raceControl?.length) && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#1c222b] mb-5">
+            {detail.weather && <>
+              <div className="bg-[#0d1014] p-3"><span className="text-[8px] text-neutral-600">AIR</span><strong className="block mt-1 text-white timing-cell">{detail.weather.airTemp ? detail.weather.airTemp.toFixed(1) + '°C' : '—'}</strong></div>
+              <div className="bg-[#0d1014] p-3"><span className="text-[8px] text-neutral-600">TRACK</span><strong className="block mt-1 text-white timing-cell">{detail.weather.trackTemp ? detail.weather.trackTemp.toFixed(1) + '°C' : '—'}</strong></div>
+              <div className="bg-[#0d1014] p-3"><span className="text-[8px] text-neutral-600">HUMIDITY</span><strong className="block mt-1 text-white timing-cell">{detail.weather.humidity ? detail.weather.humidity.toFixed(0) + '%' : '—'}</strong></div>
+              <div className="bg-[#0d1014] p-3"><span className="text-[8px] text-neutral-600">RAINFALL</span><strong className="block mt-1 text-white">{detail.weather.rainfall ? 'YES' : 'NO'}</strong></div>
+            </>}
+          </div>
+        )}
         <div className="f1-section-heading"><span>CLASSIFICATION</span><span>{detail.results.length} DRIVERS</span></div>
         <div className="overflow-x-auto border-y border-[#1c222b]">
           <table className="w-full min-w-[760px] text-left">
@@ -80,6 +90,20 @@ export const SessionDetailPanel: React.FC<Props> = ({ detail, onClose }) => {
             <div className="mt-5 f1-section-heading"><span>PIT STOPS</span><span>{detail.pitStops.length}</span></div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#1c222b]">
               {detail.pitStops.map((p, i) => <div key={i} className="bg-[#0d1014] p-2"><div className="text-[9px] text-white">{p.driverName} <span className="text-neutral-600">{p.driverCode}</span></div><div className="text-[8px] text-neutral-500 mt-1">LAP {p.lap} · STOP {p.stopDuration ? p.stopDuration.toFixed(1) + 's' : '—'}</div></div>)}
+            </div>
+          </>
+        )}
+        {detail.raceControl && detail.raceControl.length > 0 && (
+          <>
+            <div className="mt-5 f1-section-heading"><span>RACE CONTROL</span><span>{detail.raceControl.length} MESSAGES</span></div>
+            <div className="max-h-[260px] overflow-auto border-y border-[#1c222b]">
+              {detail.raceControl.map((m) => (
+                <div key={m.id} className="grid grid-cols-[70px_55px_1fr] gap-2 px-2 py-2 border-b border-[#151a20] text-[8px]">
+                  <span className="timing-cell text-neutral-600">{m.lap ? 'LAP ' + m.lap : m.time ? new Date(m.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—'}</span>
+                  <span className="text-neutral-500">{m.category}</span>
+                  <span className="text-neutral-300">{m.message}</span>
+                </div>
+              ))}
             </div>
           </>
         )}
