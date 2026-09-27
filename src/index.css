@@ -972,3 +972,91 @@
     min-width: 1120px;
   }
 }
+
+
+/* Self-explanatory race-control UI */
+.f1-timing-guide {
+  margin: 0 0 8px;
+  border: 1px solid #25252c;
+  background: #0d0d10;
+}
+
+.f1-timing-guide summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+  list-style: none;
+  color: #d8d8dc;
+  font: 800 7px "JetBrains Mono", monospace;
+  letter-spacing: .08em;
+}
+
+.f1-timing-guide summary::-webkit-details-marker { display: none; }
+
+.f1-timing-guide summary span {
+  color: #55555e;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.f1-timing-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid #222229;
+}
+
+.f1-timing-guide-grid > div {
+  padding: 8px 10px;
+  border-right: 1px solid #222229;
+  border-bottom: 1px solid #222229;
+}
+
+.f1-timing-guide-grid > div:nth-child(3n) { border-right: 0; }
+
+.f1-timing-guide-grid strong {
+  display: block;
+  color: #d7d7dc;
+  font: 700 8px "Inter", sans-serif;
+}
+
+.f1-timing-guide-grid span {
+  display: block;
+  margin-top: 3px;
+  color: #67676f;
+  font: 7px/1.35 "Inter", sans-serif;
+}
+
+.f1-race-log-title::after {
+  content: "";
+}
+
+.f1-race-log-title,
+.f1-race-log-count {
+  vertical-align: middle;
+}
+
+.f1-race-log-title {
+  letter-spacing: .08em;
+}
+
+.f1-race-log-row .rc-time {
+  font-variant-numeric: tabular-nums;
+}
+
+.f1-driver-detail {
+  border: 1px solid #27272e;
+  background: #0f0f12;
+}
+
+@media (max-width: 760px) {
+  .f1-timing-guide-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .f1-timing-guide-grid > div:nth-child(3n) { border-right: 1px solid #222229; }
+  .f1-timing-guide-grid > div:nth-child(2n) { border-right: 0; }
+}
+
+@media (max-width: 480px) {
+  .f1-timing-guide summary span { display: none; }
+}
