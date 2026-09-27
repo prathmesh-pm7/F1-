@@ -5,7 +5,7 @@ interface Props { entries: TimingEntry[]; selectedDriver: TimingEntry | null; on
 export const TimingTable: React.FC<Props> = ({ entries, selectedDriver, onSelectDriver }) => (
   <div className="f1-timing-wrap" aria-label="Live timing">
     <table className="f1-timing-table">
-      <thead><tr><th>POS</th><th>DRIVER</th><th>GAP</th><th>INT</th><th className="hide-md">LAP</th><th className="hide-sm">LAST</th><th className="hide-lg">BEST</th><th className="hide-lg">S1</th><th className="hide-lg">S2</th><th className="hide-lg">S3</th><th>TYRE</th><th>PIT</th></tr></thead>
+      <thead><tr><th>POS</th><th>DRIVER</th><th>GAP TO LEADER</th><th>INTERVAL</th><th className="hide-md">LAP</th><th className="hide-sm">LAST LAP</th><th className="hide-lg">BEST LAP</th><th className="hide-lg">SECTOR 1</th><th className="hide-lg">SECTOR 2</th><th className="hide-lg">SECTOR 3</th><th>TYRE / AGE</th><th>PITS</th></tr></thead>
       <tbody>{entries.map(entry => <TimingRow key={entry.driverNumber} entry={entry} isSelected={selectedDriver?.driverNumber === entry.driverNumber} onSelect={onSelectDriver} />)}</tbody>
     </table>
   </div>
