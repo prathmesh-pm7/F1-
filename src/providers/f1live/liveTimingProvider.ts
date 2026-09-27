@@ -77,8 +77,6 @@ export class LiveTimingProvider implements F1LiveProvider {
   }
 
   private handleIncomingFeed(msg: { stream: string; data: any; timestamp: string }) {
-    this.lastPacketTimestamp = Date.now();
-
     const { stream, data } = msg;
     if (!data) return;
 
@@ -88,6 +86,7 @@ export class LiveTimingProvider implements F1LiveProvider {
         if (updates.length > 0) {
           this.stateStore.mergeTimingData(updates);
           this.hasReceivedRealTimingData = true;
+          this.lastPacketTimestamp = Date.now();
         }
         break;
       }
@@ -158,6 +157,9 @@ export class LiveTimingProvider implements F1LiveProvider {
         const elapsed = Date.now() - this.lastPacketTimestamp;
         if (elapsed > this.STALE_TIMEOUT_MS) {
           this.setState('STALE', `No timing packet received for ${Math.round(elapsed / 1000)}s`);
+          // Re-establish the socket if the server stopped delivering timing while
+          // the browser connection itself remained open.
+          this.client.reconnect();
         }
       }
     }, 5000);
