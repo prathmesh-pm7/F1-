@@ -95,24 +95,70 @@ export class OpenF1Provider {
     return { sessionKey:key, sessionName:String(match.session_name), sessionType:String(match.session_type), startTime:String(match.date_start), endTime:String(match.date_end), circuitName:String(match.circuit_short_name ?? gp.circuit.name), circuitImageUrl:meeting.circuit_image, results, laps, pitStops, driverLineup:Array.from(driverMap.values()).map(toDriver), provenance };
   }
   public async getSeasonDriverImages(year: number): Promise<Record<string, string>> {
+    // Always prefer the current-season F1 headshots returned by OpenF1's latest
+    // completed race. These URLs point at Formula 1's official driver assets and
+    // therefore follow the driver's current team presentation rather than a
+    // historical team image.
     const sessions = await this.get<JsonRecord[]>(`/sessions?year=${year}&session_name=Race`);
-    const latest = sessions.sort((a,b) => new Date(String(b.date_start)).getTime() - new Date(String(a.date_start)).getTime())[0];
-    if (!latest) return {};
-    const drivers = await this.get<JsonRecord[]>(`/drivers?session_key=${Number(latest.session_key)}`);
+    const latest = sessions
+      .filter(s => new Date(String(s.date_start)).getTime() <= Date.now())
+      .sort((a,b) => new Date(String(b.date_start)).getTime() - new Date(String(a.date_start)).getTime())[0];
+
+    const drivers = latest
+      ? await this.get<JsonRecord[]>(`/drivers?session_key=${Number(latest.session_key)}`)
+      : [];
+
     const images = drivers.reduce<Record<string,string>>((map, d) => {
       if (d.headshot_url) {
-        map[String(d.driver_number)] = String(d.headshot_url);
-        if (d.name_acronym) map[String(d.name_acronym)] = String(d.headshot_url);
+        const url = String(d.headshot_url);
+        map[String(d.driver_number)] = url;
+        if (d.name_acronym) map[String(d.name_acronym)] = url;
       }
       return map;
     }, {});
-    // 2026 official F1 profile fallback for Arvid Lindblad (#41).
-    // OpenF1 occasionally has a missing headshot record even though the official
-    // Formula 1 profile is live and current.
-    if (year === 2026 && !images['41']) {
-      images['41'] = 'https://media.formula1.com/image/upload/c_fill,w_720/q_auto/v1740000001/common/f1/2026/racingbulls/arvlin01/2026racingbullsarvlin01right.webp';
-      images['LIN'] = images['41'];
+
+    // Hard fallback for the complete 2026 grid. This prevents a missing provider
+    // record from reverting a driver to an old/stale image. The URLs are the
+    // Formula 1 driver assets exposed by the current OpenF1 driver feed.
+    if (year === 2026) {
+      const current2026: Record<string,string> = {
+        '1':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/1col/image.png',
+        '3':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/1col/image.png',
+        '5':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GABBOR01_Gabriel_Bortoleto/gabbor01.png.transform/1col/image.png',
+        '6':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/I/ISAHAD01_Isack_Hadjar/isahad01.png.transform/1col/image.png',
+        '10':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PIEGAS01_Pierre_Gasly/piegas01.png.transform/1col/image.png',
+        '11':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/S/SERPER01_Sergio_Perez/serper01.png.transform/1col/image.png',
+        '12':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/K/ANDANT01_Kimi_Antonelli/andant01.png.transform/1col/image.png',
+        '14':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/1col/image.png',
+        '16':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/1col/image.png',
+        '18':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANSTR01_Lance_Stroll/lanstr01.png.transform/1col/image.png',
+        '22':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/Y/YUKTSU01_Yuki_Tsunoda/yuktsu01.png.transform/1col/image.png',
+        '23':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ALEALB01_Alexander_Albon/alealb01.png.transform/1col/image.png',
+        '27':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/1col/image.png',
+        '30':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/1col/image.png',
+        '31':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/ESTOCO01_Esteban_Ocon/estoco01.png.transform/1col/image.png',
+        '41':'https://media.formula1.com/image/upload/c_fill,w_720/q_auto/v1740000001/common/f1/2026/racingbulls/arvlin01/2026racingbullsarvlin01right.webp',
+        '43':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FRACOL01_Franco_Colapinto/fracol01.png.transform/1col/image.png',
+        '44':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png.transform/1col/image.png',
+        '55':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/1col/image.png',
+        '63':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png.transform/1col/image.png',
+        '77':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/V/VALBOT01_Valtteri_Bottas/valbot01.png.transform/1col/image.png',
+        '81':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png.transform/1col/image.png',
+        '87':'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OLIBEA01_Oliver_Bearman/olibea01.png.transform/1col/image.png'
+      };
+      for (const [number, url] of Object.entries(current2026)) {
+        if (!images[number]) images[number] = url;
+      }
+      const acronymByNumber: Record<string,string> = {
+        '1':'NOR','3':'VER','5':'BOR','6':'HAD','10':'GAS','11':'PER','12':'ANT','14':'ALO',
+        '16':'LEC','18':'STR','22':'TSU','23':'ALB','27':'HUL','30':'LAW','31':'OCO','41':'LIN',
+        '43':'COL','44':'HAM','55':'SAI','63':'RUS','77':'BOT','81':'PIA','87':'BEA'
+      };
+      for (const [number, acronym] of Object.entries(acronymByNumber)) {
+        if (images[number]) images[acronym] = images[number];
+      }
     }
+
     return images;
   }
 
