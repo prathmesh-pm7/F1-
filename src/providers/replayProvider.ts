@@ -246,9 +246,9 @@ export class ReplayProvider implements F1LiveProvider {
   private positionAtLapEnd(driverNumber: number, lap: number): number | null {
     if (!this.session) return null;
     const driverLaps = this.session.laps.filter(l => l.driverNumber === driverNumber && l.lapNumber === lap);
-    const lap = driverLaps[0];
-    if (!lap?.dateStart || !Number.isFinite(lap.lapDuration)) return null;
-    const end = new Date(lap.dateStart).getTime() + Number(lap.lapDuration) * 1000;
+    const lapRecord = driverLaps[0];
+    if (!lapRecord?.dateStart || !Number.isFinite(lapRecord.lapDuration)) return null;
+    const end = new Date(lapRecord.dateStart).getTime() + Number(lapRecord.lapDuration) * 1000;
     const candidates = this.session.positions
       .filter(p => Number(p.driver_number) === driverNumber && new Date(String(p.date)).getTime() <= end)
       .sort((a, b) => new Date(String(b.date)).getTime() - new Date(String(a.date)).getTime());
@@ -265,7 +265,7 @@ export class ReplayProvider implements F1LiveProvider {
     if (!this.session) return null;
     const d = this.session.drivers.get(driverNumber) ?? {};
     const result = this.session.results.find(r => Number(r.driver_number) === driverNumber) ?? {};
-    const position = this.positionAtLapEnd(driverNumber, lap) ?? Number(result.position) || 0;
+    const position = this.positionAtLapEnd(driverNumber, lap) ?? (Number(result.position) || 0);
     if (!position) return null;
 
     const teamName = String(d.team_name ?? '—');
@@ -306,9 +306,15 @@ export class ReplayProvider implements F1LiveProvider {
 
     const fastest = entries
       .filter(e => e.bestLapTime !== '—')
-      .sort((a, b) => a.bestLapTime.localeCompare(b.bestLapTime))[0];
+      .sort((a, b) => {
+        const parse = (value: string) => {
+          const parts = value.split(':').map(Number);
+          return parts.length === 2 ? parts[0] * 60 + parts[1] : Number(value);
+        };
+        return parse(a.bestLapTime) - parse(b.bestLapTime);
+      })[0];
 
-    const raceControl = this.session.raceControl
+    const raceControl: RaceControlMessage[] = this.session.raceControl
       .filter(m => Number(m.lap_number ?? 0) === 0 || Number(m.lap_number ?? 0) <= lap)
       .slice(-50)
       .map((m, i) => ({
