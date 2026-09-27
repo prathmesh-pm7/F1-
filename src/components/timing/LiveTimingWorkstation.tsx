@@ -82,6 +82,8 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
           onStepLap={onStepReplay}
           onSetSpeed={onSetReplaySpeed}
           onJumpToLap={onJumpReplayLap}
+          sessionName={displaySessionName}
+          circuitName={displayCircuitName}
         />
       )}
 
