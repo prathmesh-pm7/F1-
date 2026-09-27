@@ -165,8 +165,12 @@ export class ReplayProvider implements F1LiveProvider {
     const wanted = encodeURIComponent('Race');
     const sessions = await this.get<JsonRecord[]>(`/sessions?year=${gp.season}&session_name=${wanted}`);
     const target = new Date(session.startTime).getTime();
-    const match = sessions
-      .filter(s => Number.isFinite(new Date(String(s.date_start)).getTime()))
+    const tolerance = 36 * 60 * 60 * 1000;
+    const candidates = sessions
+      .filter(s => String(s.session_name ?? '').toLowerCase() === 'race')
+      .filter(s => Number.isFinite(new Date(String(s.date_start)).getTime()));
+    const match = candidates
+      .filter(s => Math.abs(new Date(String(s.date_start)).getTime() - target) <= tolerance)
       .sort((a, b) => Math.abs(new Date(String(a.date_start)).getTime() - target) - Math.abs(new Date(String(b.date_start)).getTime() - target))[0];
     if (!match) throw new Error(`Race replay data is not published for ${gp.officialName}.`);
     await this.loadSessionRecord(match, gp.season);
