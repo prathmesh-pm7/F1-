@@ -19,6 +19,10 @@ export class F1SignalRClient {
   private feedListeners: ((msg: SignalRFeedMessage) => void)[] = [];
   private invocationCounter = 1;
   private pingInterval: any = null;
+  private reconnectTimer: any = null;
+  private reconnectAttempts = 0;
+  private intentionalDisconnect = false;
+  private maxReconnectAttempts = 8;
 
   constructor(url = 'wss://livetiming.formula1.com/signalrcore') {
     this.url = url;
@@ -53,6 +57,7 @@ export class F1SignalRClient {
         return resolve();
       }
 
+      this.intentionalDisconnect = false;
       this.setStatus('CONNECTING');
 
       try {
@@ -67,6 +72,7 @@ export class F1SignalRClient {
         }, 12000);
 
         this.ws.onopen = () => {
+          this.reconnectAttempts = 0;
           // Step 1: Send SignalR JSON protocol handshake
           // SignalR core protocol messages end with Record Separator ASCII 0x1E (\u001e)
           const handshake = JSON.stringify({ protocol: 'json', version: 1 }) + '\u001e';
@@ -131,7 +137,9 @@ export class F1SignalRClient {
         this.ws.onclose = (event) => {
           clearTimeout(timeout);
           this.clearIntervals();
+          this.ws = null;
           this.setStatus('DISCONNECTED', `Socket closed (code ${event.code})`);
+          if (!this.intentionalDisconnect) this.scheduleReconnect();
         };
       } catch (err: any) {
         this.setStatus('ERROR', err.message || 'Failed to initialize socket');
@@ -153,7 +161,11 @@ export class F1SignalRClient {
       'RaceControlMessages',
       'SessionData',
       'DriverList',
-      'LapCount'
+      'LapCount',
+      'ExtrapolatedClock',
+      'TimingStats',
+      'TopThree',
+      'Position.z'
     ];
 
     const subscribeMsg = JSON.stringify({
@@ -183,7 +195,28 @@ export class F1SignalRClient {
     }
   }
 
+  private scheduleReconnect() {
+    if (this.intentionalDisconnect || this.reconnectTimer || this.reconnectAttempts >= this.maxReconnectAttempts) return;
+
+    const delay = Math.min(30000, 2000 * Math.pow(2, this.reconnectAttempts));
+    this.reconnectAttempts += 1;
+    this.setStatus('CONNECTING', `Reconnecting in ${Math.round(delay / 1000)}s (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      void this.connect().catch(() => {
+        // onclose/error will schedule the next attempt
+      });
+    }, delay);
+  }
+
   public disconnect() {
+    this.intentionalDisconnect = true;
+    this.reconnectAttempts = 0;
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
     this.clearIntervals();
     if (this.ws) {
       try {
