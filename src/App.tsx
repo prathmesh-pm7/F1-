@@ -159,7 +159,11 @@ export default function App() {
     if (isReplayMode) {
       unsubSnapshot = replayEngine.onSnapshot(setSnapshot);
       unsubState = replayEngine.onStateChange(setConnectionState);
-      replayEngine.connect();
+      void replayEngine.connect().catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : 'Unable to load the recorded replay.';
+        setConnectionState('PROVIDER_UNAVAILABLE');
+        setScheduleError(message);
+      });
     } else {
       unsubSnapshot = liveEngine.onSnapshot(setSnapshot);
       unsubState = liveEngine.onStateChange(setConnectionState);
@@ -200,7 +204,11 @@ export default function App() {
     setIsReplayMode(true);
     setSnapshot(replayEngine.getSnapshot());
     setConnectionState('REPLAY');
-    replayEngine.connect();
+    void replayEngine.connect().catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : 'Unable to load the recorded replay.';
+      setConnectionState('PROVIDER_UNAVAILABLE');
+      setScheduleError(message);
+    });
   };
 
   const handleReplayRace = async (gp: GrandPrix) => {
@@ -212,7 +220,15 @@ export default function App() {
     // Load the requested race before enabling replay mode. Otherwise the
     // replay-mode effect can concurrently call connect(), which loads its
     // default latest-race session and overwrites the user's selection.
-    await replayEngine.loadRace(gp, raceSession);
+    try {
+      await replayEngine.loadRace(gp, raceSession);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unable to load the selected replay.';
+      setScheduleError(message);
+      setConnectionState('PROVIDER_UNAVAILABLE');
+      return;
+    }
+    setScheduleError(null);
     setIsReplayMode(true);
     setConnectionState('REPLAY');
     setSnapshot(replayEngine.getSnapshot());
