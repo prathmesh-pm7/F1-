@@ -170,18 +170,28 @@ export class F1EnrichmentProvider {
     const meetings = await this.getJson<JsonRecord[]>(`${OPENF1_BASE}/meetings?year=${year}`);
     const result: Record<string, Partial<Circuit>> = {};
     await Promise.all(meetings.map(async meeting => {
-      const country = String(meeting.country_name ?? '').toLowerCase(); if (!country) return;
+      const country = String(meeting.country_name ?? '').toLowerCase();
+      if (!country) return;
       const base: Partial<Circuit> = { imageUrl: meeting.circuit_image, circuitType: meeting.circuit_type, latitude: Number(meeting.latitude) || undefined, longitude: Number(meeting.longitude) || undefined, countryFlagUrl: meeting.country_flag, circuitInfoUrl: meeting.circuit_info_url, circuitKey: Number(meeting.circuit_key) || undefined, lapRecord: LAP_RECORDS[country] };
       let enriched: Partial<Circuit> = base;
-      if (meeting.circuit_info_url) { try {
-        const info = await this.getJson<JsonRecord>(String(meeting.circuit_info_url));
-        const corners = Array.isArray(info.corners) ? info.corners : [];
-        const lengthKm = Number(info.length ?? info.circuit_length ?? info.track_length ?? info.length_km);
-        const drsZones = Number(info.drs_zones ?? info.drsZones ?? info.number_of_drs_zones);
-        enriched = { ...base, lengthKm:Number.isFinite(lengthKm)&&lengthKm>0?lengthKm:undefined, turns:corners.length||undefined, drsZones:Number.isFinite(drsZones)&&drsZones>0?drsZones:undefined, trackRotation:Number(info.rotation)||undefined };
-      } catch { enriched = base; } }
+      if (meeting.circuit_info_url) {
+        try {
+          const info = await this.getJson<JsonRecord>(String(meeting.circuit_info_url));
+          const corners = Array.isArray(info.corners) ? info.corners : [];
+          const lengthKm = Number(info.length ?? info.circuit_length ?? info.track_length ?? info.length_km);
+          const drsZones = Number(info.drs_zones ?? info.drsZones ?? info.number_of_drs_zones);
+          enriched = { ...base, lengthKm: Number.isFinite(lengthKm) && lengthKm > 0 ? lengthKm : undefined, turns: corners.length || undefined, drsZones: Number.isFinite(drsZones) && drsZones > 0 ? drsZones : undefined, trackRotation: Number(info.rotation) || undefined };
+        } catch { enriched = base; }
+      }
       if (!result[country]) result[country] = enriched;
       if (meeting.circuit_short_name) result[String(meeting.circuit_short_name).toLowerCase()] = enriched;
       if (meeting.location) result[String(meeting.location).toLowerCase()] = enriched;
-    })); return result;
+    }));
+    return result;
   }
+
+  public async getSessionDrivers(sessionKey: number): Promise<Driver[]> {
+    const rows = await this.getJson<JsonRecord[]>(`${OPENF1_BASE}/drivers?session_key=${sessionKey}`);
+    return rows.map(d => ({ id: String(d.driver_number), code: String(d.name_acronym ?? '???'), number: Number(d.driver_number), firstName: String(d.first_name ?? ''), lastName: String(d.last_name ?? ''), fullName: String(d.full_name ?? ''), nationality: String(d.country_code ?? ''), teamId: String(d.team_name ?? ''), teamName: String(d.team_name ?? '—'), teamColor: `#${String(d.team_colour ?? '59636E').replace('#','')}`, headshotUrl: d.headshot_url }));
+  }
+}
