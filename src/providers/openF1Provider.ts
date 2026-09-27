@@ -44,9 +44,9 @@ export class OpenF1Provider {
       this.get<JsonRecord[]>(`/laps?session_key=${key}`),
       this.get<JsonRecord[]>(`/pit?session_key=${key}`),
       this.get<JsonRecord[]>(`/drivers?session_key=${key}`),
+      this.get<JsonRecord[]>(`/position?session_key=${key}`),
       this.get<JsonRecord[]>(`/weather?session_key=${key}`),
       this.get<JsonRecord[]>(`/race_control?session_key=${key}`),
-      this.get<JsonRecord[]>(`/position?session_key=${key}`),
       this.get<JsonRecord[]>(`/meetings?year=${gp.season}&country_name=${country}`)
     ]);
 
@@ -67,8 +67,14 @@ export class OpenF1Provider {
       const driverNumber = Number(p.driver_number);
       const position = Number(p.position);
       if (!Number.isFinite(driverNumber) || !Number.isFinite(position)) continue;
-      const previous = latestPosition.get(driverNumber);
-      if (previous == null || new Date(String(p.date)).getTime() >= 0) latestPosition.set(driverNumber, position);
+      const timestamp = new Date(String(p.date)).getTime();
+      const previousTimestamp = (latestPosition as any).__timestamps?.get?.(driverNumber) as number | undefined;
+      if (!Number.isFinite(timestamp)) continue;
+      if (!(latestPosition as any).__timestamps) (latestPosition as any).__timestamps = new Map<number, number>();
+      if (previousTimestamp == null || timestamp >= previousTimestamp) {
+        latestPosition.set(driverNumber, position);
+        (latestPosition as any).__timestamps.set(driverNumber, timestamp);
+      }
     }
     const resultRows = rawResults.length > 0 ? rawResults : Array.from(driverMap.keys()).map(driver_number => ({
       driver_number,
