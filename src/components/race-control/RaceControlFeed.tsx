@@ -6,7 +6,22 @@ interface Props {
   className?: string;
 }
 
-const formatRaceTime = (value: string) => {\n  const date = new Date(value);\n  if (!Number.isNaN(date.getTime())) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });\n  const match = value.match(/(\\d{2}:\\d{2}(?::\\d{2})?)/);\n  return match?.[1] ?? value;\n};\n\nexport const RaceControlFeed: React.FC<Props> = ({ messages, className = '' }) => {
+const formatRaceTime = (value: string) => {
+  const date = new Date(value);
+  if (!Number.isNaN(date.getTime())) {
+    return date.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+  }
+
+  const match = value.match(/(\d{2}:\d{2}(?::\d{2})?)/);
+  return match?.[1] ?? value;
+};
+
+export const RaceControlFeed: React.FC<Props> = ({ messages, className = '' }) => {
   const [filter, setFilter] = useState<string>('ALL');
 
   const filteredMessages = messages.filter((m) => {
@@ -18,7 +33,15 @@ const formatRaceTime = (value: string) => {\n  const date = new Date(value);\n  
 
   const getTypeClass = (category: string, flag?: string) => {
     if (category === 'PENALTY' || flag === 'RED') return 'rc-type-danger';
-    if (category === 'SAFETY_CAR' || category === 'INVESTIGATION' || category === 'TRACK_LIMITS' || flag === 'YELLOW' || flag === 'DOUBLE_YELLOW') return 'rc-type-warning';
+    if (
+      category === 'SAFETY_CAR' ||
+      category === 'INVESTIGATION' ||
+      category === 'TRACK_LIMITS' ||
+      flag === 'YELLOW' ||
+      flag === 'DOUBLE_YELLOW'
+    ) {
+      return 'rc-type-warning';
+    }
     if (category === 'FLAG' && (flag === 'CLEAR' || flag === 'GREEN')) return 'rc-type-clear';
     return '';
   };
@@ -28,26 +51,42 @@ const formatRaceTime = (value: string) => {\n  const date = new Date(value);\n  
       <div className="f1-race-log-head">
         <div>
           <span className="f1-race-log-title">RACE CONTROL</span>
-          <span className="f1-race-log-count">{messages.length ? `${messages.length} EVENTS` : 'NO EVENTS'}</span>
+          <span className="f1-race-log-count">
+            {messages.length ? `${messages.length} EVENTS` : 'NO EVENTS'}
+          </span>
         </div>
         <div className="f1-race-log-filters">
           {['ALL', 'FLAGS', 'PENALTIES'].map(tab => (
-            <button key={tab} type="button" onClick={() => setFilter(tab)} className={filter === tab ? 'is-active' : ''}>{tab}</button>
+            <button
+              key={tab}
+              type="button"
+              onClick={() => setFilter(tab)}
+              className={filter === tab ? 'is-active' : ''}
+            >
+              {tab}
+            </button>
           ))}
         </div>
       </div>
 
       <div className="f1-race-log-table">
         <div className="f1-race-log-row f1-race-log-columns">
-          <span>TIME</span><span>TYPE</span><span>MESSAGE</span>
+          <span>TIME</span>
+          <span>TYPE</span>
+          <span>MESSAGE</span>
         </div>
+
         {filteredMessages.length === 0 ? (
-          <div className="f1-race-log-empty">No race-control messages for this session.</div>
+          <div className="f1-race-log-empty">
+            No race-control messages for this session.
+          </div>
         ) : (
           filteredMessages.map(msg => (
             <div key={msg.id} className="f1-race-log-row">
               <span className="rc-time">{formatRaceTime(msg.time)}</span>
-              <span className={`rc-type ${getTypeClass(msg.category, msg.flag)}`}>{msg.flag || msg.category}</span>
+              <span className={`rc-type ${getTypeClass(msg.category, msg.flag)}`}>
+                {msg.flag || msg.category}
+              </span>
               <span className="rc-message">{msg.message}</span>
             </div>
           ))
