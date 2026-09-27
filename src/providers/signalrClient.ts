@@ -210,6 +210,23 @@ export class F1SignalRClient {
     }, delay);
   }
 
+  public reconnect(): void {
+    this.intentionalDisconnect = false;
+    this.reconnectAttempts = 0;
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    if (this.ws) {
+      try { this.ws.close(); } catch { /* ignore */ }
+      this.ws = null;
+    }
+    this.clearIntervals();
+    void this.connect().catch(() => {
+      // Automatic retry continues from the socket close handler.
+    });
+  }
+
   public disconnect() {
     this.intentionalDisconnect = true;
     this.reconnectAttempts = 0;
