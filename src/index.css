@@ -714,3 +714,166 @@
   .f1-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .f1-race-log-row { grid-template-columns: 58px 64px minmax(0, 1fr); }
 }
+
+
+/* Final workstation polish: clearer hierarchy, calmer spacing, fewer competing boxes. */
+.f1-live-workspace {
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 12px;
+}
+
+.f1-timing-primary,
+.f1-side-block {
+  border: 1px solid #27272e;
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+.f1-timing-primary .f1-section-heading,
+.f1-side-block .f1-section-heading {
+  height: 38px;
+  padding: 0 12px;
+}
+
+.f1-timing-table {
+  min-width: 1040px;
+}
+
+.f1-timing-table th {
+  height: 30px;
+  padding: 0 8px;
+  background: #0a0a0d;
+}
+
+.f1-timing-table td {
+  height: 43px;
+  padding: 0 8px;
+}
+
+.f1-timing-table tbody tr {
+  transition: background .12s ease;
+}
+
+.f1-timing-table tbody tr.is-selected {
+  box-shadow: inset 2px 0 var(--f1-red);
+}
+
+.f1-timing-table .driver-cell {
+  height: 43px;
+  gap: 6px;
+}
+
+.f1-timing-table .driver-name {
+  color: #d0d0d5;
+}
+
+.f1-timing-table .gap-cell {
+  font-size: 10px;
+}
+
+.f1-timing-table .f1-tyre {
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+}
+
+.f1-strip > div {
+  min-height: 67px;
+  padding: 9px 10px;
+}
+
+.f1-strip strong {
+  font-size: 11px;
+}
+
+.f1-strip small {
+  max-width: 105px;
+}
+
+.f1-race-log-head {
+  min-height: 38px;
+  padding: 0 11px;
+}
+
+.f1-race-log-title {
+  color: #e7e7e9;
+  font: 800 8px "JetBrains Mono", monospace;
+  letter-spacing: .1em;
+}
+
+.f1-race-log-count {
+  margin-left: 7px;
+  color: #55555e;
+  font: 7px "JetBrains Mono", monospace;
+}
+
+.f1-race-log-filters {
+  gap: 3px;
+}
+
+.f1-race-log-filters button {
+  border-radius: 2px;
+  padding: 3px 5px;
+  font-size: 6px;
+}
+
+.f1-race-log-table {
+  max-height: 440px;
+}
+
+.f1-race-log-row {
+  grid-template-columns: 58px 62px minmax(0, 1fr);
+  gap: 7px;
+  padding: 8px 10px;
+}
+
+.f1-race-log-row:not(.f1-race-log-columns) {
+  min-height: 44px;
+}
+
+.rc-time {
+  color: #62626b;
+  font-size: 7px;
+}
+
+.rc-type {
+  font-size: 7px;
+}
+
+.rc-message {
+  color: #b9b9c0;
+  font-size: 8px;
+  line-height: 1.5;
+}
+
+.f1-race-log-columns {
+  min-height: 27px !important;
+}
+
+@media (max-width: 1200px) {
+  .f1-live-workspace {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+}
+
+@media (max-width: 900px) {
+  .f1-live-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .f1-race-side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}
+
+@media (max-width: 680px) {
+  .f1-race-side {
+    display: flex;
+  }
+
+  .f1-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
