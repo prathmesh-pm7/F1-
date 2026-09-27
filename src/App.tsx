@@ -44,6 +44,12 @@ export default function App() {
   const [replaySpeed, setReplaySpeed] = useState(1);
 
   const [schedule, setSchedule] = useState<GrandPrix[]>([]);
+  const activeLiveSession = useMemo(() => {
+    const liveSessions = schedule.flatMap(gp => gp.sessions.map(session => ({ gp, session })))
+      .filter(item => item.session.status === 'LIVE');
+    if (liveSessions.length === 0) return null;
+    return liveSessions[0];
+  }, [schedule]);
   const [scheduleProvenance, setScheduleProvenance] = useState<DataProvenance | undefined>();
   const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [driverStandings, setDriverStandings] = useState<DriverStanding[]>([]);
@@ -155,10 +161,15 @@ export default function App() {
     } else {
       unsubSnapshot = liveEngine.onSnapshot(setSnapshot);
       unsubState = liveEngine.onStateChange(setConnectionState);
-      liveEngine.connect();
+      if (activeLiveSession) {
+        void liveEngine.connect();
+      } else {
+        liveEngine.disconnect();
+        setConnectionState('PROVIDER_UNAVAILABLE');
+      }
     }
     return () => { unsubSnapshot(); unsubState(); };
-  }, [isReplayMode, replayEngine, liveEngine]);
+  }, [isReplayMode, replayEngine, liveEngine, activeLiveSession]);
 
   const favoriteTeam = teams.find(team => team.id === favoriteTeamId) ?? null;
   useEffect(() => {
@@ -238,6 +249,7 @@ export default function App() {
             isReplayPlaying={isReplayPlaying}
             replaySpeed={replaySpeed}
             onConnectLive={() => liveEngine.connect()}
+            sessionContext={activeLiveSession ? { sessionName: activeLiveSession.session.name, circuitName: activeLiveSession.gp.circuit.name } : null}
             onSwitchToReplay={handleSwitchToReplay}
           />
         )}
