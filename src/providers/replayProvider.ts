@@ -71,11 +71,49 @@ export class ReplayProvider implements F1LiveProvider {
   private playbackSpeed = 1;
   private timer: any = null;
   private loadingPromise: Promise<void> | null = null;
+  private cache = new Map<string, { data: any; expiry: number }>();
+  private requestQueue: Promise<void> = Promise.resolve();
+  private lastRequestAt = 0;
+  private minRequestGap = 350;
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => window.setTimeout(resolve, ms));
+  }
 
   private async get<T>(path: string): Promise<T> {
-    const res = await fetch(`${OPENF1_BASE}${path}`, { headers: { Accept: 'application/json' } });
-    if (!res.ok) throw new Error(`OpenF1 HTTP ${res.status}`);
-    return res.json() as Promise<T>;
+    const cached = this.cache.get(path);
+    if (cached && cached.expiry > Date.now()) return cached.data as T;
+
+    let release!: () => void;
+    const turn = new Promise<void>(resolve => { release = resolve; });
+    const previous = this.requestQueue;
+    this.requestQueue = previous.then(() => turn);
+    await previous;
+    try {
+      const gap = Date.now() - this.lastRequestAt;
+      if (gap < this.minRequestGap) await this.sleep(this.minRequestGap - gap);
+
+      let res = await fetch(`${OPENF1_BASE}${path}`, { headers: { Accept: 'application/json' } });
+      this.lastRequestAt = Date.now();
+      if (res.status === 429) {
+        const retryAfter = Number(res.headers.get('Retry-After'));
+        const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
+          ? Math.min(retryAfter * 1000, 15_000)
+          : 5_000;
+        await this.sleep(waitMs);
+        res = await fetch(`${OPENF1_BASE}${path}`, { headers: { Accept: 'application/json' } });
+        this.lastRequestAt = Date.now();
+      }
+      if (!res.ok) {
+        if (res.status === 429) throw new Error('OpenF1 rate limited. Please retry in a few seconds.');
+        throw new Error(`OpenF1 HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      this.cache.set(path, { data, expiry: Date.now() + 5 * 60_000 });
+      return data as T;
+    } finally {
+      release();
+    }
   }
 
   public async connect(): Promise<void> {
@@ -247,7 +285,8 @@ export class ReplayProvider implements F1LiveProvider {
     };
 
     this.recordedLaps = Array.from({ length: totalLaps }, (_, i) => i + 1);
-    this.currentLapIndex = Math.max(0, this.recordedLaps.length - 1);
+    // Start a selected replay at lap 1 rather than silently jumping to the finish.
+    this.currentLapIndex = 0;
   }
 
   private runLoop() {
@@ -382,7 +421,7 @@ export class ReplayProvider implements F1LiveProvider {
 
     const weather = [...this.session.weather]
       .filter(w => !Number.isFinite(lap) || !this.session?.laps.length || new Date(String(w.date ?? '')).getTime() <= Math.max(...this.session.laps.filter(l => l.lapNumber <= lap && l.dateStart).map(l => new Date(String(l.dateStart)).getTime() + (l.lapDuration ?? 0) * 1000), 0))
-      [this.session.weather.length - 1] ?? this.session.weather[0] ?? {};
+      this.session.weather[this.session.weather.length - 1] ?? this.session.weather[0] ?? {};
     return {
       sessionName: `${this.session.meetingName} · ${this.session.sessionName}`,
       circuitName: this.session.circuitName,
