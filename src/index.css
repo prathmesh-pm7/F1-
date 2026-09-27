@@ -32,6 +32,16 @@
   * { scrollbar-width: thin; scrollbar-color: #38383f transparent; }
 }
 
+.f1-replay-controller,
+.f1-replay-controller button,
+.f1-replay-controller span {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums lining-nums slashed-zero;
+  letter-spacing: 0;
+}
+.f1-replay-controller { line-height: 1.2; }
+.f1-replay-controller button { line-height: 1; }
+
 .font-mono-timing,.timing-cell {
   font-family: "JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-variant-numeric: tabular-nums lining-nums slashed-zero;
