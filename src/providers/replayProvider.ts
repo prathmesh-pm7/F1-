@@ -163,8 +163,7 @@ export class ReplayProvider implements F1LiveProvider {
   public async loadRace(gp: GrandPrix, session: SessionSchedule): Promise<void> {
     this.pause();
     const wanted = encodeURIComponent('Race');
-    const country = encodeURIComponent(gp.country);
-    const sessions = await this.get<JsonRecord[]>(`/sessions?year=${gp.season}&country_name=${country}&session_name=${wanted}`);
+    const sessions = await this.get<JsonRecord[]>(`/sessions?year=${gp.season}&session_name=${wanted}`);
     const target = new Date(session.startTime).getTime();
     const match = sessions
       .filter(s => Number.isFinite(new Date(String(s.date_start)).getTime()))
@@ -379,7 +378,7 @@ export class ReplayProvider implements F1LiveProvider {
 
     const weather = [...this.session.weather]
       .filter(w => !Number.isFinite(lap) || !this.session?.laps.length || new Date(String(w.date ?? '')).getTime() <= Math.max(...this.session.laps.filter(l => l.lapNumber <= lap && l.dateStart).map(l => new Date(String(l.dateStart)).getTime() + (l.lapDuration ?? 0) * 1000), 0))
-      .at(-1) ?? this.session.weather[0] ?? {};
+      [this.session.weather.length - 1] ?? this.session.weather[0] ?? {};
     return {
       sessionName: `${this.session.meetingName} · ${this.session.sessionName}`,
       circuitName: this.session.circuitName,
