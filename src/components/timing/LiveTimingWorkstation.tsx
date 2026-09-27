@@ -22,12 +22,13 @@ interface Props {
   replaySpeed: number;
   onConnectLive: () => void;
   onSwitchToReplay: () => void;
+  sessionContext: { sessionName: string; circuitName: string } | null;
 }
 
 export const LiveTimingWorkstation: React.FC<Props> = ({
   snapshot, connectionState, isReplayMode, favoriteTeam, onPlayReplay, onPauseReplay,
   onStepReplay, onSetReplaySpeed, onJumpReplayLap, isReplayPlaying, replaySpeed,
-  onConnectLive, onSwitchToReplay
+  onConnectLive, onSwitchToReplay, sessionContext
 }) => {
   const [selectedDriver, setSelectedDriver] = useState<TimingEntry | null>(snapshot.entries[0] || null);
   const favoriteEntries = favoriteTeam
@@ -40,6 +41,8 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
     });
   }, [snapshot.entries]);
 
+  const displaySessionName = snapshot.sessionName || sessionContext?.sessionName || 'SESSION';
+  const displayCircuitName = snapshot.circuitName || sessionContext?.circuitName || 'CIRCUIT —';
   const isLiveOffline = !isReplayMode && (
     connectionState === 'PROVIDER_UNAVAILABLE' ||
     connectionState === 'ERROR' ||
@@ -52,8 +55,8 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
       <div className="f1-live-strip">
         <div className="f1-live-strip-main">
           <span className="f1-live-kicker">LIVE TIMING</span>
-          <span className="f1-live-session">{snapshot.sessionName || 'SESSION'}</span>
-          <span className="f1-live-circuit">{snapshot.circuitName || 'CIRCUIT —'}</span>
+          <span className="f1-live-session">{displaySessionName}</span>
+          <span className="f1-live-circuit">{displayCircuitName}</span>
         </div>
         <div className="f1-live-strip-meta">
           <span>{snapshot.currentLap > 0 ? `LAP ${snapshot.currentLap}/${snapshot.totalLaps || '—'}` : 'LAP —/—'}</span>
@@ -120,9 +123,9 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
 
       <div className="f1-session-line">
         <div>
-          <strong>{snapshot.sessionName || 'SESSION'}</strong>
+          <strong>{displaySessionName}</strong>
           <span>/</span>
-          <span>{snapshot.circuitName || 'CIRCUIT —'}</span>
+          <span>{displayCircuitName}</span>
           <span>/</span>
           <span>{snapshot.entries.length ? `${snapshot.entries.length} CARS` : 'NO TIMING SNAPSHOT'}</span>
         </div>
