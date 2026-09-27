@@ -385,5 +385,7 @@ export interface SessionDetail {
   laps: Array<{ lapNumber: number; driverNumber: number; driverCode: string; driverName: string; lapTime: string; sector1?: string; sector2?: string; sector3?: string; speedTrap?: number }>;
   pitStops: Array<{ driverNumber: number; driverCode: string; driverName: string; lap: number; stopDuration?: number; laneDuration?: number }>;
   driverLineup: Driver[];
+  weather?: Weather;
+  raceControl?: RaceControlMessage[];
   provenance: DataProvenance;
 }
