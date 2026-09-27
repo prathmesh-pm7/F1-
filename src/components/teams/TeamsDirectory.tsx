@@ -1,111 +1,18 @@
-import React, { useState } from 'react';
+import React,{useState} from 'react';
 import { Team, Driver, DataProvenance } from '../../types/f1';
 import { EmptyState } from '../shared/EmptyState';
-
-interface Props {
-  teams: Team[];
-  drivers?: Driver[];
-  selectedSeason: number;
-  onSelectSeason: (season: number) => void;
-  availableSeasons?: number[];
-  provenance?: DataProvenance;
-  isLoading?: boolean;
-  error?: string | null;
-  favoriteTeamId?: string | null;
-  onSelectFavorite?: (teamId: string | null) => void;
-}
-
-export const TeamsDirectory: React.FC<Props> = ({
-  teams, drivers = [], selectedSeason, onSelectSeason, availableSeasons = [2026, 2025, 2024, 2023, 2022],
-  provenance, isLoading, error, favoriteTeamId, onSelectFavorite
-}) => {
-  const favorite = teams.find(team => team.id === favoriteTeamId) ?? null;
-  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-
-  return (
-    <div className="space-y-4 font-mono text-xs text-neutral-300 pb-8">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#242c37] pb-3">
-        <div>
-          <div className="text-[9px] text-neutral-500 tracking-[.14em]">CONSTRUCTORS / {selectedSeason}</div>
-          <h2 className="mt-1 text-base font-bold tracking-tight text-white">TEAM DIRECTORY</h2>
-          <p className="mt-1 text-[10px] text-neutral-500">Choose a team to make its colour and data the centre of your workspace.</p>
-        </div>
-        <div className="flex items-center gap-1.5">
-          {availableSeasons.map(season => (
-            <button key={season} type="button" onClick={() => onSelectSeason(season)}
-              className={`px-2.5 py-1 text-[9px] font-bold border ${selectedSeason === season ? 'bg-[#171b20] text-white border-[var(--team-accent)]' : 'bg-[#0f1216] text-neutral-500 border-[#242c37] hover:text-white'}`}>
-              {season}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {favorite && (
-        <section className="border border-[#242c37] border-l-[3px] bg-[#0d1014] p-3" style={{ borderLeftColor: favorite.color }}>
-          <div className="text-[8px] tracking-[.14em]" style={{ color: favorite.color }}>FOLLOWING TEAM</div>
-          <div className="mt-1 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <div className="text-base font-bold text-white">{favorite.name}</div>
-              <div className="mt-1 text-[9px] text-neutral-500">{favorite.fullName} · {favorite.powerUnit}</div>
-            </div>
-            <div className="flex gap-5">
-              <span><b className="block text-[8px] text-neutral-600">POS</b><strong>P{favorite.position ?? '—'}</strong></span>
-              <span><b className="block text-[8px] text-neutral-600">POINTS</b><strong>{favorite.points ?? '—'}</strong></span>
-              <span><b className="block text-[8px] text-neutral-600">WINS</b><strong>{favorite.wins ?? 0}</strong></span>
-              <span><b className="block text-[8px] text-neutral-600">DRIVERS</b><strong>{favorite.drivers?.join(' / ') || '—'}</strong></span>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {isLoading ? <div className="p-8 border border-[#242c37] bg-[#0f1216] text-center text-neutral-500">Loading season {selectedSeason} constructors…</div> :
-       error ? <EmptyState type="not-found" title={`SEASON ${selectedSeason} CONSTRUCTORS UNAVAILABLE`} message={error} /> :
-       teams.length === 0 ? <EmptyState type="no-data" title={`NO CONSTRUCTORS LISTED FOR ${selectedSeason}`} message="No constructor standings are available from the selected provider." /> : (
-        <div className="border-y border-[#242c37]">
-          <div className="grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_100px_150px] gap-0 px-3 h-8 items-center bg-[#0b0e11] text-[8px] tracking-[.1em] text-neutral-600">
-            <span>POS</span><span>TEAM</span><span>POINTS</span><span>WINS</span><span>DRIVERS</span><span>CAR</span><span className="text-right">FOLLOW</span>
-          </div>
-          {teams.map(team => {
-            const followed = team.id === favoriteTeamId;
-            return (
-              <div key={team.id} onClick={() => setSelectedTeam(team)} className={`grid grid-cols-[46px_minmax(170px,1.3fr)_110px_90px_90px_100px_150px] gap-0 px-3 min-h-12 items-center border-t border-[#1a1f25] hover:bg-[#11151a] cursor-pointer ${followed ? 'bg-[#11151a]' : ''}`}>
-                <span className="text-neutral-500 timing-cell">P{team.position ?? '—'}</span>
-                <span className="flex items-center gap-2 text-white font-bold">
-                  <i className="w-1.5 h-5" style={{ backgroundColor: team.color }} />
-                  {team.name}
-                </span>
-                <span className="timing-cell text-neutral-200">{team.points ?? '—'}</span>
-                <span className="timing-cell text-neutral-300">{team.wins ?? 0}</span>
-                <span className="timing-cell text-neutral-400">{team.drivers?.join(' / ') || '—'}</span>
-<span className="timing-cell text-neutral-300">{team.chassis ?? '—'}</span>
-                <span className="text-right">
-                  <button type="button" onClick={() => onSelectFavorite?.(followed ? null : team.id)}
-                    className="px-2 py-1 border border-[#2a313a] text-[8px] tracking-[.08em] text-neutral-500 hover:text-white hover:border-[var(--team-accent)]">
-                    {followed ? 'FOLLOWING' : 'FOLLOW'}
-                  </button>
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {selectedTeam && (
-        <section className="border border-[#2e3744] bg-[#111418] p-4">
-          <div className="flex items-start justify-between border-b border-[#242c37] pb-3 mb-4">
-            <div><div className="text-[8px] tracking-[.15em]" style={{color:selectedTeam.color}}>TEAM PROFILE</div><h3 className="mt-1 text-lg font-black text-white">{selectedTeam.fullName}</h3><div className="mt-1 text-[9px] text-neutral-500">{selectedTeam.chassis ?? 'CAR —'} · {selectedTeam.powerUnit} · {selectedTeam.base}</div></div>
-            <button type="button" onClick={() => setSelectedTeam(null)} className="px-2 py-1 border border-[#2a313a] text-[8px] text-neutral-500 hover:text-white">CLOSE</button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {drivers.filter(d => selectedTeam.drivers?.includes(d.code)).map(d => (
-              <div key={d.id} className="border border-[#242c37] bg-[#0d1014] flex items-center gap-4 p-3">
-                {d.headshotUrl ? <img src={d.headshotUrl} alt={d.fullName} className="w-24 h-24 object-contain object-bottom bg-[#090b0e]" loading="lazy" /> : <div className="w-24 h-24 bg-[#151a20]" />}
-                <div><div className="text-[8px] text-neutral-600">DRIVER / {d.code}</div><div className="mt-1 text-sm font-bold text-white">{d.fullName}</div><div className="mt-1 text-[9px] text-neutral-500">#{d.number} · {d.nationality || '—'}</div><div className="mt-2 text-[9px] text-neutral-400">{d.points ?? 0} PTS · {d.wins ?? 0} WINS</div></div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-    </div>
-  );
+import { Star, X } from 'lucide-react';
+interface Props { teams:Team[]; drivers?:Driver[]; selectedSeason:number; onSelectSeason:(season:number)=>void; availableSeasons?:number[]; provenance?:DataProvenance; isLoading?:boolean; error?:string|null; favoriteTeamId?:string|null; onSelectFavorite?:(teamId:string|null)=>void; }
+export const TeamsDirectory:React.FC<Props>=({teams,drivers=[],selectedSeason,onSelectSeason,availableSeasons=[2026,2025,2024,2023,2022],isLoading,error,favoriteTeamId,onSelectFavorite})=>{
+ const [selectedTeam,setSelectedTeam]=useState<Team|null>(null);
+ return <div className="f1-info-page"><div className="f1-page-hero"><div><span className="f1-page-kicker">2026 FIA FORMULA 1 WORLD CHAMPIONSHIP</span><h1>TEAMS</h1><p>Constructors, drivers, cars and championship position.</p></div><div className="f1-season-switch">{availableSeasons.map(s=><button key={s} onClick={()=>onSelectSeason(s)} className={selectedSeason===s?'is-active':''}>{s}</button>)}</div></div>
+ {isLoading?<div className="f1-empty-card">LOADING CONSTRUCTOR DATA…</div>:error?<EmptyState type="not-found" title="CONSTRUCTOR DATA UNAVAILABLE" message={error}/>:teams.length===0?<EmptyState type="no-data" title="NO CONSTRUCTORS" message="No constructor standings are available."/>:
+ <div className="f1-team-grid">{teams.map((t,i)=>{const td=drivers.filter(d=>t.drivers?.includes(d.code));const followed=t.id===favoriteTeamId;return <article key={t.id} className={'f1-team-card '+(followed?'is-followed':'')} style={{'--team-card-color':t.color} as React.CSSProperties} onClick={()=>setSelectedTeam(t)}>
+  <div className="f1-team-card-accent"/><div className="f1-team-card-head"><span>P{t.position??i+1}</span><button onClick={e=>{e.stopPropagation();onSelectFavorite?.(followed?null:t.id)}}><Star fill={followed?'currentColor':'none'}/></button></div>
+  <div className="f1-team-card-title"><span>{t.powerUnit}</span><h2>{t.name}</h2><p>{t.chassis??'CAR —'}</p></div>
+  <div className="f1-team-drivers">{td.slice(0,2).map(d=><div key={d.id}>{d.headshotUrl?<img src={d.headshotUrl} alt="" loading="lazy"/>:<span/>}<b>{d.code}</b></div>)}</div>
+  <div className="f1-team-card-stats"><div><span>POINTS</span><strong>{t.points??0}</strong></div><div><span>WINS</span><strong>{t.wins??0}</strong></div><div><span>DRIVERS</span><strong>{td.length||t.drivers?.length||0}</strong></div></div>
+ </article>})}</div>}
+ {selectedTeam&&<section className="f1-team-profile" style={{'--team-card-color':selectedTeam.color} as React.CSSProperties}><div className="f1-profile-topline"><span style={{color:selectedTeam.color}}>CONSTRUCTOR PROFILE</span><button onClick={()=>setSelectedTeam(null)}><X/></button></div><div className="f1-team-profile-hero"><div className="f1-team-profile-mark" style={{background:selectedTeam.color}}/><div><span>{selectedTeam.powerUnit}</span><h2>{selectedTeam.fullName}</h2><p>{selectedTeam.chassis??'CAR —'} · {selectedTeam.base}</p></div><div className="f1-profile-big-stat"><strong>P{selectedTeam.position??'—'}</strong><span>CHAMPIONSHIP</span></div></div><div className="f1-stat-grid"><div><span>POINTS</span><strong>{selectedTeam.points??0}</strong></div><div><span>WINS</span><strong>{selectedTeam.wins??0}</strong></div><div><span>DRIVERS</span><strong>{selectedTeam.drivers?.join(' / ')||'—'}</strong></div><div><span>POWER UNIT</span><strong>{selectedTeam.powerUnit}</strong></div></div><div className="f1-team-profile-drivers">{drivers.filter(d=>selectedTeam.drivers?.includes(d.code)).map(d=><div key={d.id}>{d.headshotUrl&&<img src={d.headshotUrl} alt="" loading="lazy"/>}<div><b>{d.fullName}</b><span>#{d.number} · {d.code}</span></div></div>)}</div></section>}
+ </div>;
 };
