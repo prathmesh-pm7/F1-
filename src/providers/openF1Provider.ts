@@ -99,13 +99,21 @@ export class OpenF1Provider {
     const latest = sessions.sort((a,b) => new Date(String(b.date_start)).getTime() - new Date(String(a.date_start)).getTime())[0];
     if (!latest) return {};
     const drivers = await this.get<JsonRecord[]>(`/drivers?session_key=${Number(latest.session_key)}`);
-    return drivers.reduce<Record<string,string>>((map, d) => {
+    const images = drivers.reduce<Record<string,string>>((map, d) => {
       if (d.headshot_url) {
         map[String(d.driver_number)] = String(d.headshot_url);
         if (d.name_acronym) map[String(d.name_acronym)] = String(d.headshot_url);
       }
       return map;
     }, {});
+    // 2026 official F1 profile fallback for Arvid Lindblad (#41).
+    // OpenF1 occasionally has a missing headshot record even though the official
+    // Formula 1 profile is live and current.
+    if (year === 2026 && !images['41']) {
+      images['41'] = 'https://media.formula1.com/image/upload/c_fill,w_720/q_auto/v1740000001/common/f1/2026/racingbulls/arvlin01/2026racingbullsarvlin01right.webp';
+      images['LIN'] = images['41'];
+    }
+    return images;
   }
 
   public async getSeasonCircuitMeta(year: number): Promise<Record<string, { imageUrl?: string; circuitType?: string }>> {
