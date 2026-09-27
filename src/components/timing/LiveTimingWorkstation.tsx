@@ -43,8 +43,11 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
 
   const displaySessionName = snapshot.sessionName || sessionContext?.sessionName || 'SESSION';
   const displayCircuitName = snapshot.circuitName || sessionContext?.circuitName || 'CIRCUIT —';
+  const isNoLiveSession = !isReplayMode && connectionState === 'DISCONNECTED' && !sessionContext;
+  const isProviderUnavailable = !isReplayMode && connectionState === 'PROVIDER_UNAVAILABLE';
   const isLiveOffline = !isReplayMode && (
-    connectionState === 'PROVIDER_UNAVAILABLE' ||
+    isNoLiveSession ||
+    isProviderUnavailable ||
     connectionState === 'ERROR' ||
     connectionState === 'STALE' ||
     snapshot.entries.length === 0
@@ -60,7 +63,9 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
         </div>
         <div className="f1-live-strip-meta">
           <span>{snapshot.currentLap > 0 ? `LAP ${snapshot.currentLap}/${snapshot.totalLaps || '—'}` : 'LAP —/—'}</span>
-          <span className={connectionState === 'LIVE' ? 'is-live' : ''}>{connectionState === 'LIVE' ? 'LIVE' : connectionState}</span>
+          <span className={connectionState === 'LIVE' ? 'is-live' : ''}>
+            {isNoLiveSession ? 'NO LIVE SESSION' : connectionState === 'PROVIDER_UNAVAILABLE' ? 'PROVIDER UNAVAILABLE' : connectionState === 'LIVE' ? 'LIVE' : connectionState}
+          </span>
         </div>
       </div>
 
@@ -111,11 +116,19 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
       {isLiveOffline && (
         <div className="f1-provider-state">
           <div>
-            <div className="f1-provider-title">LIVE TIMING NOT AVAILABLE</div>
-            <div className="f1-provider-copy">No current on-track timing snapshot has been received. No timing values are fabricated.</div>
+            <div className="f1-provider-title">
+              {isNoLiveSession ? 'NO LIVE SESSION' : isProviderUnavailable ? 'PROVIDER UNAVAILABLE' : 'LIVE TIMING NOT AVAILABLE'}
+            </div>
+            <div className="f1-provider-copy">
+              {isNoLiveSession
+                ? 'There is no scheduled on-track session right now. This is not a provider outage.'
+                : isProviderUnavailable
+                  ? 'The live timing provider could not be reached for the scheduled session. No timing values are fabricated.'
+                  : 'No current on-track timing snapshot has been received. No timing values are fabricated.'}
+            </div>
           </div>
           <div className="f1-provider-actions">
-            <button type="button" onClick={onConnectLive}><RefreshCw className="w-3 h-3" /> RETRY LIVE</button>
+            {!isNoLiveSession && <button type="button" onClick={onConnectLive}><RefreshCw className="w-3 h-3" /> RETRY LIVE</button>}
             <button type="button" onClick={onSwitchToReplay}>OPEN RECORDED REPLAY</button>
           </div>
         </div>
