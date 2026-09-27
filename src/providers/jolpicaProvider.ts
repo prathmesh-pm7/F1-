@@ -238,6 +238,8 @@ export class JolpicaProvider implements F1DataProvider {
           lastName: item.Driver?.familyName || '',
           fullName: `${item.Driver?.givenName || ''} ${item.Driver?.familyName || ''}`.trim(),
           nationality: item.Driver?.nationality || '',
+          dateOfBirth: item.Driver?.dateOfBirth || undefined,
+          permanentNumber: parseInt(item.Driver?.permanentNumber || '0', 10) || undefined,
           teamId: constructorId,
           teamName: constructorName,
           teamColor: color,
