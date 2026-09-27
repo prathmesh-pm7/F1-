@@ -63,17 +63,17 @@ export class OpenF1Provider {
     // /session_result is delayed. Keep the classification usable by falling back to
     // each driver's latest recorded position in that session.
     const latestPosition = new Map<number, number>();
+    const latestPositionTimestamp = new Map<number, number>();
     for (const p of rawPositions) {
       const driverNumber = Number(p.driver_number);
       const position = Number(p.position);
       if (!Number.isFinite(driverNumber) || !Number.isFinite(position)) continue;
       const timestamp = new Date(String(p.date)).getTime();
-      const previousTimestamp = (latestPosition as any).__timestamps?.get?.(driverNumber) as number | undefined;
+      const previousTimestamp = latestPositionTimestamp.get(driverNumber);
       if (!Number.isFinite(timestamp)) continue;
-      if (!(latestPosition as any).__timestamps) (latestPosition as any).__timestamps = new Map<number, number>();
       if (previousTimestamp == null || timestamp >= previousTimestamp) {
         latestPosition.set(driverNumber, position);
-        (latestPosition as any).__timestamps.set(driverNumber, timestamp);
+        latestPositionTimestamp.set(driverNumber, timestamp);
       }
     }
     const resultRows = rawResults.length > 0 ? rawResults : Array.from(driverMap.keys()).map(driver_number => ({
