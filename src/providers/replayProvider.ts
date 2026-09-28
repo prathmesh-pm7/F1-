@@ -318,6 +318,18 @@ export class ReplayProvider implements F1LiveProvider {
     this.snapshotListeners.forEach(l => l(snap));
   }
 
+  private selectWeatherAtOrBefore(timestamp: number): JsonRecord {
+    const valid = this.session?.weather.filter(row => Number.isFinite(new Date(String(row.date ?? '')).getTime())) ?? [];
+    if (!valid.length) return {};
+    if (!Number.isFinite(timestamp) || timestamp <= 0) return valid[0];
+    return valid.reduce((selected, row) => {
+      const rowTime = new Date(String(row.date ?? '')).getTime();
+      const selectedTime = new Date(String(selected.date ?? '')).getTime();
+      if (rowTime <= timestamp && (selectedTime > timestamp || rowTime > selectedTime)) return row;
+      return selected;
+    }, valid[0]);
+  }
+
   private positionAtLapEnd(driverNumber: number, lap: number): number | null {
     if (!this.session) return null;
     const driverLaps = this.session.laps.filter(l => l.driverNumber === driverNumber && l.lapNumber === lap);
@@ -426,9 +438,13 @@ export class ReplayProvider implements F1LiveProvider {
         }
       }));
 
-    const weather = [...this.session.weather]
-      .filter(w => !Number.isFinite(lap) || !this.session?.laps.length || new Date(String(w.date ?? '')).getTime() <= Math.max(...this.session.laps.filter(l => l.lapNumber <= lap && l.dateStart).map(l => new Date(String(l.dateStart)).getTime() + (l.lapDuration ?? 0) * 1000), 0))
-      this.session.weather[this.session.weather.length - 1] ?? this.session.weather[0] ?? {};
+    const replayTimestamp = Math.max(
+      0,
+      ...this.session.laps
+        .filter(l => l.lapNumber <= lap && l.dateStart && Number.isFinite(l.lapDuration))
+        .map(l => new Date(l.dateStart!).getTime() + Number(l.lapDuration) * 1000)
+    );
+    const weather = this.selectWeatherAtOrBefore(replayTimestamp);
     return {
       sessionName: `${this.session.meetingName} · ${this.session.sessionName}`,
       circuitName: this.session.circuitName,

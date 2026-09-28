@@ -1,4 +1,5 @@
-import { Circuit, DataProvenance, Driver, NewsItem, TechnicalUpdate } from '../types/f1';
+import { Circuit, DataProvenance, Driver, NewsItem, TechnicalUpdate, FIADocument } from '../types/f1';
+import { VERIFIED_FIA_DOCUMENTS } from '../data/fiaDocuments';
 
 const OPENF1_BASE = 'https://api.openf1.org/v1';
 const FIA_NEWS_RSS = 'https://www.fia.com/rss/news';
@@ -99,6 +100,14 @@ export class F1EnrichmentProvider {
       description: clean(item.querySelector('description')?.textContent ?? ''),
       publishedAt: item.querySelector('pubDate')?.textContent?.trim() ?? new Date().toISOString()
     })).filter(item => item.title && item.link);
+  }
+
+  public async getFiaDocuments(): Promise<FIADocument[]> {
+    try {
+      const local = await this.getJson<FIADocument[]>('/data/fia-documents.json');
+      if (Array.isArray(local) && local.length) return local;
+    } catch { /* use the verified repository dataset when no public cache is available */ }
+    return VERIFIED_FIA_DOCUMENTS.map(document => ({ ...document }));
   }
 
   public async getFiaNews(limit = 20): Promise<NewsItem[]> {

@@ -75,6 +75,7 @@ export const AppShell: React.FC<Props> = (props) => {
       <GlobalCommandSearch
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+        onToggle={() => setIsSearchOpen(open => !open)}
         onNavigate={props.onSelectTab}
         drivers={props.searchData.drivers}
         teams={props.searchData.teams}
