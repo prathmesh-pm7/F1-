@@ -85,8 +85,8 @@ export default function App() {
           jolpicaProvider.getDriverStandings(selectedSeason),
           jolpicaProvider.getConstructorStandings(selectedSeason),
           jolpicaProvider.getCircuits(selectedSeason),
-          openF1Provider.getSeasonDriverImages(selectedSeason).catch(() => ({})),
-          enrichmentProvider.getSeasonCircuitEnrichment(selectedSeason).catch(() => ({})),
+          openF1Provider.getSeasonDriverImages(selectedSeason).catch((): Record<string, string> => ({})),
+          enrichmentProvider.getSeasonCircuitEnrichment(selectedSeason).catch((): Record<string, Partial<Circuit>> => ({})),
           enrichmentProvider.getFiaNews().catch(() => []),
           enrichmentProvider.getTechnicalUpdates().catch(() => []),
           enrichmentProvider.getFiaDocuments().catch(() => [])
@@ -185,6 +185,16 @@ export default function App() {
   useEffect(() => {
     if (!isLoadingSeason && teams.length > 0 && !favoriteTeam && !teamSetupDismissed) setShowTeamSetup(true);
   }, [isLoadingSeason, teams.length, favoriteTeam, teamSetupDismissed]);
+
+  const activeCircuit = useMemo(() => {
+    const target = (snapshot.circuitName || activeLiveSession?.gp.circuit.name || '').toLowerCase();
+    if (!target) return null;
+    return circuits.find(c =>
+      (c.name && target.includes(c.name.toLowerCase())) ||
+      (c.location && target.includes(c.location.toLowerCase())) ||
+      (c.country && target.includes(c.country.toLowerCase()))
+    ) ?? null;
+  }, [snapshot.circuitName, activeLiveSession, circuits]);
 
   // The selected team is the visual theme for the entire workspace.
   // Keep the source team colour as the single accent and derive softer/brighter
@@ -295,6 +305,7 @@ export default function App() {
             replaySpeed={replaySpeed}
             onConnectLive={() => liveEngine.connect()}
             sessionContext={activeLiveSession ? { sessionName: activeLiveSession.session.name, circuitName: activeLiveSession.gp.circuit.name } : null}
+            circuitInfoUrl={activeCircuit?.circuitInfoUrl}
             onSwitchToReplay={handleSwitchToReplay}
           />
         )}

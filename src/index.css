@@ -1099,3 +1099,558 @@
 .f1-driver-telemetry .text-\[9px\] {
   letter-spacing: .04em;
 }
+
+/* 2D Track Map Visualizer & Workstation Views */
+.f1-view-mode-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: #0d0d11;
+  border: 1px solid #26262e;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.f1-view-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #7d7d87;
+  font: 800 9px "JetBrains Mono", monospace;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.f1-view-mode-btn:hover {
+  color: #fff;
+  background: #17171d;
+}
+
+.f1-view-mode-btn.is-active {
+  background: #202027;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.35), inset 0 0 0 1px #33333d;
+}
+
+.f1-view-mode-btn.is-active svg {
+  color: var(--f1-red-bright);
+}
+
+.f1-split-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.f1-map-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .f1-split-workspace {
+    grid-template-columns: 1fr;
+  }
+  .f1-map-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.f1-track-visualizer {
+  position: relative;
+  background: #0b0e14;
+  border: 1px solid #232a35;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,.32);
+  display: flex;
+  flex-direction: column;
+}
+
+.f1-track-toolbar {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 14px;
+  background: #0f131a;
+  border-bottom: 1px solid #1c232e;
+}
+
+.f1-track-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.f1-track-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #f0f2f5;
+  font: 800 11px Inter, sans-serif;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+
+.f1-track-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 9px "JetBrains Mono", monospace;
+  color: #798696;
+}
+
+.f1-track-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.f1-track-btn-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: #151b24;
+  border: 1px solid #242d3a;
+  border-radius: 8px;
+  padding: 2px;
+}
+
+.f1-track-btn-group button {
+  height: 26px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #798696;
+  font: 800 8.5px "JetBrains Mono", monospace;
+  cursor: pointer;
+  transition: all .14s ease;
+}
+
+.f1-track-btn-group button:hover {
+  color: #fff;
+  background: #1c2430;
+}
+
+.f1-track-btn-group button.is-active {
+  background: #2b3647;
+  color: #fff;
+}
+
+.f1-track-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 650;
+  min-height: 380px;
+  background: #080a0e;
+  overflow: hidden;
+  user-select: none;
+}
+
+.f1-track-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.f1-track-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(9, 12, 16, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 20;
+  color: #94a3b8;
+  font: 9px "JetBrains Mono", monospace;
+  letter-spacing: .12em;
+}
+
+.f1-track-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #253040;
+  border-top-color: var(--f1-red-bright);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.f1-turn-marker:hover circle {
+  fill: #ffd600;
+  stroke: #000;
+}
+
+.f1-turn-marker:hover text {
+  fill: #000;
+}
+
+.f1-turn-tooltip {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(14, 18, 24, 0.94);
+  backdrop-filter: blur(8px);
+  border: 1px solid #283342;
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.f1-turn-tooltip strong {
+  font: 800 10px "JetBrains Mono", monospace;
+  color: #ffd600;
+}
+
+.f1-turn-tooltip span {
+  font: 9px Inter, sans-serif;
+  color: #e2e8f0;
+}
+
+.f1-driver-hover-card {
+  position: absolute;
+  bottom: 54px;
+  left: 14px;
+  background: rgba(13, 17, 23, 0.94);
+  backdrop-filter: blur(10px);
+  border: 1px solid #252f3d;
+  border-left-width: 4px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 15;
+  box-shadow: 0 8px 24px rgba(0,0,0,.4);
+  pointer-events: none;
+}
+
+.f1-dh-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.f1-dh-pos {
+  font: 900 9px "JetBrains Mono", monospace;
+  color: #ffd600;
+}
+
+.f1-dh-name {
+  font: 800 11px Inter, sans-serif;
+  color: #fff;
+}
+
+.f1-dh-code {
+  font: 800 9px "JetBrains Mono", monospace;
+  color: #94a3b8;
+  padding: 1px 4px;
+  background: #1e2633;
+  border-radius: 4px;
+}
+
+.f1-dh-meta {
+  font: 9px "JetBrains Mono", monospace;
+  color: #8594a6;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.f1-track-flag-hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font: 900 9.5px "JetBrains Mono", monospace;
+  letter-spacing: .08em;
+  z-index: 15;
+  box-shadow: 0 6px 20px rgba(0,0,0,.45);
+}
+
+.f1-track-flag-hud.sc-active {
+  background: rgba(255, 214, 0, 0.16);
+  border: 1px solid #ffd600;
+  color: #ffd600;
+}
+
+.f1-track-flag-hud.vsc-active {
+  background: rgba(255, 214, 0, 0.14);
+  border: 1px solid rgba(255, 214, 0, 0.6);
+  color: #ffd600;
+}
+
+.f1-track-flag-hud.yellow-active {
+  background: rgba(255, 234, 0, 0.16);
+  border: 1px solid #ffea00;
+  color: #ffea00;
+}
+
+.f1-track-selected-hud {
+  background: #0f131a;
+  border-top: 1px solid #1f2734;
+  border-left-width: 4px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.f1-tsh-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.f1-tsh-driver {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.f1-tsh-pos {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #1c2430;
+  color: #ffd600;
+  font: 900 11px "JetBrains Mono", monospace;
+}
+
+.f1-tsh-name {
+  font: 800 12px Inter, sans-serif;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.f1-tsh-name span {
+  font: 9px "JetBrains Mono", monospace;
+  color: #64748b;
+}
+
+.f1-tsh-team {
+  font: 9px "JetBrains Mono", monospace;
+  color: #8192a5;
+}
+
+.f1-tsh-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font: 9px "JetBrains Mono", monospace;
+}
+
+.f1-tsh-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.f1-tsh-stats span {
+  color: #627284;
+  font-size: 7.5px;
+  letter-spacing: .06em;
+}
+
+.f1-tsh-stats strong {
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.f1-tsh-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.f1-tsh-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: #1e2736;
+  border: 1px solid #303d52;
+  border-radius: 6px;
+  color: #fff;
+  font: 800 8.5px "JetBrains Mono", monospace;
+  cursor: pointer;
+  transition: all .14s ease;
+}
+
+.f1-tsh-open-btn:hover {
+  background: var(--f1-red-bright);
+  border-color: var(--f1-red-bright);
+}
+
+.f1-tsh-close-btn {
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid #232c3a;
+  border-radius: 6px;
+  color: #798696;
+  font: 800 8.5px "JetBrains Mono", monospace;
+  cursor: pointer;
+  transition: all .14s ease;
+}
+
+.f1-tsh-close-btn:hover {
+  color: #fff;
+  background: #151a22;
+}
+
+.f1-track-driver-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #090c10;
+  border-top: 1px solid #161c24;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.f1-tds-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 7px;
+  background: #11151c;
+  border: 1px solid #1d2531;
+  border-left-width: 3px;
+  border-radius: 5px;
+  color: #cbd5e1;
+  font: 800 8.5px "JetBrains Mono", monospace;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: none;
+  transition: all .14s ease;
+}
+
+.f1-tds-pill:hover {
+  background: #1a202c;
+  color: #fff;
+}
+
+.f1-tds-pill.is-selected {
+  background: #252f40;
+  border-color: #3b4961;
+  color: #fff;
+  box-shadow: 0 0 0 1px #fff;
+}
+
+.f1-tds-pos {
+  color: #ffd600;
+  font-size: 8px;
+}
+
+.f1-tds-code {
+  color: #fff;
+  font-weight: 800;
+}
+
+.f1-tds-gap {
+  color: #64748b;
+  font-size: 8px;
+}
+
+.f1-tds-pit {
+  padding: 0 3px;
+  background: #ff9800;
+  color: #000;
+  border-radius: 2px;
+  font-size: 7px;
+  font-weight: 900;
+}
+
+/* Mini Track Radar Widget in Sidebar */
+.f1-mini-radar {
+  border: 1px solid #232a35;
+  border-radius: 14px;
+  background: #0f131a;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.f1-mini-radar-header {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  background: #0a0d12;
+  border-bottom: 1px solid #1a212b;
+}
+
+.f1-mini-radar-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  background: #161c24;
+  border: 1px solid #252e3c;
+  border-radius: 4px;
+  color: #94a3b8;
+  font: 800 7.5px "JetBrains Mono", monospace;
+  cursor: pointer;
+  transition: all .14s ease;
+}
+
+.f1-mini-radar-expand-btn:hover {
+  color: #fff;
+  background: #202836;
+}
+
+.f1-mini-radar-svg-wrap {
+  width: 100%;
+  aspect-ratio: 1000 / 650;
+  padding: 8px;
+  background: #07090d;
+}
+
+.f1-mini-radar-empty {
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  background: #0f131a;
+  border: 1px solid #232a35;
+  border-radius: 14px;
+}
+

@@ -208,6 +208,27 @@ export class OpenF1Provider {
     const weather = this.normalizeWeather(rawWeather);
     const raceControl = this.normalizeRaceControl(rawRaceControl, key);
     const provenance: DataProvenance = { provider:'OpenF1', sourceUrl:`${OPENF1_BASE}/session_result?session_key=${key}`, retrievedAt:new Date().toISOString(), lastUpdatedAt:new Date().toISOString(), isLive:false, isFixture:false, isHistorical:true, notes:'Historical session data from OpenF1' };
+
+    const lastWeather = rawWeather[rawWeather.length - 1];
+    const weather = lastWeather ? {
+      airTemp: Number(lastWeather.air_temperature) || 0,
+      trackTemp: Number(lastWeather.track_temperature) || 0,
+      humidity: Number(lastWeather.humidity) || 0,
+      pressure: Number(lastWeather.pressure) || 1013,
+      windSpeed: Number(lastWeather.wind_speed) || 0,
+      windDirection: Number(lastWeather.wind_direction) || 0,
+      rainfall: Boolean(lastWeather.rainfall)
+    } : undefined;
+
+    const raceControl = rawRaceControl.map((m, idx) => ({
+      id: `openf1-rc-${idx}-${m.date ?? ''}`,
+      time: String(m.date ?? ''),
+      lap: Number(m.lap_number) || undefined,
+      category: 'INFO' as const,
+      message: String(m.message ?? m.category ?? ''),
+      provenance
+    }));
+
     return { sessionKey:key, sessionName:String(match.session_name), sessionType:String(match.session_type), startTime:String(match.date_start), endTime:String(match.date_end), circuitName:String(match.circuit_short_name ?? gp.circuit.name), circuitImageUrl:meeting.circuit_image, results, laps, pitStops, driverLineup:Array.from(driverMap.values()).map(toDriver), weather, raceControl, provenance };
   }
   public async getSeasonDriverImages(year: number): Promise<Record<string, string>> {

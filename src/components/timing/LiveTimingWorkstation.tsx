@@ -6,7 +6,9 @@ import { DriverTelemetryDrawer } from './DriverTelemetryDrawer';
 import { MiniGapTracker } from './MiniGapTracker';
 import { ReplayController } from './ReplayController';
 import { RaceControlFeed } from '../race-control/RaceControlFeed';
-import { RefreshCw } from 'lucide-react';
+import { TrackMapVisualizer } from './TrackMapVisualizer';
+import { MiniTrackRadar } from './MiniTrackRadar';
+import { RefreshCw, LayoutGrid, Map, Table } from 'lucide-react';
 
 interface Props {
   snapshot: LiveSessionSnapshot;
@@ -23,14 +25,17 @@ interface Props {
   onConnectLive: () => void;
   onSwitchToReplay: () => void;
   sessionContext: { sessionName: string; circuitName: string } | null;
+  circuitInfoUrl?: string;
 }
 
 export const LiveTimingWorkstation: React.FC<Props> = ({
   snapshot, connectionState, isReplayMode, favoriteTeam, onPlayReplay, onPauseReplay,
   onStepReplay, onSetReplaySpeed, onJumpReplayLap, isReplayPlaying, replaySpeed,
-  onConnectLive, onSwitchToReplay, sessionContext
+  onConnectLive, onSwitchToReplay, sessionContext, circuitInfoUrl
 }) => {
   const [selectedDriver, setSelectedDriver] = useState<TimingEntry | null>(snapshot.entries[0] || null);
+  const [viewMode, setViewMode] = useState<'SPLIT' | 'MAP' | 'TABLE'>('SPLIT');
+
   const favoriteEntries = favoriteTeam
     ? snapshot.entries.filter(entry => entry.teamName === favoriteTeam.name || entry.teamName === favoriteTeam.fullName)
     : [];
@@ -137,25 +142,60 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
       )}
 
       <div className="f1-session-line">
-        <div>
+        <div className="flex items-center gap-3">
           <strong>{displaySessionName}</strong>
           <span>/</span>
           <span>{displayCircuitName}</span>
           <span>/</span>
           <span>{snapshot.entries.length ? `${snapshot.entries.length} CARS` : 'NO TIMING SNAPSHOT'}</span>
         </div>
-        {snapshot.fastestLap && (
-          <div>
-            <span>FASTEST</span>
-            <strong>{snapshot.fastestLap.time}</strong>
-            <span>{snapshot.fastestLap.driverCode} · L{snapshot.fastestLap.lap}</span>
-          </div>
-        )}
+
+        <div className="flex items-center gap-3">
+          {snapshot.entries.length > 0 && (
+            <div className="f1-view-mode-selector" role="group" aria-label="Workstation View Mode">
+              <button
+                type="button"
+                className={`f1-view-mode-btn ${viewMode === 'SPLIT' ? 'is-active' : ''}`}
+                onClick={() => setViewMode('SPLIT')}
+                title="Split View: Timing Table + 2D Track Map"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>SPLIT VIEW</span>
+              </button>
+              <button
+                type="button"
+                className={`f1-view-mode-btn ${viewMode === 'MAP' ? 'is-active' : ''}`}
+                onClick={() => setViewMode('MAP')}
+                title="Full 2D Track Map Radar"
+              >
+                <Map className="w-3.5 h-3.5" />
+                <span>TRACK MAP</span>
+              </button>
+              <button
+                type="button"
+                className={`f1-view-mode-btn ${viewMode === 'TABLE' ? 'is-active' : ''}`}
+                onClick={() => setViewMode('TABLE')}
+                title="Timing Table View"
+              >
+                <Table className="w-3.5 h-3.5" />
+                <span>TABLE</span>
+              </button>
+            </div>
+          )}
+
+          {snapshot.fastestLap && (
+            <div className="hidden sm:flex items-center gap-2">
+              <span>FASTEST</span>
+              <strong>{snapshot.fastestLap.time}</strong>
+              <span>{snapshot.fastestLap.driverCode} · L{snapshot.fastestLap.lap}</span>
+            </div>
+          )}
+        </div>
       </div>
 
       {snapshot.entries.length > 0 && (
-        <div className="f1-live-workspace">
-          <details className="f1-timing-guide">
+        <>
+          <details className="f1-timing-guide mb-3">
             <summary>TIMING GUIDE <span>What do these numbers mean?</span></summary>
             <div className="f1-timing-guide-grid">
               <div><strong>Gap to leader</strong><span>Time behind P1</span></div>
@@ -167,28 +207,118 @@ export const LiveTimingWorkstation: React.FC<Props> = ({
             </div>
           </details>
 
-          <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
-            <div className="f1-section-heading">
-              <span>LIVE TIMING</span>
-              <span>{snapshot.entries.length} CARS</span>
-            </div>
-            <TimingTable
-              entries={snapshot.entries}
-              selectedDriver={selectedDriver}
-              onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)}
-            />
-          </section>
+          {/* VIEW MODE 1: SPLIT VIEW (TIMING TABLE + TRACK MAP) */}
+          {viewMode === 'SPLIT' && (
+            <div className="f1-split-workspace">
+              {/* Left Column: Timing Table */}
+              <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
+                <div className="f1-section-heading">
+                  <span>LIVE TIMING</span>
+                  <span>{snapshot.entries.length} CARS</span>
+                </div>
+                <TimingTable
+                  entries={snapshot.entries}
+                  selectedDriver={selectedDriver}
+                  onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)}
+                />
+              </section>
 
-          <aside className="f1-race-side">
-            <section className="f1-side-block" aria-label="Gap tracker">
-              <div className="f1-section-heading"><span>GAP / INTERVAL</span><span>LAP {snapshot.currentLap || '—'}</span></div>
-              <MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} />
-            </section>
-            <section className="f1-side-block" aria-label="Race control">
-              <RaceControlFeed messages={snapshot.raceControl} />
-            </section>
-          </aside>
-        </div>
+              {/* Right Column: 2D Track Map Visualizer & Live Feeds */}
+              <div className="space-y-3">
+                <TrackMapVisualizer
+                  snapshot={snapshot}
+                  selectedDriver={selectedDriver}
+                  onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry?.driverCode ? null : entry)}
+                  favoriteTeam={favoriteTeam}
+                  circuitInfoUrl={circuitInfoUrl}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <section className="f1-side-block" aria-label="Gap tracker">
+                    <div className="f1-section-heading"><span>GAP / INTERVAL</span><span>LAP {snapshot.currentLap || '—'}</span></div>
+                    <MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} />
+                  </section>
+                  <section className="f1-side-block" aria-label="Race control">
+                    <RaceControlFeed messages={snapshot.raceControl} />
+                  </section>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW MODE 2: FULL TRACK MAP */}
+          {viewMode === 'MAP' && (
+            <div className="f1-map-workspace">
+              <div className="space-y-3">
+                <TrackMapVisualizer
+                  snapshot={snapshot}
+                  selectedDriver={selectedDriver}
+                  onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry?.driverCode ? null : entry)}
+                  favoriteTeam={favoriteTeam}
+                  circuitInfoUrl={circuitInfoUrl}
+                />
+
+                <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
+                  <div className="f1-section-heading">
+                    <span>LIVE TIMING CLASSIFICATION</span>
+                    <span>{snapshot.entries.length} CARS</span>
+                  </div>
+                  <TimingTable
+                    entries={snapshot.entries}
+                    selectedDriver={selectedDriver}
+                    onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)}
+                  />
+                </section>
+              </div>
+
+              <aside className="f1-race-side">
+                <section className="f1-side-block" aria-label="Gap tracker">
+                  <div className="f1-section-heading"><span>GAP / INTERVAL</span><span>LAP {snapshot.currentLap || '—'}</span></div>
+                  <MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} />
+                </section>
+                <section className="f1-side-block" aria-label="Race control">
+                  <RaceControlFeed messages={snapshot.raceControl} />
+                </section>
+              </aside>
+            </div>
+          )}
+
+          {/* VIEW MODE 3: CLASSIC TIMING TABLE */}
+          {viewMode === 'TABLE' && (
+            <div className="f1-live-workspace">
+              <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
+                <div className="f1-section-heading">
+                  <span>LIVE TIMING</span>
+                  <span>{snapshot.entries.length} CARS</span>
+                </div>
+                <TimingTable
+                  entries={snapshot.entries}
+                  selectedDriver={selectedDriver}
+                  onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)}
+                />
+              </section>
+
+              <aside className="f1-race-side">
+                <section className="f1-side-block" aria-label="2D Track Radar">
+                  <MiniTrackRadar
+                    snapshot={snapshot}
+                    selectedDriver={selectedDriver}
+                    onSelectDriver={(entry) => setSelectedDriver(selectedDriver?.driverCode === entry?.driverCode ? null : entry)}
+                    circuitInfoUrl={circuitInfoUrl}
+                    onExpandToFullMap={() => setViewMode('MAP')}
+                  />
+                </section>
+                <section className="f1-side-block" aria-label="Gap tracker">
+                  <div className="f1-section-heading"><span>GAP / INTERVAL</span><span>LAP {snapshot.currentLap || '—'}</span></div>
+                  <MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} />
+                </section>
+                <section className="f1-side-block" aria-label="Race control">
+                  <RaceControlFeed messages={snapshot.raceControl} />
+                </section>
+              </aside>
+            </div>
+          )}
+        </>
       )}
 
       {selectedDriver && snapshot.entries.length > 0 && (
