@@ -13,6 +13,7 @@ export function useSeasonData(selectedSeason: number) {
   const [driverStandings, setDriverStandings] = useState<DriverStanding[]>([]), [standingsProvenance, setStandingsProvenance] = useState<DataProvenance>(), [standingsError, setStandingsError] = useState<string | null>(null);
   const [constructorStandings, setConstructorStandings] = useState<ConstructorStanding[]>([]), [drivers, setDrivers] = useState<Driver[]>([]), [teams, setTeams] = useState<Team[]>([]), [circuits, setCircuits] = useState<Circuit[]>([]);
   const headshotsRef = useRef<Record<string, string>>({});
+  const driverStandingsRef = useRef<DriverStanding[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]), [technicalUpdates, setTechnicalUpdates] = useState<TechnicalUpdate[]>([]), [fiaDocuments, setFiaDocuments] = useState<FIADocument[]>([]), [isLoadingSeason, setIsLoadingSeason] = useState(true);
 
   const decorateDrivers = useCallback((rows: DriverStanding[], headshots: Record<string, string>) => rows.map(({ driver }) => ({ ...driver, headshotUrl: headshots[String(driver.number)] ?? headshots[driver.code], countryCode: driver.nationality, chassis: getSeasonChassis(selectedSeason, driver.teamId) })), [selectedSeason]);
@@ -27,10 +28,10 @@ export function useSeasonData(selectedSeason: number) {
     if (Object.keys(headshots).length > 0) headshotsRef.current = { ...headshotsRef.current, ...headshots };
     if (schedRes.status === 'SUCCESS') { setSchedule(schedRes.data); setScheduleProvenance(schedRes.provenance); setScheduleError(null); }
     else { setScheduleProvenance(schedRes.provenance); setScheduleError(schedRes.status === 'EMPTY' ? schedRes.message : schedRes.error); }
-    if (dStandingsRes.status === 'SUCCESS') { setDriverStandings(dStandingsRes.data); setDrivers(decorateDrivers(dStandingsRes.data, headshotsRef.current)); setStandingsProvenance(dStandingsRes.provenance); setStandingsError(null); }
+    if (dStandingsRes.status === 'SUCCESS') { driverStandingsRef.current = dStandingsRes.data; setDriverStandings(dStandingsRes.data); setDrivers(decorateDrivers(dStandingsRes.data, headshotsRef.current)); setStandingsProvenance(dStandingsRes.provenance); setStandingsError(null); }
     else { setStandingsProvenance(dStandingsRes.provenance); setStandingsError(dStandingsRes.status === 'EMPTY' ? dStandingsRes.message : dStandingsRes.error); }
-    if (cStandingsRes.status === 'SUCCESS') { setConstructorStandings(cStandingsRes.data); setTeams(decorateTeams(cStandingsRes.data, dStandingsRes.status === 'SUCCESS' ? dStandingsRes.data : driverStandings)); }
-  }, [decorateDrivers, decorateTeams, driverStandings]);
+    if (cStandingsRes.status === 'SUCCESS') { setConstructorStandings(cStandingsRes.data); setTeams(decorateTeams(cStandingsRes.data, dStandingsRes.status === 'SUCCESS' ? dStandingsRes.data : driverStandingsRef.current)); }
+  }, [decorateDrivers, decorateTeams]);
 
   const refreshCore = useCallback(() => Promise.all([jolpicaProvider.getSchedule(selectedSeason), jolpicaProvider.getDriverStandings(selectedSeason), jolpicaProvider.getConstructorStandings(selectedSeason)]).then(([schedRes, dStandingsRes, cStandingsRes]) => ({ schedRes, dStandingsRes, cStandingsRes })), [jolpicaProvider, selectedSeason]);
 
