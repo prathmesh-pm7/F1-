@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { TimingEntry } from '../../types/f1';
+import { formatGap, formatInterval } from '../../utils/timingFormat';
 
 interface Props { entry: TimingEntry; isSelected: boolean; onSelect: (entry: TimingEntry) => void; }
 
@@ -11,8 +12,8 @@ export const TimingMobileRow: React.FC<Props> = ({ entry, isSelected, onSelect }
       <button type="button" className="f1-mobile-timing-main" onClick={() => onSelect(entry)} aria-pressed={isSelected} aria-label={'Select ' + entry.driverCode + ' position ' + entry.position}>
         <span className="mobile-pos">{entry.position}</span>
         <span className="mobile-driver"><strong>{entry.driverCode}</strong><small>#{entry.driverNumber} · {entry.driverName}</small></span>
-        <span><small>GAP</small><strong>{entry.position === 1 ? 'LEADER' : entry.gap || '—'}</strong></span>
-        <span><small>INT</small><strong>{entry.position === 1 ? '—' : entry.interval || '—'}</strong></span>
+        <span><small>GAP</small><strong>{entry.position === 1 ? 'LEADER' : formatGap(entry.gap)}</strong></span>
+        <span><small>INT</small><strong>{entry.position === 1 ? '—' : formatInterval(entry.interval)}</strong></span>
         <span><small>TYRE</small><strong>{tyre === 'UNKNOWN' ? '—' : tyre} {entry.tyre.age || 0}L</strong></span>
       </button>
       <button type="button" className="f1-mobile-timing-expand" onClick={() => setExpanded(value => !value)} aria-expanded={expanded} aria-label={(expanded ? 'Collapse ' : 'Expand ') + entry.driverCode + ' lap details'}>⌄</button>

@@ -1,4 +1,5 @@
 import { GrandPrix, SessionSchedule, SessionDetail, SessionResultEntry, Driver, DataProvenance, RaceControlMessage } from '../types/f1';
+import { normalizeOpenF1Weather, normalizeOpenF1RaceControl } from './normalizers/openF1Normalizer';
 
 const OPENF1_BASE = 'https://api.openf1.org/v1';
 
@@ -58,72 +59,9 @@ export class OpenF1Provider {
     return ({ FP1: 'Practice 1', FP2: 'Practice 2', FP3: 'Practice 3', QUALIFYING: 'Qualifying', SPRINT_QUALIFYING: 'Sprint Qualifying', SPRINT: 'Sprint', RACE: 'Race' } as Record<string,string>)[type] ?? type;
   }
 
-  private normalizeWeather(rows: JsonRecord[]): SessionDetail['weather'] {
-    const row = rows
-      .filter(item => item && typeof item === 'object')
-      .sort((a, b) => new Date(String(a.date ?? '')).getTime() - new Date(String(b.date ?? '')).getTime())
-      .at(-1);
-    if (!row) return undefined;
-    const numberOrUndefined = (value: unknown) => {
-      const n = Number(value);
-      return Number.isFinite(n) ? n : undefined;
-    };
-    const airTemp = numberOrUndefined(row.air_temperature);
-    const trackTemp = numberOrUndefined(row.track_temperature);
-    const humidity = numberOrUndefined(row.humidity);
-    const pressure = numberOrUndefined(row.pressure);
-    const windSpeed = numberOrUndefined(row.wind_speed);
-    const windDirection = numberOrUndefined(row.wind_direction);
-    if ([airTemp, trackTemp, humidity, pressure, windSpeed, windDirection].some(value => value === undefined)) return undefined;
-    return {
-      airTemp: airTemp!,
-      trackTemp: trackTemp!,
-      humidity: humidity!,
-      pressure: pressure!,
-      windSpeed: windSpeed!,
-      windDirection: windDirection!,
-      rainfall: Boolean(row.rainfall)
-    };
-  }
+  private normalizeWeather(rows: JsonRecord[]): SessionDetail['weather'] { return normalizeOpenF1Weather(rows); }
 
-  private normalizeRaceControl(rows: JsonRecord[], sessionKey: number): SessionDetail['raceControl'] {
-    if (!rows.length) return [];
-    const provenanceBase: DataProvenance = {
-      provider: 'OpenF1',
-      sourceUrl: `${OPENF1_BASE}/race_control?session_key=${sessionKey}`,
-      retrievedAt: new Date().toISOString(),
-      isLive: false,
-      isFixture: false,
-      isHistorical: true,
-      notes: 'Historical OpenF1 race-control messages'
-    };
-    return rows.map((row, index) => {
-      const message = String(row.message ?? row.category ?? 'Race control update');
-      const rawCategory = String(row.category ?? '').toUpperCase();
-      const rawFlag = String(row.flag ?? '').toUpperCase();
-      const category: RaceControlMessage['category'] =
-        rawCategory.includes('FLAG') || rawFlag ? 'FLAG' :
-        rawCategory.includes('SAFETY') || /safety car|virtual safety car/i.test(message) ? 'SAFETY_CAR' :
-        rawCategory.includes('INVEST') ? 'INVESTIGATION' :
-        rawCategory.includes('PENAL') ? 'PENALTY' :
-        rawCategory.includes('TRACK') || /track limit/i.test(message) ? 'TRACK_LIMITS' :
-        rawCategory.includes('DRS') ? 'DRS' : 'INFO';
-      const flagMap: Record<string, RaceControlMessage['flag']> = {
-        GREEN: 'GREEN', YELLOW: 'YELLOW', DOUBLE_YELLOW: 'DOUBLE_YELLOW', RED: 'RED',
-        BLUE: 'BLUE', CHEQUERED: 'CHEQUERED', CLEAR: 'CLEAR'
-      };
-      return {
-        id: String(row.id ?? `openf1-${sessionKey}-rc-${index}`),
-        time: String(row.date ?? row.time ?? ''),
-        lap: Number(row.lap_number) > 0 ? Number(row.lap_number) : undefined,
-        category,
-        flag: flagMap[rawFlag],
-        driverNumber: Number(row.driver_number) > 0 ? Number(row.driver_number) : undefined,
-        message,
-        provenance: { ...provenanceBase, sourceUrl: `${OPENF1_BASE}/race_control?session_key=${sessionKey}` }
-      };
-    });
-  }
+  private normalizeRaceControl(rows: JsonRecord[], sessionKey: number): SessionDetail['raceControl'] { return normalizeOpenF1RaceControl(rows, sessionKey); }
 
   private secondsToTime(value: unknown): string {
     const n = Number(value);
