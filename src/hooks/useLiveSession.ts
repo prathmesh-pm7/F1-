@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ReplayProvider } from '../providers/replayProvider';
 import { LiveTimingProvider } from '../providers/liveTimingProvider';
-import { GrandPrix, LiveConnectionState, LiveSessionSnapshot, SessionSchedule } from '../types/f1';
+import { GrandPrix, LiveConnectionState, LiveSessionSnapshot, SessionSchedule, LapTelemetry } from '../types/f1';
 
 export function useLiveSession(activeLiveSession: { gp: GrandPrix; session: SessionSchedule } | null) {
   const replayRef = useRef<ReplayProvider | null>(null);
@@ -73,5 +73,9 @@ export function useLiveSession(activeLiveSession: { gp: GrandPrix; session: Sess
     } else switchToReplay();
   };
 
-  return { snapshot, connectionState, isReplayMode, isReplayPlaying, replaySpeed, providerError, replayEngine, liveEngine, setIsReplayPlaying, setReplaySpeed, switchToReplay, handleReplayRace, toggleProviderMode };
+  const getCompletedLaps = (upToLap?: number): LapTelemetry[] => {
+    return replayEngine.getCompletedLaps(upToLap);
+  };
+
+  return { snapshot, connectionState, isReplayMode, isReplayPlaying, replaySpeed, providerError, replayEngine, liveEngine, setIsReplayPlaying, setReplaySpeed, switchToReplay, handleReplayRace, toggleProviderMode, getCompletedLaps };
 }

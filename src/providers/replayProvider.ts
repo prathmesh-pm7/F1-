@@ -10,22 +10,14 @@
  */
 
 import { F1LiveProvider } from './types';
-import { LiveSessionSnapshot, LiveConnectionState, RaceControlMessage, TimingEntry, TyreCompound, TyreStint } from '../types/f1';
+import { LiveSessionSnapshot, LiveConnectionState, RaceControlMessage, TimingEntry, TyreCompound, TyreStint, LapTelemetry } from '../types/f1';
 import { GrandPrix, SessionSchedule } from '../types/f1';
 
 const OPENF1_BASE = 'https://api.openf1.org/v1';
 
 type JsonRecord = Record<string, any>;
 
-interface ReplayLap {
-  lapNumber: number;
-  driverNumber: number;
-  driverCode: string;
-  driverName: string;
-  lapTime: string;
-  lapDuration?: number;
-  dateStart?: string;
-}
+type ReplayLap = LapTelemetry;
 
 interface ReplaySession {
   sessionKey: number;
@@ -196,6 +188,12 @@ export class ReplayProvider implements F1LiveProvider {
   public getPlaybackSpeed(): number { return this.playbackSpeed; }
   public getSnapshot(): LiveSessionSnapshot {
     return this.session ? this.generateSnapshot(this.getCurrentLap()) : this.emptySnapshot();
+  }
+
+  public getCompletedLaps(upToLap?: number): LapTelemetry[] {
+    if (!this.session) return [];
+    const maxLap = upToLap ?? this.getCurrentLap();
+    return this.session.laps.filter(l => l.lapNumber <= maxLap);
   }
 
   public async loadRace(gp: GrandPrix, session: SessionSchedule): Promise<void> {

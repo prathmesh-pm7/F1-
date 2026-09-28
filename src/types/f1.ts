@@ -110,6 +110,19 @@ export interface TimingEntry {
   drsEligible?: boolean;
 }
 
+export interface LapTelemetry {
+  lapNumber: number;
+  driverNumber: number;
+  driverCode: string;
+  driverName?: string;
+  lapTime: string;
+  lapDuration?: number;
+  dateStart?: string;
+  sector1?: number;
+  sector2?: number;
+  sector3?: number;
+}
+
 export interface RaceControlMessage {
   id: string;
   time: string; // HH:MM:SS or Lap X
