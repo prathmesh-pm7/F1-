@@ -11,7 +11,7 @@ import { RefreshCw } from 'lucide-react';
 interface Props {
   snapshot: LiveSessionSnapshot; connectionState: LiveConnectionState; isReplayMode: boolean; favoriteTeam: Team | null;
   onPlayReplay: () => void; onPauseReplay: () => void; onStepReplay: (delta: number) => void; onSetReplaySpeed: (speed: number) => void; onJumpReplayLap: (lap: number) => void;
-  isReplayPlaying: boolean; replaySpeed: number; onConnectLive: () => void; onSwitchToReplay: () => void; sessionContext: { sessionName: string; circuitName: string } | null;
+  isReplayPlaying: boolean; replaySpeed: number; onConnectLive: () => void; onSwitchToReplay: () => void;
 }
 
 export const LiveTimingWorkstation: React.FC<Props> = ({ snapshot, connectionState, isReplayMode, favoriteTeam, onPlayReplay, onPauseReplay, onStepReplay, onSetReplaySpeed, onJumpReplayLap, isReplayPlaying, replaySpeed, onConnectLive, onSwitchToReplay }) => {
@@ -39,7 +39,7 @@ export const LiveTimingWorkstation: React.FC<Props> = ({ snapshot, connectionSta
       {snapshot.entries.length > 0 && <div className="f1-live-workspace">
         <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
           <div className="f1-section-heading"><span>LIVE TIMING</span><span>{snapshot.entries.length} CARS</span></div>
-          <div className="f1-timing-context"><span>{snapshot.sessionName}</span><b>{snapshot.circuitName}</b><span>LAP {snapshot.currentLap || '—'} / {snapshot.totalLaps || '—'}</span>{snapshot.fastestLap && <span className="f1-fastest-lap">FASTEST <strong>{snapshot.fastestLap.driverCode}</strong> {snapshot.fastestLap.time} · L{snapshot.fastestLap.lap}</span>}</div>
+          <div className="f1-timing-context"><span className="f1-fastest-lap">{snapshot.fastestLap ? <>FASTEST <strong>{snapshot.fastestLap.driverCode}</strong> {snapshot.fastestLap.time} · L{snapshot.fastestLap.lap}</> : 'FASTEST LAP —'}</span></div>
           <details className="f1-timing-guide"><summary>TIMING GUIDE <span>What do these numbers mean?</span></summary><div className="f1-timing-guide-grid"><div><strong>Gap to leader</strong><span>Time behind P1</span></div><div><strong>Interval</strong><span>Time behind the car ahead</span></div><div><strong>Last lap</strong><span>Most recent completed lap</span></div><div><strong>Best lap</strong><span>Fastest lap of the session</span></div><div><strong>Sector 1–3</strong><span>Times for each part of the lap</span></div><div><strong>Tyre / age</strong><span>Compound and laps on this set</span></div></div></details>
           <TimingTable entries={snapshot.entries} selectedDriver={selectedDriver} onSelectDriver={entry => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)} />
         </section>

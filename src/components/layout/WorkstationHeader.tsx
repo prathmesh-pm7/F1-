@@ -1,6 +1,5 @@
 import React from 'react';
 import { LiveSessionSnapshot, LiveConnectionState } from '../../types/f1';
-import { LiveStatusIndicator } from '../shared/LiveStatusIndicator';
 import { Search } from 'lucide-react';
 
 interface Props {
@@ -40,8 +39,7 @@ export const WorkstationHeader: React.FC<Props> = ({ snapshot, connectionState, 
       </div>
       <div className="f1-header-rule">
         <div className="f1-header-source">
-          <LiveStatusIndicator state={connectionState} />
-          <span className="muted">{isReplayMode ? 'RECORDED REPLAY' : connectionState === 'DISCONNECTED' ? 'NO SESSION SCHEDULED' : 'LIVE CONNECTION'}</span>
+          <span className="muted">{isReplayMode ? 'RECORDED REPLAY' : 'TIMING WORKSTATION'}</span>
         </div>
         <div className="f1-header-actions">
           <span className="f1-weather">{snapshot.weather.airTemp > 0 ? `AIR ${snapshot.weather.airTemp}°` : 'AIR —'} <span>/</span> {snapshot.weather.trackTemp > 0 ? `TRACK ${snapshot.weather.trackTemp}°` : 'TRACK —'}</span>
