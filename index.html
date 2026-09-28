@@ -15,6 +15,26 @@
   </head>
   <body class="bg-[#0b0d10] text-[#e1e4ea] antialiased selection:bg-[#e10600] selection:text-white">
     <div id="root"></div>
+    <script>
+      // Some embedded preview/debug runtimes expose window.fetch as a getter-only
+      // property and then load a network-inspection shim that tries to replace it.
+      // Preserve the native function while making the property writable when the
+      // host explicitly marked it configurable. Normal browsers are unaffected.
+      (() => {
+        const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
+        if (descriptor && !descriptor.set && descriptor.configurable && descriptor.get) {
+          const nativeFetch = descriptor.get.call(window);
+          if (typeof nativeFetch === 'function') {
+            Object.defineProperty(window, 'fetch', {
+              configurable: true,
+              enumerable: descriptor.enumerable,
+              writable: true,
+              value: nativeFetch
+            });
+          }
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
