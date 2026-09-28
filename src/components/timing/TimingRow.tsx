@@ -8,7 +8,7 @@ export const TimingRow: React.FC<Props> = ({ entry, isSelected, onSelect }) => {
   const sectorClass = (status: string) => status === 'overall-best' ? 'sector-overall' : status === 'personal-best' ? 'sector-personal' : '';
   const tyre = entry.tyre.compound || 'UNKNOWN';
   return (
-    <tr className={isSelected ? 'is-selected' : ''} onClick={() => onSelect(entry)}>
+    <tr className={isSelected ? 'is-selected' : ''} onClick={() => onSelect(entry)} role="button" tabIndex={0} aria-pressed={isSelected} aria-label={entry.driverCode + ' position ' + entry.position + ', gap ' + (entry.gap || '—')} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(entry); } }}>
       <td className="pos-cell">{String(entry.position).padStart(2, '0')}</td>
       <td className="driver-cell"><span className="team-line" style={{ backgroundColor: entry.teamColor || '#555' }} /><span className="driver-code">{entry.driverCode || '#' + entry.driverNumber}</span><span className="driver-number">#{entry.driverNumber}</span><span className="driver-name">{entry.driverName}</span></td>
       <td className="timing-cell gap-cell">{entry.position === 1 ? 'LEADER' : entry.gap || '—'}</td>

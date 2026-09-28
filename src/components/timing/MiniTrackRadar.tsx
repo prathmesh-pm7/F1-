@@ -93,7 +93,7 @@ export const MiniTrackRadar: React.FC<Props> = ({
       <div className="f1-mini-radar-header">
         <div className="flex items-center gap-1.5">
           <Radio className="w-2.5 h-2.5 text-red-500 animate-pulse" />
-          <span className="text-[9px] font-bold tracking-wider text-neutral-200">
+          <span className="text-[12px] font-bold tracking-wider text-neutral-200">
             {geometry.name}
           </span>
         </div>

@@ -34,7 +34,7 @@ export const WorkstationHeader: React.FC<Props> = ({ snapshot, connectionState, 
         </div>
         <div className="f1-context-meta">
           <span className="f1-context-lap">{snapshot.currentLap > 0 ? `LAP ${snapshot.currentLap}/${snapshot.totalLaps || '—'}` : 'SESSION —'}</span>
-          <span className={`f1-state f1-state-${connectionState.toLowerCase()}`}><i />{stateLabel}</span>
+          <span aria-live="polite" className={`f1-state f1-state-${connectionState.toLowerCase()}`}><i />{stateLabel}</span>
           <button type="button" className="f1-search-button" onClick={onOpenSearch}><Search className="w-3.5 h-3.5" /><span>SEARCH</span><kbd>⌘K</kbd></button>
         </div>
       </div>

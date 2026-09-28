@@ -84,7 +84,7 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
               }`}>
                 {sec.timeStr}
               </div>
-              <div className="text-[9px] uppercase tracking-wider text-neutral-400 mt-0.5">
+              <div className="text-[12px] uppercase tracking-wider text-neutral-400 mt-0.5">
                 {sec.status.replace('-', ' ')}
               </div>
             </div>

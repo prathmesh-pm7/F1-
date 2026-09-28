@@ -47,7 +47,7 @@ export const RaceControlFeed: React.FC<Props> = ({ messages, className = '' }) =
   };
 
   return (
-    <div className={`f1-race-log ${className}`}>
+    <div className={`f1-race-log ${className}`} aria-live="polite">
       <div className="f1-race-log-head">
         <div>
           <span className="f1-race-log-title">RACE CONTROL</span>
