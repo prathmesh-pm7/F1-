@@ -1,18 +1,24 @@
-/**
- * Central season configuration for F1 Pulse.
- * Determines current active season dynamically, while supporting historical seasons.
- */
+/** Central season configuration for F1 Pulse. */
 
 export function getCurrentSeason(): number {
-  const now = new Date();
-  const year = now.getUTCFullYear();
-  // F1 season typically starts around March. If in January or February, previous season might still be latest finalized,
-  // but current racing season calendar belongs to the current year.
-  return year;
+  return new Date().getUTCFullYear();
 }
 
-export const SUPPORTED_HISTORICAL_SEASONS = [
-  2026, 2025, 2024, 2023, 2022, 2021
-];
+export const SUPPORTED_HISTORICAL_SEASONS = Array.from(
+  { length: 6 },
+  (_, offset) => getCurrentSeason() - offset
+);
+
+export const SEASON_CHASSIS: Record<number, Record<string, string>> = {
+  2026: {
+    mclaren: 'MCL40', mercedes: 'W17', red_bull: 'RB22', ferrari: 'SF-26',
+    williams: 'FW48', rb: 'VCARB03', aston_martin: 'AMR26', haas: 'VF-26',
+    audi: 'R26', alpine: 'A526', cadillac: 'MAC-26'
+  }
+};
+
+export function getSeasonChassis(season: number, teamId: string): string | undefined {
+  return SEASON_CHASSIS[season]?.[teamId];
+}
 
 export const DEFAULT_FALLBACK_SEASON = getCurrentSeason();

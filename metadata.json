@@ -3,6 +3,9 @@
   "description": "Professional Formula 1 live timing, race control, and championship intelligence workstation.",
   "requestFramePermissions": [],
   "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+    "LIVE_TIMING_PROXY",
+    "JOLPICA_F1",
+    "OPENF1",
+    "FIA_RSS"
   ]
 }

@@ -13,5 +13,5 @@
     "strict": true,
     "paths": { "@/*": ["./*"] }
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "server/**/*.ts", "vite.config.ts"]
 }
