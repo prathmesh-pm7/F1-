@@ -1,12 +1,12 @@
 [
   {
-    "id": "technical-0-2026-09-29T20:59:33.131668+00:00",
+    "id": "technical-0-2026-09-30T00:20:50.954185+00:00",
     "team": "McLaren",
     "teamColor": "#FF8000",
     "component": "Chassis & Weight",
     "updateType": "Aerodynamic",
     "weekend": "RECENT",
-    "submissionDate": "2026-09-29",
+    "submissionDate": "2026-09-30",
     "summary": "The encouraging signs hidden within McLaren's Baku upgrade",
     "technicalDescription": "Mark Hughes and Giorgio Piola analyse McLaren's major Baku upgrade package and explain why the team emerged encouraged despite an imperfect debut.",
     "source": "Formula 1",
@@ -15,7 +15,7 @@
     "provenance": {
       "provider": "Curated Technical",
       "sourceUrl": "https://www.formula1.com/en/latest/article/the-encouraging-signs-hidden-within-mclarens-baku-upgrade.2MeiTiEWq6Dvt2GkRG4UJh",
-      "retrievedAt": "2026-09-29T20:59:32.092649+00:00",
+      "retrievedAt": "2026-09-30T00:20:49.898866+00:00",
       "isLive": false,
       "isFixture": false,
       "notes": "Official Formula 1 technical/news publication; not an FIA filing."
