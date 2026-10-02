@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "technical-0-2026-10-02T14:05:03.317776+00:00",
+    "team": "Mercedes",
+    "teamColor": "#27F4D2",
+    "component": "Chassis & Weight",
+    "updateType": "Aerodynamic",
+    "weekend": "RECENT",
+    "submissionDate": "2026-10-02",
+    "summary": "Mercedes suffer one of the ‘toughest Fridays’ of the season",
+    "technicalDescription": "Friday saw Mercedes’ new package of upgrades break cover in Malaysia, but the day did not go entirely to plan for the Silver Arrows, with some of their rivals getting out of the blocks faster in both practice sessions.",
+    "source": "Formula 1",
+    "sourceUrl": "https://www.formula1.com/en/latest/article/mercedes-suffer-one-of-the-toughest-fridays-of-the-season-but-russell-hopeful-of-fighting-for-pole.49cB5B7TCBoAI4ar4zOJlZ",
+    "status": "REPORTED",
+    "provenance": {
+      "provider": "Curated Technical",
+      "sourceUrl": "https://www.formula1.com/en/latest/article/mercedes-suffer-one-of-the-toughest-fridays-of-the-season-but-russell-hopeful-of-fighting-for-pole.49cB5B7TCBoAI4ar4zOJlZ",
+      "retrievedAt": "2026-10-02T14:05:02.624839+00:00",
+      "isLive": false,
+      "isFixture": false,
+      "notes": "Official Formula 1 technical/news publication; not an FIA filing."
+    }
+  }
+]
