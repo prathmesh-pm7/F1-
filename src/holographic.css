@@ -1,0 +1,442 @@
+/* Holographic F1 visual layer
+ * Premium telemetry aesthetic: dark glass, spectral cyan/violet edges,
+ * restrained scan lines and depth. No neon overload.
+ */
+
+:root {
+  --holo-cyan: #55e7ff;
+  --holo-blue: #6d8cff;
+  --holo-violet: #a875ff;
+  --holo-white: #eafcff;
+  --holo-glass: rgba(11, 17, 25, .72);
+  --holo-line: rgba(102, 224, 255, .20);
+  --holo-line-soft: rgba(132, 118, 255, .12);
+  --holo-glow: 0 0 28px rgba(85, 231, 255, .10);
+}
+
+html, body, #root {
+  background:
+    radial-gradient(circle at 78% -10%, rgba(73, 130, 255, .10), transparent 34rem),
+    radial-gradient(circle at 12% 24%, rgba(168, 117, 255, .055), transparent 30rem),
+    #05070b;
+}
+
+body {
+  background:
+    linear-gradient(rgba(85,231,255,.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(85,231,255,.014) 1px, transparent 1px),
+    radial-gradient(circle at 78% -10%, rgba(73,130,255,.10), transparent 34rem),
+    radial-gradient(circle at 12% 24%, rgba(168,117,255,.055), transparent 30rem),
+    #05070b;
+  background-size: 48px 48px, 48px 48px, auto, auto, auto;
+}
+
+.f1-app {
+  background:
+    linear-gradient(135deg, rgba(85,231,255,.018), transparent 32%),
+    linear-gradient(315deg, rgba(168,117,255,.018), transparent 35%),
+    transparent;
+}
+
+.f1-sidebar {
+  background: rgba(5, 8, 13, .86);
+  border-right-color: rgba(105, 220, 255, .13);
+  box-shadow: 10px 0 45px rgba(0,0,0,.22);
+  backdrop-filter: blur(18px);
+}
+
+.f1-brand {
+  border-bottom-color: rgba(105,220,255,.12);
+}
+
+.f1-brand-mark {
+  background: linear-gradient(145deg, #e10600 0%, #ff3a32 48%, #b64cff 100%);
+  box-shadow: 0 0 24px rgba(255,27,20,.18), 0 0 34px rgba(168,117,255,.08);
+}
+
+.f1-nav-item {
+  color: #687887;
+  border: 1px solid transparent;
+}
+
+.f1-nav-item:hover {
+  color: var(--holo-white);
+  background: rgba(85,231,255,.045);
+  border-color: rgba(85,231,255,.10);
+}
+
+.f1-nav-item.is-active {
+  background:
+    linear-gradient(135deg, rgba(85,231,255,.11), rgba(168,117,255,.06) 58%, rgba(225,6,0,.04)),
+    rgba(13,19,28,.72);
+  border-color: rgba(85,231,255,.18);
+  box-shadow:
+    inset 2px 0 #55e7ff,
+    inset 0 1px rgba(255,255,255,.035),
+    0 0 24px rgba(85,231,255,.06);
+}
+
+.f1-nav-item.is-active .f1-nav-icon {
+  filter: drop-shadow(0 0 7px rgba(85,231,255,.45));
+}
+
+.f1-live-dot {
+  background: var(--holo-cyan);
+  box-shadow: 0 0 0 3px rgba(85,231,255,.10), 0 0 12px rgba(85,231,255,.55);
+}
+
+.f1-header {
+  background: rgba(5, 8, 13, .78);
+  border-top-color: #e10600;
+  border-bottom-color: rgba(105,220,255,.14);
+  box-shadow: 0 8px 35px rgba(0,0,0,.22);
+}
+
+.f1-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(85,231,255,.35), rgba(168,117,255,.25), transparent);
+  pointer-events: none;
+}
+
+.f1-header-rule {
+  background: rgba(8,12,18,.78);
+  border-top-color: rgba(105,220,255,.08);
+}
+
+.f1-search-button,
+.f1-mode-button {
+  background: rgba(11,17,25,.72);
+  border-color: rgba(105,220,255,.16);
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+
+.f1-search-button:hover,
+.f1-mode-button:hover {
+  background: rgba(28,38,52,.72);
+  border-color: rgba(85,231,255,.38);
+  box-shadow: 0 0 18px rgba(85,231,255,.06);
+}
+
+.f1-content {
+  position: relative;
+}
+
+.f1-content::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% -10%, rgba(85,231,255,.035), transparent 45%);
+}
+
+.f1-content section,
+.f1-content > div > div[class*="border"],
+.f1-content [class*="border-[#"] {
+  position: relative;
+}
+
+.f1-content section::after,
+.f1-content > div > div[class*="border"]::after,
+.f1-content [class*="border-[#"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,.035), transparent 22%, transparent 74%, rgba(85,231,255,.025)),
+    linear-gradient(90deg, transparent 0%, rgba(85,231,255,.018) 50%, transparent 100%);
+  opacity: .7;
+}
+
+.f1-live-strip,
+.f1-timing-primary,
+.f1-side-block,
+.f1-track-weather,
+.f1-tyre-degradation-gauge,
+.f1-track-visualizer,
+.f1-page-hero,
+.f1-provider-state,
+.f1-team-focus,
+.f1-strip,
+.f1-driver-detail {
+  background:
+    linear-gradient(135deg, rgba(85,231,255,.055), transparent 28%),
+    linear-gradient(315deg, rgba(168,117,255,.035), transparent 38%),
+    var(--holo-glass);
+  border-color: var(--holo-line);
+  box-shadow: var(--holo-glow), inset 0 1px rgba(255,255,255,.035);
+  backdrop-filter: blur(14px);
+}
+
+.f1-live-strip {
+  border-top-color: #e10600;
+  background:
+    linear-gradient(105deg, rgba(225,6,0,.10), transparent 28%),
+    linear-gradient(135deg, rgba(85,231,255,.06), transparent 48%),
+    rgba(10,15,22,.78);
+}
+
+.f1-live-kicker,
+.f1-page-kicker {
+  text-shadow: 0 0 14px rgba(85,231,255,.22);
+}
+
+.f1-section-heading,
+.f1-race-log-head,
+.f1-track-toolbar,
+.f1-mini-radar-header {
+  background:
+    linear-gradient(90deg, rgba(85,231,255,.045), transparent 38%, rgba(168,117,255,.025)),
+    rgba(7,11,17,.76);
+  border-bottom-color: rgba(105,220,255,.12);
+}
+
+.f1-section-heading span:first-child,
+.f1-race-log-title {
+  color: #dffaff;
+  text-shadow: 0 0 12px rgba(85,231,255,.10);
+}
+
+.f1-timing-table thead tr {
+  background:
+    linear-gradient(90deg, rgba(85,231,255,.04), transparent 45%, rgba(168,117,255,.025)),
+    #080c12 !important;
+}
+
+.f1-timing-table tbody tr {
+  border-color: rgba(105,220,255,.07);
+}
+
+.f1-timing-table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(85,231,255,.055), rgba(168,117,255,.018)) !important;
+}
+
+.f1-timing-table tbody tr.is-selected {
+  background: linear-gradient(90deg, rgba(85,231,255,.10), rgba(168,117,255,.035), transparent) !important;
+  box-shadow: inset 2px 0 #55e7ff, inset 0 1px rgba(85,231,255,.05), 0 0 18px rgba(85,231,255,.025);
+}
+
+.f1-state-live {
+  color: #55f2b1;
+  text-shadow: 0 0 12px rgba(85,242,177,.24);
+}
+
+.f1-state-live i {
+  box-shadow: 0 0 10px currentColor;
+}
+
+.f1-track-status,
+.f1-session-line,
+.f1-timing-guide {
+  border-color: rgba(105,220,255,.13);
+  background: rgba(9,14,21,.70);
+}
+
+.f1-track-status-clear {
+  background: linear-gradient(90deg, rgba(85,242,177,.08), rgba(9,14,21,.72) 65%);
+}
+
+.f1-track-status-yellow {
+  background: linear-gradient(90deg, rgba(243,201,40,.11), rgba(9,14,21,.72) 65%);
+}
+
+.f1-track-status-red {
+  background: linear-gradient(90deg, rgba(225,6,0,.16), rgba(9,14,21,.72) 65%);
+}
+
+.f1-provider-state {
+  border-color: rgba(255, 96, 88, .24);
+}
+
+.f1-provider-actions button,
+.f1-view-mode-selector,
+.f1-track-btn-group,
+.f1-segmented {
+  background: rgba(7,12,18,.78);
+  border-color: rgba(105,220,255,.14);
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+
+.f1-provider-actions button:hover,
+.f1-view-mode-btn:hover,
+.f1-track-btn-group button:hover {
+  border-color: rgba(85,231,255,.34);
+  background: rgba(85,231,255,.06);
+}
+
+.f1-segmented button.is-active,
+.f1-view-mode-btn.is-active {
+  background: linear-gradient(135deg, rgba(85,231,255,.16), rgba(168,117,255,.12));
+  color: #effcff;
+  box-shadow: inset 0 0 0 1px rgba(85,231,255,.22), 0 0 18px rgba(85,231,255,.06);
+}
+
+.f1-segmented button.is-active {
+  color: #fff;
+  border-color: rgba(85,231,255,.35);
+}
+
+.f1-track-visualizer {
+  background:
+    radial-gradient(circle at 50% 45%, rgba(85,231,255,.045), transparent 45%),
+    #070b11;
+}
+
+.f1-track-canvas-wrap {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(85,231,255,.035), transparent 48%),
+    #060a0f;
+}
+
+.f1-track-driver-strip {
+  background: rgba(5,9,14,.82);
+  border-top-color: rgba(85,231,255,.10);
+}
+
+.f1-tds-pill {
+  background: rgba(13,20,29,.82);
+  border-color: rgba(105,220,255,.12);
+}
+
+.f1-tds-pill:hover {
+  background: rgba(85,231,255,.07);
+  border-color: rgba(85,231,255,.25);
+}
+
+.f1-tds-pill.is-selected {
+  background: linear-gradient(135deg, rgba(85,231,255,.12), rgba(168,117,255,.08));
+  border-color: rgba(85,231,255,.38);
+  box-shadow: 0 0 16px rgba(85,231,255,.07), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+.f1-track-flag-hud {
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 22px rgba(85,231,255,.08);
+}
+
+.f1-turn-tooltip,
+.f1-driver-hover-card {
+  background: rgba(7,12,18,.82);
+  border-color: rgba(105,220,255,.20);
+  box-shadow: 0 12px 32px rgba(0,0,0,.45), 0 0 20px rgba(85,231,255,.05);
+  backdrop-filter: blur(14px);
+}
+
+.f1-track-selected-hud {
+  background: rgba(8,13,19,.82);
+  border-top-color: rgba(105,220,255,.12);
+}
+
+.f1-tsh-pos {
+  background: linear-gradient(135deg, rgba(85,231,255,.13), rgba(168,117,255,.09));
+  box-shadow: inset 0 0 0 1px rgba(85,231,255,.14);
+}
+
+.f1-race-log-row {
+  border-bottom-color: rgba(105,220,255,.065);
+}
+
+.f1-content input,
+.f1-content select {
+  background: rgba(7,12,18,.76) !important;
+  border-color: rgba(105,220,255,.16) !important;
+  color: #eafcff;
+}
+
+.f1-content input:focus,
+.f1-content select:focus {
+  outline: none;
+  border-color: rgba(85,231,255,.42) !important;
+  box-shadow: 0 0 0 2px rgba(85,231,255,.055), 0 0 22px rgba(85,231,255,.06);
+}
+
+.f1-content button:focus-visible,
+.f1-nav-item:focus-visible {
+  outline: 1px solid rgba(85,231,255,.60);
+  outline-offset: 2px;
+}
+
+.f1-content .text-emerald-400,
+.f1-state-live {
+  text-shadow: 0 0 10px rgba(85,242,177,.14);
+}
+
+.f1-content .text-fuchsia-400,
+.f1-driver-telemetry .text-fuchsia-400 {
+  color: var(--holo-violet) !important;
+  text-shadow: 0 0 10px rgba(168,117,255,.16);
+}
+
+.f1-mobile-nav {
+  background: rgba(6,10,15,.84);
+  border-color: rgba(105,220,255,.16);
+  box-shadow: 0 16px 45px rgba(0,0,0,.48), 0 0 30px rgba(85,231,255,.05);
+  backdrop-filter: blur(18px);
+}
+
+.f1-mobile-item.is-active {
+  background: linear-gradient(135deg, rgba(85,231,255,.18), rgba(168,117,255,.14));
+  box-shadow: inset 0 0 0 1px rgba(85,231,255,.24), 0 0 20px rgba(85,231,255,.08);
+}
+
+.team-setup-overlay {
+  background: rgba(2,5,9,.78);
+  backdrop-filter: blur(18px);
+}
+
+.team-setup-panel {
+  background:
+    linear-gradient(135deg, rgba(85,231,255,.05), transparent 30%),
+    rgba(9,14,21,.88);
+  border-color: rgba(105,220,255,.20);
+  box-shadow: 0 30px 90px rgba(0,0,0,.55), 0 0 45px rgba(85,231,255,.05);
+}
+
+.team-setup-team {
+  background: rgba(15,22,31,.76);
+  border-color: rgba(105,220,255,.12);
+}
+
+.team-setup-team:hover {
+  background: linear-gradient(135deg, rgba(85,231,255,.07), rgba(168,117,255,.04));
+  border-color: rgba(85,231,255,.26);
+  box-shadow: 0 0 20px rgba(85,231,255,.04);
+}
+
+@keyframes holo-scan {
+  0%, 100% { opacity: .16; transform: translateY(-110%); }
+  50% { opacity: .38; transform: translateY(110%); }
+}
+
+.f1-live-strip::before,
+.f1-page-hero::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -40%;
+  height: 22%;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(85,231,255,.08), transparent);
+  animation: holo-scan 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .f1-live-strip::before,
+  .f1-page-hero::before {
+    animation: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .f1-header {
+    box-shadow: 0 5px 24px rgba(0,0,0,.24);
+  }
+}
