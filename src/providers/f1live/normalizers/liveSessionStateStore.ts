@@ -9,8 +9,8 @@ import {
 import { RawDriverTimingUpdate } from '../parsers/timingDataParser';
 
 /**
- * LiveSessionStateStore maintains an in-memory session state
- * and merges incremental updates without fabricating missing values.
+ * LiveSessionStateStore maintains an in-memory session state and merges
+ * incremental updates without fabricating missing values.
  */
 export class LiveSessionStateStore {
   private snapshot: LiveSessionSnapshot;
@@ -73,9 +73,7 @@ export class LiveSessionStateStore {
   public setConnectionState(state: LiveSessionSnapshot['connectionState'], note?: string) {
     this.snapshot.connectionState = state;
     this.snapshot.lastUpdated = new Date().toISOString();
-    if (note) {
-      this.snapshot.provenance.notes = note;
-    }
+    if (note) this.snapshot.provenance.notes = note;
   }
 
   public mergeDriversList(map: Map<number, Partial<Driver>>) {
@@ -83,7 +81,7 @@ export class LiveSessionStateStore {
       const existing = this.driversMap.get(num) || {};
       this.driversMap.set(num, { ...existing, ...driver });
     }
-    // Update any existing timing entries with newly arrived driver info
+
     this.snapshot.entries = this.snapshot.entries.map(entry => {
       const info = this.driversMap.get(entry.driverNumber);
       if (!info) return entry;
@@ -103,16 +101,31 @@ export class LiveSessionStateStore {
     this.snapshot.lastUpdated = new Date().toISOString();
   }
 
-  public mergeWeather(weather: Weather) {
-    this.snapshot.weather = weather;
+  public mergeWeather(incoming: Weather) {
+    const current = this.snapshot.weather;
+
+    // WeatherData can be incremental. Never replace a real sensor value with
+    // the parser's "0 = not supplied" sentinel.
+    this.snapshot.weather = {
+      airTemp: incoming.airTemp > 0 ? incoming.airTemp : current.airTemp,
+      trackTemp: incoming.trackTemp > 0 ? incoming.trackTemp : current.trackTemp,
+      humidity: incoming.humidity > 0 ? incoming.humidity : current.humidity,
+      pressure: incoming.pressure > 0 ? incoming.pressure : current.pressure,
+      windSpeed: incoming.windSpeed > 0 ? incoming.windSpeed : current.windSpeed,
+      windDirection: incoming.windDirection > 0 ? incoming.windDirection : current.windDirection,
+      rainfall: incoming.rainfall,
+      rainfallProbability: incoming.rainfallProbability !== undefined
+        ? incoming.rainfallProbability
+        : current.rainfallProbability
+    };
     this.snapshot.lastUpdated = new Date().toISOString();
   }
 
   public mergeRaceControlMessages(messages: RaceControlMessage[]) {
     if (messages.length === 0) return;
-    const existingIds = new Set(this.snapshot.raceControl.map(m => m.id));
-    const newMsgs = messages.filter(m => !existingIds.has(m.id));
-    this.snapshot.raceControl = [...newMsgs, ...this.snapshot.raceControl].slice(0, 100);
+    const existingIds = new Set(this.snapshot.raceControl.map(message => message.id));
+    const newMessages = messages.filter(message => !existingIds.has(message.id));
+    this.snapshot.raceControl = [...newMessages, ...this.snapshot.raceControl].slice(0, 100);
     this.snapshot.lastUpdated = new Date().toISOString();
   }
 
@@ -131,31 +144,28 @@ export class LiveSessionStateStore {
     if (updates.length === 0) return;
 
     const entriesMap = new Map<number, TimingEntry>();
-    for (const e of this.snapshot.entries) {
-      entriesMap.set(e.driverNumber, { ...e });
-    }
+    for (const entry of this.snapshot.entries) entriesMap.set(entry.driverNumber, { ...entry });
 
-    for (const u of updates) {
-      let entry = entriesMap.get(u.driverNumber);
-      const driverInfo = this.driversMap.get(u.driverNumber);
+    for (const update of updates) {
+      let entry = entriesMap.get(update.driverNumber);
+      const driverInfo = this.driversMap.get(update.driverNumber);
 
       if (!entry) {
-        // Create initial entry with known/derived driver details
         entry = {
-          position: u.position || entriesMap.size + 1,
-          driverNumber: u.driverNumber,
-          driverCode: driverInfo?.code || `D${u.driverNumber}`,
-          driverName: driverInfo?.fullName || `Driver #${u.driverNumber}`,
+          position: update.position || entriesMap.size + 1,
+          driverNumber: update.driverNumber,
+          driverCode: driverInfo?.code || `D${update.driverNumber}`,
+          driverName: driverInfo?.fullName || `Driver #${update.driverNumber}`,
           teamName: driverInfo?.teamName || 'TEAM —',
           teamColor: driverInfo?.teamColor || '#59636E',
-          gap: u.gap || '—',
-          interval: u.interval || '—',
+          gap: update.gap || '—',
+          interval: update.interval || '—',
           gapToLeaderSeconds: Number.NaN,
           intervalSeconds: Number.NaN,
-          currentLap: u.currentLap || this.snapshot.currentLap || 1,
-          lastLapTime: u.lastLapTime || '—',
-          bestLapTime: u.bestLapTime || '—',
-          isOverallFastestLap: u.isOverallFastestLap,
+          currentLap: update.currentLap || this.snapshot.currentLap || 1,
+          lastLapTime: update.lastLapTime || '—',
+          bestLapTime: update.bestLapTime || '—',
+          isOverallFastestLap: update.isOverallFastestLap,
           sectors: [
             { sector: 1, timeStr: '—', status: 'unknown' },
             { sector: 2, timeStr: '—', status: 'unknown' },
@@ -164,34 +174,31 @@ export class LiveSessionStateStore {
           currentSector: 1,
           tyre: { compound: 'UNKNOWN', age: 0 },
           stints: [],
-          pitCount: u.pitCount ?? 0,
-          inPit: u.inPit,
-          retired: u.retired
+          pitCount: update.pitCount ?? 0,
+          inPit: update.inPit,
+          retired: update.retired
         };
       }
 
-      // Merge incremental updates without inventing numbers
-      if (u.position !== undefined) entry.position = u.position;
-      if (u.gap !== undefined) entry.gap = u.gap;
-      if (u.interval !== undefined) entry.interval = u.interval;
-      if (u.currentLap !== undefined) entry.currentLap = u.currentLap;
-      if (u.lastLapTime !== undefined) entry.lastLapTime = u.lastLapTime;
-      if (u.bestLapTime !== undefined) entry.bestLapTime = u.bestLapTime;
-      if (u.isOverallFastestLap !== undefined) entry.isOverallFastestLap = u.isOverallFastestLap;
-      if (u.sector1) entry.sectors[0] = { ...entry.sectors[0], ...u.sector1 };
-      if (u.sector2) entry.sectors[1] = { ...entry.sectors[1], ...u.sector2 };
-      if (u.sector3) entry.sectors[2] = { ...entry.sectors[2], ...u.sector3 };
-      if (u.inPit !== undefined) entry.inPit = u.inPit;
-      if (u.retired !== undefined) entry.retired = u.retired;
-      if (u.pitCount !== undefined) entry.pitCount = u.pitCount;
-      if (u.speedTrapKmH !== undefined) entry.speedTrapKmH = u.speedTrapKmH;
+      if (update.position !== undefined) entry.position = update.position;
+      if (update.gap !== undefined) entry.gap = update.gap;
+      if (update.interval !== undefined) entry.interval = update.interval;
+      if (update.currentLap !== undefined) entry.currentLap = update.currentLap;
+      if (update.lastLapTime !== undefined) entry.lastLapTime = update.lastLapTime;
+      if (update.bestLapTime !== undefined) entry.bestLapTime = update.bestLapTime;
+      if (update.isOverallFastestLap !== undefined) entry.isOverallFastestLap = update.isOverallFastestLap;
+      if (update.sector1) entry.sectors[0] = { ...entry.sectors[0], ...update.sector1 };
+      if (update.sector2) entry.sectors[1] = { ...entry.sectors[1], ...update.sector2 };
+      if (update.sector3) entry.sectors[2] = { ...entry.sectors[2], ...update.sector3 };
+      if (update.inPit !== undefined) entry.inPit = update.inPit;
+      if (update.retired !== undefined) entry.retired = update.retired;
+      if (update.pitCount !== undefined) entry.pitCount = update.pitCount;
+      if (update.speedTrapKmH !== undefined) entry.speedTrapKmH = update.speedTrapKmH;
 
-      entriesMap.set(u.driverNumber, entry);
+      entriesMap.set(update.driverNumber, entry);
     }
 
-    // Sort entries by position
-    const sorted = Array.from(entriesMap.values()).sort((a, b) => a.position - b.position);
-    this.snapshot.entries = sorted;
+    this.snapshot.entries = Array.from(entriesMap.values()).sort((a, b) => a.position - b.position);
     this.snapshot.lastUpdated = new Date().toISOString();
   }
 
