@@ -2,15 +2,8 @@
  * Live F1 Timing Provider
  * Integrates with official SignalR feed and normalizes incoming telemetry.
  *
- * TRUTHFUL STATE MACHINE:
- * - DISCONNECTED: Socket closed or not initiated.
- * - CONNECTING: Handshake in progress.
- * - CONNECTED: Handshake completed.
- * - SUBSCRIBED: Streams requested, waiting for actual payload.
- * - LIVE: Real timing data packets received and parsed within STALE_TIMEOUT_MS.
- * - STALE: No live packet received for > STALE_TIMEOUT_MS.
- * - PROVIDER_UNAVAILABLE: WebSocket unreachable / connection rejected / no session active.
- * - ERROR: Socket error occurred.
+ * The UI is deliberately truthful: a connected browser transport is not treated
+ * as a live F1 session until actual timing packets have arrived.
  */
 
 import { F1LiveProvider } from '../types';
@@ -35,8 +28,8 @@ export class LiveTimingProvider implements F1LiveProvider {
   private rcListeners: ((msg: RaceControlMessage) => void)[] = [];
 
   private lastPacketTimestamp: number | null = null;
-  private staleCheckTimer: any = null;
-  private STALE_TIMEOUT_MS = 25000; // 25 seconds without packet = STALE
+  private staleCheckTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly STALE_TIMEOUT_MS = 25000;
   private hasReceivedRealTimingData = false;
 
   constructor() {
@@ -50,30 +43,28 @@ export class LiveTimingProvider implements F1LiveProvider {
       if (status === 'CONNECTING') mappedState = 'CONNECTING';
       else if (status === 'CONNECTED') mappedState = 'CONNECTED';
       else if (status === 'SUBSCRIBED') {
-        // Subscribed, but NOT yet LIVE until actual timing packets arrive!
         mappedState = this.hasReceivedRealTimingData ? 'LIVE' : 'SUBSCRIBED';
+      } else if (status === 'ERROR') {
+        mappedState = 'PROVIDER_UNAVAILABLE';
       }
-      else if (status === 'ERROR') mappedState = 'PROVIDER_UNAVAILABLE';
 
       this.setState(mappedState, detail);
     });
 
-    this.client.onFeed((msg) => {
-      this.handleIncomingFeed(msg);
-    });
+    this.client.onFeed(msg => this.handleIncomingFeed(msg));
   }
 
   private setState(newState: LiveConnectionState, reason?: string) {
     if (this.state === newState) return;
     this.state = newState;
     this.stateStore.setConnectionState(newState, reason);
-    this.stateListeners.forEach(l => l(newState, reason));
+    this.stateListeners.forEach(listener => listener(newState, reason));
     this.broadcastSnapshot();
   }
 
   private broadcastSnapshot() {
-    const snap = this.stateStore.getSnapshot();
-    this.snapshotListeners.forEach(l => l(snap));
+    const snapshot = this.stateStore.getSnapshot();
+    this.snapshotListeners.forEach(listener => listener(snapshot));
   }
 
   private handleIncomingFeed(msg: { stream: string; data: any; timestamp: string }) {
@@ -92,58 +83,48 @@ export class LiveTimingProvider implements F1LiveProvider {
       }
       case 'TimingAppData': {
         const appMap = parseTimingAppData(data);
-        if (appMap.size > 0) {
-          this.stateStore.mergeTimingAppData(appMap);
-        }
+        if (appMap.size > 0) this.stateStore.mergeTimingAppData(appMap);
         break;
       }
       case 'TrackStatus': {
-        const status = parseTrackStatus(data);
-        if (status) {
-          this.stateStore.mergeTrackStatus(status);
-        }
+        const status = parseTrackStatus(data, msg.timestamp);
+        if (status) this.stateStore.mergeTrackStatus(status);
         break;
       }
       case 'WeatherData': {
         const weather = parseWeatherData(data);
-        if (weather) {
-          this.stateStore.mergeWeather(weather);
-        }
+        if (weather) this.stateStore.mergeWeather(weather);
         break;
       }
       case 'RaceControlMessages': {
         const messages = parseRaceControlMessages(data);
         if (messages.length > 0) {
           this.stateStore.mergeRaceControlMessages(messages);
-          messages.forEach(m => this.rcListeners.forEach(l => l(m)));
+          messages.forEach(message => this.rcListeners.forEach(listener => listener(message)));
         }
         break;
       }
       case 'DriverList': {
         const drivers = parseDriverList(data);
-        if (drivers.size > 0) {
-          this.stateStore.mergeDriversList(drivers);
-        }
+        if (drivers.size > 0) this.stateStore.mergeDriversList(drivers);
         break;
       }
       case 'SessionData': {
-        const info = parseSessionData(data);
-        this.stateStore.mergeSessionInfo(info);
+        this.stateStore.mergeSessionInfo(parseSessionData(data));
         break;
       }
       case 'LapCount': {
-        const lapInfo = parseLapCount(data);
-        this.stateStore.mergeSessionInfo(lapInfo);
+        this.stateStore.mergeSessionInfo(parseLapCount(data));
         break;
       }
-      case 'Heartbeat': {
-        // Heartbeat keeps connection alive, but doesn't signify live timing by itself
+      case 'Heartbeat':
         break;
-      }
     }
 
-    // Only switch to LIVE if genuine timing packets have actually arrived
-    if (this.hasReceivedRealTimingData && (this.state === 'SUBSCRIBED' || this.state === 'CONNECTED' || this.state === 'STALE')) {
+    if (
+      this.hasReceivedRealTimingData &&
+      (this.state === 'SUBSCRIBED' || this.state === 'CONNECTED' || this.state === 'STALE')
+    ) {
       this.setState('LIVE', 'Receiving active timing stream');
     }
 
@@ -153,14 +134,12 @@ export class LiveTimingProvider implements F1LiveProvider {
   private startStaleDetector() {
     this.stopStaleDetector();
     this.staleCheckTimer = setInterval(() => {
-      if (this.state === 'LIVE' && this.lastPacketTimestamp) {
-        const elapsed = Date.now() - this.lastPacketTimestamp;
-        if (elapsed > this.STALE_TIMEOUT_MS) {
-          this.setState('STALE', `No timing packet received for ${Math.round(elapsed / 1000)}s`);
-          // Re-establish the socket if the server stopped delivering timing while
-          // the browser connection itself remained open.
-          this.client.reconnect();
-        }
+      if (this.state !== 'LIVE' || !this.lastPacketTimestamp) return;
+
+      const elapsed = Date.now() - this.lastPacketTimestamp;
+      if (elapsed > this.STALE_TIMEOUT_MS) {
+        this.setState('STALE', `No timing packet received for ${Math.round(elapsed / 1000)}s`);
+        this.client.reconnect();
       }
     }, 5000);
   }
@@ -180,8 +159,11 @@ export class LiveTimingProvider implements F1LiveProvider {
       this.setState('CONNECTING');
       this.startStaleDetector();
       await this.client.connect();
-    } catch (err: any) {
-      this.setState('PROVIDER_UNAVAILABLE', err.message || 'No live session active or connection refused');
+    } catch (error: unknown) {
+      this.setState(
+        'PROVIDER_UNAVAILABLE',
+        error instanceof Error ? error.message : 'No live timing feed available'
+      );
     }
   }
 
@@ -203,7 +185,7 @@ export class LiveTimingProvider implements F1LiveProvider {
     this.snapshotListeners.push(callback);
     callback(this.stateStore.getSnapshot());
     return () => {
-      this.snapshotListeners = this.snapshotListeners.filter(l => l !== callback);
+      this.snapshotListeners = this.snapshotListeners.filter(listener => listener !== callback);
     };
   }
 
@@ -211,14 +193,14 @@ export class LiveTimingProvider implements F1LiveProvider {
     this.stateListeners.push(callback);
     callback(this.state);
     return () => {
-      this.stateListeners = this.stateListeners.filter(l => l !== callback);
+      this.stateListeners = this.stateListeners.filter(listener => listener !== callback);
     };
   }
 
   public onRaceControlMessage(callback: (msg: RaceControlMessage) => void): () => void {
     this.rcListeners.push(callback);
     return () => {
-      this.rcListeners = this.rcListeners.filter(l => l !== callback);
+      this.rcListeners = this.rcListeners.filter(listener => listener !== callback);
     };
   }
 }
