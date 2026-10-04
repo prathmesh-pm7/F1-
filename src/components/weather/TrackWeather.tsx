@@ -28,11 +28,10 @@ interface Props {
  * 1. Active rainfall boolean (if true -> 100%)
  * 2. Explicit snapshot.weather.rainfallProbability
  * 3. Race control messages broadcasting "RISK OF RAIN ... X%"
- * 4. Meteorological calculation based on humidity and barometric pressure
  */
 export function deriveRainfallProbability(snapshot: LiveSessionSnapshot): {
   probability: number;
-  source: 'ACTIVE_RAIN' | 'TELEMETRY' | 'RACE_CONTROL' | 'METEOROLOGICAL_MODEL' | 'UNAVAILABLE';
+  source: 'ACTIVE_RAIN' | 'TELEMETRY' | 'RACE_CONTROL' | 'UNAVAILABLE';
   riskLevel: 'DRY' | 'LOW' | 'MODERATE' | 'HIGH' | 'WET';
   forecastNote?: string;
 } {
@@ -87,32 +86,6 @@ export function deriveRainfallProbability(snapshot: LiveSessionSnapshot): {
     }
   }
 
-  // 4. Meteorological estimation based on ambient humidity and pressure
-  if (weather.airTemp > 0 && weather.humidity > 0) {
-    let baseProb = 0;
-    const h = weather.humidity;
-    if (h >= 90) baseProb = 75;
-    else if (h >= 80) baseProb = 50;
-    else if (h >= 70) baseProb = 30;
-    else if (h >= 60) baseProb = 15;
-    else if (h >= 50) baseProb = 5;
-    else baseProb = 0;
-
-    // Atmospheric pressure adjustment: standard sea-level is ~1013.25 mbar
-    if (weather.pressure > 0 && weather.pressure < 1005) {
-      baseProb = Math.min(100, baseProb + 10); // Low pressure increases precipitation likelihood
-    }
-
-    const prob = Math.min(100, Math.max(0, Math.round(baseProb)));
-    const riskLevel = prob >= 70 ? 'HIGH' : prob >= 40 ? 'MODERATE' : prob >= 15 ? 'LOW' : 'DRY';
-    return {
-      probability: prob,
-      source: 'METEOROLOGICAL_MODEL',
-      riskLevel,
-      forecastNote: prob > 0 ? `Estimated ${prob}% from ambient conditions` : 'Dry conditions prevailing'
-    };
-  }
-
   return {
     probability: 0,
     source: 'UNAVAILABLE',
@@ -154,8 +127,12 @@ export const TrackWeather: React.FC<Props> = ({ snapshot, className = '', defaul
     ? (((weather.trackTemp - weather.airTemp) * 9) / 5).toFixed(1)
     : null;
 
+  // Weather telemetry is unavailable until at least one measured field arrives.
+  const weatherAvailable = weather.airTemp !== 0 || weather.trackTemp !== 0 || weather.humidity !== 0 || weather.pressure !== 0 || weather.windSpeed !== 0 || weather.rainfall;
   // Track conditions classification
-  const trackCondition = weather.rainfall
+  const trackCondition = !weatherAvailable
+    ? { label: 'WEATHER UNAVAILABLE', color: 'text-slate-400 bg-slate-900/60 border-slate-600/40', badge: 'NO DATA', tyreHint: 'AWAITING WEATHER DATA' }
+    : weather.rainfall
     ? { label: 'WET TRACK', color: 'text-cyan-400 bg-cyan-950/60 border-cyan-500/40', badge: 'WET', tyreHint: 'INTER / WET TYRES' }
     : rainInfo.probability >= 60
     ? { label: 'RAIN RISK', color: 'text-amber-400 bg-amber-950/60 border-amber-500/40', badge: 'HIGH RISK', tyreHint: 'MONITOR RADAR' }
@@ -348,7 +325,7 @@ export const TrackWeather: React.FC<Props> = ({ snapshot, className = '', defaul
           </div>
           <div className="my-1 flex items-baseline justify-between">
             <div className="font-mono text-xl sm:text-2xl font-bold tracking-tight text-white">
-              {weather.rainfall ? '100%' : `${rainInfo.probability}%`}
+              {weather.rainfall ? 'RAIN' : rainInfo.source === 'UNAVAILABLE' ? '—' : `${rainInfo.probability}%`}
             </div>
             {weather.rainfall && (
               <span className="text-[10px] font-mono font-bold text-cyan-400 animate-pulse">
@@ -396,9 +373,9 @@ export const TrackWeather: React.FC<Props> = ({ snapshot, className = '', defaul
                 <span>{getWindCompass(weather.windDirection)}</span>
               </div>
               <div className="font-mono text-base font-bold text-white mt-1">
-                {weather.windSpeed > 0 ? `${(weather.windSpeed * 3.6).toFixed(1)} km/h` : 'CALM'}
+                {weatherAvailable ? `${(weather.windSpeed * 3.6).toFixed(1)} km/h` : '—'}
                 <span className="text-[10px] text-[#8d8d96] ml-1.5 font-normal">
-                  ({weather.windSpeed > 0 ? `${weather.windSpeed.toFixed(1)} m/s` : '0 m/s'})
+                  ({weatherAvailable ? `${weather.windSpeed.toFixed(1)} m/s` : '—'})
                 </span>
               </div>
               <div className="flex items-center gap-1.5 mt-1.5 text-[10px] font-mono text-[#8d8d96]">
@@ -416,15 +393,17 @@ export const TrackWeather: React.FC<Props> = ({ snapshot, className = '', defaul
                 <span className="text-[9px]">QNH</span>
               </div>
               <div className="font-mono text-base font-bold text-white mt-1">
-                {weather.pressure > 0 ? `${weather.pressure.toFixed(1)} hPa` : '1013.0 hPa'}
+                {weather.pressure > 0 ? `${weather.pressure.toFixed(1)} hPa` : '—'}
               </div>
               <div className="mt-1.5 text-[10px] font-mono text-[#8d8d96]">
-                {weather.pressure < 1005 ? (
+                {weather.pressure > 0 && weather.pressure < 1005 ? (
                   <span className="text-amber-400 flex items-center gap-1">
                     <AlertTriangle className="w-2.5 h-2.5" /> LOW PRESSURE SYSTEM
                   </span>
-                ) : (
+                 ) : weather.pressure > 0 ? (
                   <span className="text-emerald-400">STABLE ATMOSPHERE</span>
+                ) : (
+                  <span className="text-[#8d8d96]">AWAITING SENSOR</span>
                 )}
               </div>
             </div>
@@ -456,7 +435,7 @@ export const TrackWeather: React.FC<Props> = ({ snapshot, className = '', defaul
                 </span>
               </div>
               <div className="font-mono text-sm font-semibold text-white mt-1">
-                {rainInfo.forecastNote || 'Standard dry track'}
+                {rainInfo.forecastNote || 'Weather forecast unavailable'}
               </div>
               <div className="mt-1.5 text-[10px] font-mono text-[#5e5e68] truncate">
                 SYNCED: {snapshot.lastUpdated ? new Date(snapshot.lastUpdated).toLocaleTimeString() : 'LIVE'}
