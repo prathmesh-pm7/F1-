@@ -11,7 +11,9 @@ export function normalizeOpenF1Weather(rows: OpenF1Record[]): SessionDetail['wea
   const numberOrUndefined = (value: unknown) => { const n = Number(value); return Number.isFinite(n) ? n : undefined; };
   const airTemp = numberOrUndefined(row.air_temperature), trackTemp = numberOrUndefined(row.track_temperature), humidity = numberOrUndefined(row.humidity), pressure = numberOrUndefined(row.pressure), windSpeed = numberOrUndefined(row.wind_speed), windDirection = numberOrUndefined(row.wind_direction);
   if ([airTemp, trackTemp, humidity, pressure, windSpeed, windDirection].some(value => value === undefined)) return undefined;
-  return { airTemp: airTemp!, trackTemp: trackTemp!, humidity: humidity!, pressure: pressure!, windSpeed: windSpeed!, windDirection: windDirection!, rainfall: Boolean(row.rainfall) };
+  const isRain = Boolean(row.rainfall);
+  const rainProb = numberOrUndefined(row.rainfall_probability ?? row.rain_probability) ?? (isRain ? 100 : 0);
+  return { airTemp: airTemp!, trackTemp: trackTemp!, humidity: humidity!, pressure: pressure!, windSpeed: windSpeed!, windDirection: windDirection!, rainfall: isRain, rainfallProbability: rainProb };
 }
 
 export function normalizeOpenF1RaceControl(rows: OpenF1Record[], sessionKey: number): SessionDetail['raceControl'] {

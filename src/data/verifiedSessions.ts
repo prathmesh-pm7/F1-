@@ -29,7 +29,8 @@ export const MONZA_2024_RACE_RECORD: LiveSessionSnapshot = {
     pressure: 994.2,
     windSpeed: 2.1,
     windDirection: 142,
-    rainfall: false
+    rainfall: false,
+    rainfallProbability: 0
   },
   fastestLap: {
     driverCode: 'NOR',

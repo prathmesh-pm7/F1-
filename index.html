@@ -1,6 +1,32 @@
 <!doctype html>
 <html lang="en" class="dark">
   <head>
+    <script>
+      (function () {
+        try {
+          var currentFetch = window.fetch;
+          function defineFetchProperty(target) {
+            if (!target) return;
+            try {
+              Object.defineProperty(target, 'fetch', {
+                configurable: true,
+                enumerable: true,
+                get: function () {
+                  return currentFetch;
+                },
+                set: function (newFetch) {
+                  currentFetch = newFetch;
+                }
+              });
+            } catch (_) {}
+          }
+          defineFetchProperty(window);
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            defineFetchProperty(Window.prototype);
+          }
+        } catch (_) {}
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>F1 Pulse — Every lap. Every gap. Every update.</title>
@@ -11,30 +37,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#0b0d10] text-[#e1e4ea] antialiased selection:bg-[#e10600] selection:text-white">
+  <body class="bg-[#0b0d10] text-[#e2e8f0] antialiased selection:bg-[#273142] selection:text-white">
     <div id="root"></div>
-    <script>
-      // Some embedded preview/debug runtimes expose window.fetch as a getter-only
-      // property and then load a network-inspection shim that tries to replace it.
-      // Preserve the native function while making the property writable when the
-      // host explicitly marked it configurable. Normal browsers are unaffected.
-      (() => {
-        const descriptor = Object.getOwnPropertyDescriptor(window, 'fetch');
-        if (descriptor && !descriptor.set && descriptor.configurable && descriptor.get) {
-          const nativeFetch = descriptor.get.call(window);
-          if (typeof nativeFetch === 'function') {
-            Object.defineProperty(window, 'fetch', {
-              configurable: true,
-              enumerable: descriptor.enumerable,
-              writable: true,
-              value: nativeFetch
-            });
-          }
-        }
-      })();
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -7,6 +7,8 @@ import { MiniGapTracker } from './MiniGapTracker';
 import { ReplayController } from './ReplayController';
 import { RaceControlFeed } from '../race-control/RaceControlFeed';
 import { PerformanceInsights } from './PerformanceInsights';
+import { LeaderGapChart } from './LeaderGapChart';
+import { TrackWeather } from '../weather/TrackWeather';
 import { RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -37,6 +39,8 @@ export const LiveTimingWorkstation: React.FC<Props> = ({ snapshot, connectionSta
 
       {isReplayMode && <ReplayController currentLap={snapshot.currentLap} totalLaps={snapshot.totalLaps} isPlaying={isReplayPlaying} playbackSpeed={replaySpeed} onPlay={onPlayReplay} onPause={onPauseReplay} onStepLap={onStepReplay} onSetSpeed={onSetReplaySpeed} onJumpToLap={onJumpReplayLap} sessionName={snapshot.sessionName || 'RECORDED SESSION'} circuitName={snapshot.circuitName || 'CIRCUIT —'} />}
 
+      <TrackWeather snapshot={snapshot} className="my-3 sm:my-4" />
+
       {favoriteTeam && <section className="f1-team-focus" style={{ borderLeftColor: favoriteTeam.color }}><div><div className="f1-team-focus-kicker">YOUR TEAM</div><div className="f1-team-focus-name">{favoriteTeam.name}</div><div className="f1-team-focus-meta">{favoriteTeam.powerUnit} · {favoriteTeam.base}</div></div><div className="f1-team-focus-stats"><div><span>CHAMPIONSHIP</span><strong>P{favoriteTeam.position ?? '—'}</strong></div><div><span>POINTS</span><strong>{favoriteTeam.points ?? '—'}</strong></div><div><span>WINS</span><strong>{favoriteTeam.wins ?? 0}</strong></div><div><span>DRIVERS</span><strong>{favoriteTeam.drivers?.join(' / ') || '—'}</strong></div></div>{favoriteEntries.length > 0 && <div className="f1-team-ontrack">{favoriteEntries.map(entry => <div key={entry.driverNumber}><span className="f1-team-ontrack-driver">{entry.driverCode}</span><span>P{entry.position}</span><span>{entry.gap}</span><span>{entry.tyre.compound} {entry.tyre.age}L</span></div>)}</div>}</section>}
 
       {isLiveOffline && <div className="f1-provider-state"><div><div className="f1-provider-title">{isNoLiveSession ? 'NO LIVE SESSION' : isProviderUnavailable ? 'PROVIDER UNAVAILABLE' : 'LIVE TIMING NOT AVAILABLE'}</div><div className="f1-provider-copy">{isNoLiveSession ? 'There is no scheduled on-track session right now. This is not a provider outage.' : isProviderUnavailable ? 'The live timing proxy could not be reached for the scheduled session. No timing values are fabricated.' : 'No current on-track timing snapshot has been received. No timing values are fabricated.'}</div></div><div className="f1-provider-actions">{!isNoLiveSession && <button type="button" onClick={onConnectLive}><RefreshCw className="w-3 h-3" /> RETRY LIVE</button>}<button type="button" onClick={onSwitchToReplay}>OPEN RECORDED REPLAY</button></div></div>}
@@ -53,6 +57,20 @@ export const LiveTimingWorkstation: React.FC<Props> = ({ snapshot, connectionSta
           }}
           completedLaps={completedLaps}
           onSelectDriver={entry => setSelectedDriver(entry)}
+        />
+      )}
+
+      {snapshot.entries.length > 0 && (
+        <LeaderGapChart
+          snapshot={snapshot}
+          favoriteDriverNumber={selectedDriver?.driverNumber}
+          favoriteTeam={favoriteTeam}
+          completedLaps={completedLaps}
+          onSelectDriver={entry => setSelectedDriver(entry)}
+          onSelectFavoriteDriver={driverNum => {
+            const entry = snapshot.entries.find(e => e.driverNumber === driverNum);
+            if (entry) setSelectedDriver(entry);
+          }}
         />
       )}
 

@@ -92,7 +92,7 @@ export const MiniTrackRadar: React.FC<Props> = ({
     <div className="f1-mini-radar">
       <div className="f1-mini-radar-header">
         <div className="flex items-center gap-1.5">
-          <Radio className="w-2.5 h-2.5 text-red-500 animate-pulse" />
+          <Radio className="w-2.5 h-2.5 text-red-500" />
           <span className="text-[12px] font-bold tracking-wider text-neutral-200">
             {geometry.name}
           </span>
@@ -143,7 +143,7 @@ export const MiniTrackRadar: React.FC<Props> = ({
                 style={{ cursor: 'pointer' }}
               >
                 {isSelected && (
-                  <circle r="18" fill="none" stroke="#ffffff" strokeWidth="2" className="animate-ping" />
+                  <circle r="15" fill="none" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.85" />
                 )}
                 {car.isLeader && (
                   <circle r="14" fill="none" stroke="#ffd600" strokeWidth="2" opacity="0.9" />

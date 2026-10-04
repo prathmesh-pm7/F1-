@@ -51,9 +51,16 @@ export default function App() {
   const favorite = useFavoriteTeam(season.teams);
   const favoriteColor = favorite.favoriteTeam?.color ?? '#e10600';
   const readableAccent = getReadableAccent(favoriteColor);
-  const rootStyle = { '--team-accent': favoriteColor,
+  const rootStyle = {
+    '--team-accent': favoriteColor,
     '--team-accent-readable': readableAccent,
-    '--team-accent-border': readableAccent, '--team-accent-soft': 'color-mix(in srgb, ' + favoriteColor + ' 16%, transparent)', '--team-accent-strong': favoriteColor, '--f1-red': favoriteColor, '--f1-red-bright': 'color-mix(in srgb, ' + favoriteColor + ' 72%, white)', '--f1-red-soft': 'color-mix(in srgb, ' + favoriteColor + ' 16%, transparent)' } as React.CSSProperties;
+    '--team-accent-border': '#2d3748',
+    '--team-accent-soft': 'rgba(255, 255, 255, 0.04)',
+    '--team-accent-strong': favoriteColor,
+    '--f1-red': '#e10600',
+    '--f1-red-bright': '#e10600',
+    '--f1-red-soft': 'rgba(225, 6, 0, 0.08)'
+  } as React.CSSProperties;
   return <div style={rootStyle}>
     <AppShell activeTab={activeTab} onSelectTab={setActiveTab} snapshot={live.snapshot} connectionState={live.connectionState} isReplayMode={live.isReplayMode} onToggleProviderMode={live.toggleProviderMode} searchData={{ drivers: season.drivers, teams: season.teams, circuits: season.circuits, schedule: season.schedule, documents: season.fiaDocuments, technical: season.technicalUpdates }}>
       {activeTab === 'live' && <LiveTimingWorkstation snapshot={live.snapshot} connectionState={live.connectionState} isReplayMode={live.isReplayMode} favoriteTeam={favorite.favoriteTeam} driverStandings={season.driverStandings} getCompletedLaps={live.getCompletedLaps} onPlayReplay={() => { live.replayEngine.play(); live.setIsReplayPlaying(true); }} onPauseReplay={() => { live.replayEngine.pause(); live.setIsReplayPlaying(false); }} onStepReplay={delta => live.replayEngine.stepLap(delta)} onSetReplaySpeed={speed => { live.replayEngine.setSpeed(speed); live.setReplaySpeed(speed); }} onJumpReplayLap={lap => live.replayEngine.jumpToLap(lap)} isReplayPlaying={live.isReplayPlaying} replaySpeed={live.replaySpeed} onConnectLive={() => live.liveEngine.connect()} onSwitchToReplay={live.switchToReplay} />}

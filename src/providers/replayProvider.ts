@@ -465,7 +465,12 @@ export class ReplayProvider implements F1LiveProvider {
         pressure: Number(weather.pressure) || 0,
         windSpeed: Number(weather.wind_speed) || 0,
         windDirection: Number(weather.wind_direction) || 0,
-        rainfall: Boolean(weather.rainfall)
+        rainfall: Boolean(weather.rainfall),
+        rainfallProbability: (() => {
+          const rawProb = weather.rainfall_probability ?? weather.rain_probability ?? weather.RainfallProbability ?? weather.RainProbability;
+          if (rawProb !== undefined && Number.isFinite(Number(rawProb))) return Number(rawProb);
+          return Boolean(weather.rainfall) ? 100 : 0;
+        })()
       },
       entries,
       fastestLap: fastest ? { driverCode: fastest.driverCode, time: fastest.bestLapTime, lap } : undefined,
@@ -492,7 +497,7 @@ export class ReplayProvider implements F1LiveProvider {
       currentLap: 0,
       totalLaps: 0,
       trackStatus: { status: '1', message: 'LOADING', flag: 'CLEAR', safetyCarDeployed: false, virtualSafetyCar: false, redFlag: false, updatedAt: new Date().toISOString() },
-      weather: { airTemp: 0, trackTemp: 0, humidity: 0, pressure: 0, windSpeed: 0, windDirection: 0, rainfall: false },
+      weather: { airTemp: 0, trackTemp: 0, humidity: 0, pressure: 0, windSpeed: 0, windDirection: 0, rainfall: false, rainfallProbability: 0 },
       entries: [],
       raceControl: [],
       provenance: { provider: 'Provider Unavailable', retrievedAt: new Date().toISOString(), isLive: false, isFixture: false, notes: 'Loading historical replay' },

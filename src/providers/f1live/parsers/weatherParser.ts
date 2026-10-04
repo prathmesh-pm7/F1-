@@ -14,6 +14,9 @@ export function parseWeatherData(raw: any): Weather | null {
   const windSpeed = parseFloat(raw.WindSpeed ?? raw.wind_speed ?? 0);
   const windDirection = parseFloat(raw.WindDirection ?? raw.wind_direction ?? 0);
   const rainfall = raw.Rainfall === '1' || raw.Rainfall === true || raw.rainfall === true || raw.Rainfall === 1;
+  const rawProb = raw.RainfallProbability ?? raw.RainProbability ?? raw.rainfall_probability ?? raw.rain_probability;
+  const parsedProb = rawProb !== undefined ? parseFloat(rawProb) : undefined;
+  const rainfallProbability = parsedProb !== undefined && !isNaN(parsedProb) ? parsedProb : (rainfall ? 100 : undefined);
 
   return {
     airTemp: isNaN(airTemp) ? 0 : airTemp,
@@ -22,6 +25,7 @@ export function parseWeatherData(raw: any): Weather | null {
     pressure: isNaN(pressure) ? 1013 : pressure,
     windSpeed: isNaN(windSpeed) ? 0 : windSpeed,
     windDirection: isNaN(windDirection) ? 0 : windDirection,
-    rainfall
+    rainfall,
+    rainfallProbability
   };
 }

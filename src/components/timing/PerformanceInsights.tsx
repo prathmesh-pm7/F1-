@@ -16,7 +16,7 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
-  Sparkles,
+  Activity,
   Zap,
   Clock,
   Flame,
@@ -577,14 +577,21 @@ export const PerformanceInsights: React.FC<PerformanceInsightsProps> = ({
 
   return (
     <section
-      className="border border-[#242c37] bg-[#111418] font-mono text-neutral-300 mb-4 transition-all"
+      className="border border-[#222933] text-neutral-300 mb-4 transition-all rounded overflow-hidden"
       aria-label="Performance Insights Panel"
       style={{
-        borderLeft: `4px solid ${favoriteEntry.teamColor || 'var(--f1-red)'}`
+        borderLeft: `4px solid ${favoriteEntry.teamColor || 'var(--f1-red)'}`,
+        background: `linear-gradient(180deg, ${favoriteEntry.teamColor ? `${favoriteEntry.teamColor}12` : 'rgba(255,255,255,0.02)'} 0%, rgba(17, 20, 24, 0.95) 140px, #111418 100%)`,
+        boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03)'
       }}
     >
       {/* Component Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#242c37] px-4 py-3 bg-[#161a20]">
+      <div
+        className="flex flex-wrap items-center justify-between gap-3 border-b border-[#242c37] px-4 py-3"
+        style={{
+          background: `linear-gradient(90deg, ${favoriteEntry.teamColor ? `${favoriteEntry.teamColor}18` : 'rgba(255,255,255,0.03)'} 0%, #161a20 40%, #161a20 100%)`
+        }}
+      >
         <div className="flex items-center gap-2">
           <span
             className="w-2.5 h-2.5 inline-block"
@@ -914,7 +921,7 @@ export const PerformanceInsights: React.FC<PerformanceInsightsProps> = ({
                         </span>
                         <span className="text-[10px] text-neutral-500">#{entry.driverNumber}</span>
                         {isFav && (
-                          <span className="text-[9px] font-bold px-1 bg-red-600 text-white uppercase">
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 bg-[#e10600] text-white uppercase rounded-sm">
                             YOU
                           </span>
                         )}
@@ -922,14 +929,14 @@ export const PerformanceInsights: React.FC<PerformanceInsightsProps> = ({
 
                       {/* Visual Bar representation */}
                       <div className="flex-1 max-w-xs mx-4 hidden md:block">
-                        <div className="h-1.5 bg-[#252d3a] relative w-full overflow-hidden">
+                        <div className="h-1.5 bg-[#1e2530] relative w-full overflow-hidden rounded-full">
                           <div
                             className={`h-full ${
                               isFav
-                                ? 'bg-white'
+                                ? 'bg-neutral-200'
                                 : isFasterThanFav
-                                ? 'bg-amber-400'
-                                : 'bg-emerald-500'
+                                ? 'bg-amber-500/80'
+                                : 'bg-slate-500'
                             }`}
                             style={{
                               width: `${Math.max(
@@ -994,21 +1001,21 @@ export const PerformanceInsights: React.FC<PerformanceInsightsProps> = ({
                       key={s.sector}
                       className="border border-[#232c3a] bg-[#111418] p-3 text-center relative"
                     >
-                      <div className="flex items-center justify-between text-[10px] text-neutral-400 uppercase mb-1">
+                      <div className="flex items-center justify-between text-[11px] text-neutral-400 uppercase mb-1">
                         <span>SECTOR {s.sector}</span>
                         {isFastestInSession ? (
-                          <span className="text-fuchsia-400 font-bold text-[9px]">PURPLE (BEST)</span>
+                          <span className="text-purple-300 font-semibold text-[11px]">OVERALL BEST</span>
                         ) : isPersonalBest ? (
-                          <span className="text-emerald-400 font-bold text-[9px]">GREEN (PB)</span>
+                          <span className="text-emerald-400 font-semibold text-[11px]">PERSONAL BEST</span>
                         ) : (
-                          <span className="text-neutral-500 text-[9px]">YELLOW</span>
+                          <span className="text-neutral-500 text-[11px]">STANDARD</span>
                         )}
                       </div>
 
                       <div
                         className={`text-lg font-bold timing-cell ${
                           isFastestInSession
-                            ? 'text-fuchsia-400'
+                            ? 'text-purple-200'
                             : isPersonalBest
                             ? 'text-emerald-400'
                             : 'text-neutral-200'
@@ -1017,12 +1024,12 @@ export const PerformanceInsights: React.FC<PerformanceInsightsProps> = ({
                         {s.timeStr}
                       </div>
 
-                      <div className="mt-2 pt-2 border-t border-[#1c222c] flex items-center justify-between text-[10px]">
+                      <div className="mt-2 pt-2 border-t border-[#1c222c] flex items-center justify-between text-[11px]">
                         <span className="text-neutral-500">Delta vs Session Best:</span>
                         <span
                           className={`font-mono font-bold ${
                             s.delta != null && s.delta <= 0.001
-                              ? 'text-fuchsia-400'
+                              ? 'text-purple-300'
                               : 'text-neutral-300'
                           }`}
                         >
@@ -1034,8 +1041,8 @@ export const PerformanceInsights: React.FC<PerformanceInsightsProps> = ({
                 })}
               </div>
 
-              <div className="bg-[#101317] p-2.5 border border-[#202732] text-[11px] text-neutral-400 flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <div className="bg-[#101317] p-2.5 border border-[#202732] text-xs text-neutral-400 flex items-center gap-2 rounded">
+                <Activity className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
                 <span>
                   <strong>Sector Advantage:</strong> {favoriteEntry.driverCode}&apos;s key strength is{' '}
                   <strong>Sector {analytics.bestSector.sector}</strong> (+

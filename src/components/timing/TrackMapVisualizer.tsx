@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { TimingEntry, LiveSessionSnapshot, Team, TrackStatus } from '../../types/f1';
+import { TimingEntry, LiveSessionSnapshot, Team, TrackStatus, LapTelemetry } from '../../types/f1';
 import {
   CircuitGeometry,
   TrackCorner,
@@ -7,6 +7,7 @@ import {
   getSplinePoint,
   pointsToSvgPath
 } from '../../data/circuitGeometries';
+import { SectorInsightsPanel } from './SectorInsightsPanel';
 import {
   ZoomIn,
   ZoomOut,
@@ -19,7 +20,8 @@ import {
   Info,
   ChevronRight,
   ShieldAlert,
-  Car
+  Car,
+  Activity
 } from 'lucide-react';
 
 interface Props {
@@ -29,6 +31,7 @@ interface Props {
   favoriteTeam?: Team | null;
   circuitInfoUrl?: string;
   isCompact?: boolean;
+  completedLaps?: LapTelemetry[];
 }
 
 interface AnimatedCar {
@@ -62,7 +65,8 @@ export const TrackMapVisualizer: React.FC<Props> = ({
   onSelectDriver,
   favoriteTeam,
   circuitInfoUrl,
-  isCompact = false
+  isCompact = false,
+  completedLaps = []
 }) => {
   const [geometry, setGeometry] = useState<CircuitGeometry | null>(null);
   const [isLoadingGeometry, setIsLoadingGeometry] = useState(true);
@@ -75,6 +79,8 @@ export const TrackMapVisualizer: React.FC<Props> = ({
   const [labelMode, setLabelMode] = useState<'code' | 'pos' | 'both'>('code');
   const [hoveredDriver, setHoveredDriver] = useState<TimingEntry | null>(null);
   const [hoveredCorner, setHoveredCorner] = useState<TrackCorner | null>(null);
+  const [activeSectorHighlight, setActiveSectorHighlight] = useState<1 | 2 | 3 | null>(null);
+  const [showSectorInsights, setShowSectorInsights] = useState(true);
 
   // Zoom & Pan state
   const [zoom, setZoom] = useState(1);
@@ -402,7 +408,7 @@ export const TrackMapVisualizer: React.FC<Props> = ({
       <div className="f1-track-toolbar">
         <div className="f1-track-toolbar-left">
           <div className="f1-track-badge">
-            <Radio className="w-3 h-3 text-red-500 animate-pulse" />
+            <Radio className="w-3 h-3 text-red-500" />
             <span className="font-bold">{geometry?.name || snapshot.circuitName}</span>
           </div>
           {geometry && (
@@ -445,6 +451,15 @@ export const TrackMapVisualizer: React.FC<Props> = ({
 
           {/* Feature toggles */}
           <div className="f1-track-btn-group">
+            <button
+              type="button"
+              className={showSectorInsights ? 'is-active' : ''}
+              onClick={() => setShowSectorInsights(!showSectorInsights)}
+              title="Toggle Sector Insights Split Telemetry Panel"
+            >
+              <Activity className="w-3 h-3" />
+              <span>SECTOR INSIGHTS</span>
+            </button>
             <button
               type="button"
               className={showSectors ? 'is-active' : ''}
@@ -524,15 +539,6 @@ export const TrackMapVisualizer: React.FC<Props> = ({
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            {/* Glow Filter for Leader / Selected Driver */}
-            <filter id="car-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-
             {/* Checkered pattern for start/finish line */}
             <pattern id="checkered" width="8" height="8" patternUnits="userSpaceOnUse">
               <rect width="4" height="4" fill="#ffffff" />
@@ -594,26 +600,26 @@ export const TrackMapVisualizer: React.FC<Props> = ({
                     <path
                       d={sectorPaths.s1}
                       fill="none"
-                      stroke="#00e5ff"
-                      strokeWidth="3.5"
+                      stroke={activeSectorHighlight === 1 ? "#38bdf8" : "#0284c7"}
+                      strokeWidth={activeSectorHighlight === 1 ? 7 : 3.5}
                       strokeLinecap="round"
-                      opacity="0.8"
+                      opacity={activeSectorHighlight ? (activeSectorHighlight === 1 ? 1 : 0.35) : 0.85}
                     />
                     <path
                       d={sectorPaths.s2}
                       fill="none"
-                      stroke="#ffd600"
-                      strokeWidth="3.5"
+                      stroke={activeSectorHighlight === 2 ? "#facc15" : "#ca8a04"}
+                      strokeWidth={activeSectorHighlight === 2 ? 7 : 3.5}
                       strokeLinecap="round"
-                      opacity="0.8"
+                      opacity={activeSectorHighlight ? (activeSectorHighlight === 2 ? 1 : 0.35) : 0.85}
                     />
                     <path
                       d={sectorPaths.s3}
                       fill="none"
-                      stroke="#e040fb"
-                      strokeWidth="3.5"
+                      stroke={activeSectorHighlight === 3 ? "#d8b4fe" : "#9333ea"}
+                      strokeWidth={activeSectorHighlight === 3 ? 7 : 3.5}
                       strokeLinecap="round"
-                      opacity="0.8"
+                      opacity={activeSectorHighlight ? (activeSectorHighlight === 3 ? 1 : 0.35) : 0.85}
                     />
                   </>
                 )}
@@ -624,11 +630,11 @@ export const TrackMapVisualizer: React.FC<Props> = ({
                     key={drs.id}
                     d={drs.path}
                     fill="none"
-                    stroke="#00e676"
-                    strokeWidth="6"
+                    stroke="#22c55e"
+                    strokeWidth="5"
                     strokeDasharray="8 4"
                     strokeLinecap="round"
-                    opacity="0.9"
+                    opacity={0.9}
                   />
                 ))}
 
@@ -711,8 +717,8 @@ export const TrackMapVisualizer: React.FC<Props> = ({
                 {/* 9. Safety Car (if deployed) */}
                 {safetyCar && (
                   <g transform={`translate(${safetyCar.x}, ${safetyCar.y})`} className="f1-safety-car-marker">
-                    <circle r="12" fill="#ffd600" opacity="0.3" className="animate-ping" />
-                    <circle r="8" fill="#ffd600" stroke="#000000" strokeWidth="1.5" />
+                    <circle r="12" fill="#eab308" opacity="0.2" />
+                    <circle r="8" fill="#eab308" stroke="#000000" strokeWidth="1.5" />
                     <text y="2.5" fill="#000000" fontSize="6.5" fontWeight="900" fontFamily="sans-serif" textAnchor="middle">
                       SC
                     </text>
@@ -730,7 +736,7 @@ export const TrackMapVisualizer: React.FC<Props> = ({
                       y1={c.y}
                       x2={opponent.x}
                       y2={opponent.y}
-                      stroke="#ff1744"
+                      stroke="#ef4444"
                       strokeWidth="1.2"
                       strokeDasharray="3 2"
                       opacity="0.75"
@@ -762,24 +768,24 @@ export const TrackMapVisualizer: React.FC<Props> = ({
                       {/* Targeting Radar Ring when selected */}
                       {isSelected && (
                         <>
-                          <circle r="22" fill="none" stroke={teamColor} strokeWidth="1.5" opacity="0.6" className="animate-ping" />
-                          <circle r="18" fill="none" stroke="#ffffff" strokeWidth="1" strokeDasharray="3 3" />
+                          <circle r="20" fill="none" stroke={teamColor} strokeWidth="1.5" opacity="0.7" />
+                          <circle r="16" fill="none" stroke="#ffffff" strokeWidth="1" strokeDasharray="3 3" />
                         </>
                       )}
 
                       {/* Leader Gold Ring */}
                       {car.isLeader && !isSelected && (
-                        <circle r="14" fill="none" stroke="#ffd600" strokeWidth="1.5" opacity="0.8" />
+                        <circle r="14" fill="none" stroke="#eab308" strokeWidth="1.5" opacity="0.8" />
                       )}
 
-                      {/* Favorite Team subtle glow */}
+                      {/* Favorite Team subtle ring */}
                       {isFavorite && !isSelected && (
                         <circle r="13" fill="none" stroke={teamColor} strokeWidth="1" opacity="0.8" />
                       )}
 
-                      {/* DRS Glow */}
+                      {/* DRS Indicator */}
                       {car.drsActive && (
-                        <circle r="13" fill="none" stroke="#00e676" strokeWidth="1.5" opacity="0.85" />
+                        <circle r="13" fill="none" stroke="#22c55e" strokeWidth="1.5" opacity="0.85" />
                       )}
 
                       {/* Main Car Badge Body */}
@@ -788,7 +794,6 @@ export const TrackMapVisualizer: React.FC<Props> = ({
                         fill="#0c1017"
                         stroke={teamColor}
                         strokeWidth={isSelected ? 2.5 : 2}
-                        filter={isSelected || car.isLeader ? 'url(#car-glow)' : undefined}
                       />
 
                       {/* Label based on mode */}
@@ -954,6 +959,15 @@ export const TrackMapVisualizer: React.FC<Props> = ({
           <div className="f1-tsh-actions">
             <button
               type="button"
+              className={`f1-tsh-open-btn ${showSectorInsights ? 'bg-[#253040] text-white' : ''}`}
+              onClick={() => setShowSectorInsights(!showSectorInsights)}
+              title="Toggle Sector Insights Panel"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>{showSectorInsights ? 'SECTORS OPEN' : 'SECTOR SPLITS'}</span>
+            </button>
+            <button
+              type="button"
               className="f1-tsh-open-btn"
               onClick={() => onSelectDriver(selectedCar.entry)}
             >
@@ -967,6 +981,43 @@ export const TrackMapVisualizer: React.FC<Props> = ({
             >
               DESELECT
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Sector Insights Panel on 2D Map */}
+      {selectedDriver && showSectorInsights && (
+        <div className="p-3 bg-[#0d1015] border-t border-[#1c232e]">
+          <SectorInsightsPanel
+            selectedDriver={selectedDriver}
+            snapshot={snapshot}
+            completedLaps={completedLaps}
+            activeSectorHighlight={activeSectorHighlight}
+            onSelectSectorHighlight={sec => setActiveSectorHighlight(sec)}
+            onClose={() => setShowSectorInsights(false)}
+          />
+        </div>
+      )}
+
+      {/* When no driver is selected on the 2D Map */}
+      {!selectedDriver && (
+        <div className="px-4 py-2.5 bg-[#0e1116] border-t border-[#1a212b] flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-400">
+          <div className="flex items-center gap-2">
+            <Activity className="w-3.5 h-3.5 text-neutral-500" />
+            <span>Select any driver on the 2D map to inspect split times for all three sectors.</span>
+          </div>
+          <div className="flex items-center gap-1.5 font-mono text-[11px] text-neutral-500">
+            <span>QUICK SELECT:</span>
+            {snapshot.entries.slice(0, 5).map(e => (
+              <button
+                key={e.driverNumber}
+                type="button"
+                onClick={() => onSelectDriver(e)}
+                className="px-1.5 py-0.5 rounded bg-[#161a20] hover:bg-[#202732] text-neutral-300 hover:text-white border border-[#222933]"
+              >
+                P{e.position} {e.driverCode}
+              </button>
+            ))}
           </div>
         </div>
       )}

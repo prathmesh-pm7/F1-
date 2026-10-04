@@ -48,6 +48,7 @@ export interface Weather {
   windSpeed: number; // m/s or km/h
   windDirection: number; // degrees
   rainfall: boolean;
+  rainfallProbability?: number; // % (0-100)
 }
 
 export interface SectorTime {

@@ -43,7 +43,8 @@ export class LiveSessionStateStore {
         pressure: 1013,
         windSpeed: 0,
         windDirection: 0,
-        rainfall: false
+        rainfall: false,
+        rainfallProbability: 0
       },
       entries: [],
       raceControl: [],
