@@ -132,6 +132,20 @@
   }
 }
 
+/* Tyre Degradation Gauge Component */
+.f1-tyre-degradation-gauge {
+  position: relative;
+  border-radius: 14px !important;
+  border: 1px solid #232a35;
+  background: #0e1116;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+}
+@media (max-width: 640px) {
+  .f1-tyre-degradation-gauge {
+    border-radius: 12px !important;
+  }
+}
+
 /* Common premium card language across every page */
 .f1-content section,.f1-content>div>div[class*="border"],
 .f1-content [class*="border-[#"],.f1-content [class*="border-[#"] [class*="bg-[#"] { border-color: #2b2b32; }

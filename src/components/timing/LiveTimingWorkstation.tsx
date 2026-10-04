@@ -9,6 +9,7 @@ import { RaceControlFeed } from '../race-control/RaceControlFeed';
 import { PerformanceInsights } from './PerformanceInsights';
 import { LeaderGapChart } from './LeaderGapChart';
 import { TrackWeather } from '../weather/TrackWeather';
+import { TyreDegradationGauge } from './TyreDegradationGauge';
 import { RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -81,10 +82,41 @@ export const LiveTimingWorkstation: React.FC<Props> = ({ snapshot, connectionSta
           <details className="f1-timing-guide"><summary>TIMING GUIDE <span>What do these numbers mean?</span></summary><div className="f1-timing-guide-grid"><div><strong>Gap to leader</strong><span>Time behind P1</span></div><div><strong>Interval</strong><span>Time behind the car ahead</span></div><div><strong>Last lap</strong><span>Most recent completed lap</span></div><div><strong>Best lap</strong><span>Fastest lap of the session</span></div><div><strong>Sector 1–3</strong><span>Times for each part of the lap</span></div><div><strong>Tyre / age</strong><span>Compound and laps on this set</span></div></div></details>
           <TimingTable entries={snapshot.entries} selectedDriver={selectedDriver} onSelectDriver={entry => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)} />
         </section>
-        <aside className="f1-race-side"><section className="f1-side-block" aria-label="Gap tracker"><div className="f1-section-heading"><span>GAP / INTERVAL</span><span>LAP {snapshot.currentLap || '—'}</span></div><MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} /></section><section className="f1-side-block" aria-label="Race control"><RaceControlFeed messages={snapshot.raceControl} /></section></aside>
+        <aside className="f1-race-side">
+          {selectedDriver && (
+            <section className="f1-side-block" aria-label="Tyre degradation">
+              <div className="f1-section-heading">
+                <span>TYRE DEGRADATION</span>
+                <span>{selectedDriver.driverCode} #{selectedDriver.driverNumber}</span>
+              </div>
+              <TyreDegradationGauge
+                entry={selectedDriver}
+                completedLaps={completedLaps}
+                trackTemp={snapshot.weather.trackTemp}
+                compact={true}
+              />
+            </section>
+          )}
+          <section className="f1-side-block" aria-label="Gap tracker">
+            <div className="f1-section-heading"><span>GAP / INTERVAL</span><span>LAP {snapshot.currentLap || '—'}</span></div>
+            <MiniGapTracker entries={snapshot.entries} currentLap={snapshot.currentLap} />
+          </section>
+          <section className="f1-side-block" aria-label="Race control">
+            <RaceControlFeed messages={snapshot.raceControl} />
+          </section>
+        </aside>
       </div>}
 
-      {selectedDriver && snapshot.entries.length > 0 && <section aria-label="Driver Telemetry Detail"><DriverTelemetryDrawer entry={selectedDriver} onClose={() => setSelectedDriver(null)} /></section>}
+      {selectedDriver && snapshot.entries.length > 0 && (
+        <section aria-label="Driver Telemetry Detail">
+          <DriverTelemetryDrawer
+            entry={selectedDriver}
+            onClose={() => setSelectedDriver(null)}
+            completedLaps={completedLaps}
+            trackTemp={snapshot.weather.trackTemp}
+          />
+        </section>
+      )}
       {snapshot.entries.length === 0 && <section aria-label="Race Control Event Feed" className="f1-race-control-empty"><RaceControlFeed messages={snapshot.raceControl} /></section>}
     </div>
   );

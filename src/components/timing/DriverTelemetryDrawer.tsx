@@ -1,28 +1,36 @@
 import React from 'react';
-import { TimingEntry } from '../../types/f1';
+import { TimingEntry, LapTelemetry } from '../../types/f1';
 import { X, Gauge, Clock, Shield, Flame } from 'lucide-react';
+import { TyreDegradationGauge } from './TyreDegradationGauge';
 
 interface Props {
   entry: TimingEntry | null;
   onClose: () => void;
+  completedLaps?: LapTelemetry[];
+  trackTemp?: number;
 }
 
-export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
+export const DriverTelemetryDrawer: React.FC<Props> = ({
+  entry,
+  onClose,
+  completedLaps,
+  trackTemp = 35
+}) => {
   if (!entry) return null;
 
   return (
-    <div className="f1-driver-telemetry border border-[#242c37] bg-[#111418] p-4 font-mono text-xs text-neutral-300">
+    <div className="f1-driver-telemetry border border-[#242c37] bg-[#111418] p-4 font-mono text-xs text-neutral-300 rounded-xl">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-[#242c37] pb-3 mb-3">
         <div className="flex items-center gap-3">
           <span
-            className="w-2 h-7 inline-block"
+            className="w-2 h-7 inline-block rounded-full"
             style={{ backgroundColor: entry.teamColor }}
           />
           <div>
             <div className="flex items-center gap-2">
               <span className="text-base font-black text-white">{entry.driverName}</span>
-              <span className="text-xs px-1.5 py-0.2 bg-[#1c222b] text-neutral-300 border border-[#2b3543] font-bold">
+              <span className="text-xs px-1.5 py-0.2 bg-[#1c222b] text-neutral-300 border border-[#2b3543] font-bold rounded">
                 #{entry.driverNumber}
               </span>
               <span className="text-xs text-neutral-400 font-semibold">{entry.driverCode}</span>
@@ -36,8 +44,9 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="p-1 hover:bg-[#1f2631] text-neutral-400 hover:text-white border border-transparent hover:border-[#333d4d]"
+          className="p-1.5 hover:bg-[#1f2631] text-neutral-400 hover:text-white border border-transparent hover:border-[#333d4d] rounded-lg transition-colors"
           title="Close detail panel"
+          aria-label="Close telemetry detail"
         >
           <X className="w-4 h-4" />
         </button>
@@ -45,35 +54,44 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
 
       {/* Primary Metrics Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-        <div className="border border-[#1f2632] bg-[#161a20] p-2">
+        <div className="border border-[#1f2632] bg-[#161a20] p-2 rounded-lg">
           <div className="text-[10px] text-neutral-400 uppercase">GAP TO LEADER</div>
           <div className="text-sm font-bold text-white timing-cell">{entry.gap}</div>
         </div>
 
-        <div className="border border-[#1f2632] bg-[#161a20] p-2">
+        <div className="border border-[#1f2632] bg-[#161a20] p-2 rounded-lg">
           <div className="text-[10px] text-neutral-400 uppercase">INTERVAL</div>
           <div className="text-sm font-bold text-neutral-200 timing-cell">{entry.interval}</div>
         </div>
 
-        <div className="border border-[#1f2632] bg-[#161a20] p-2">
+        <div className="border border-[#1f2632] bg-[#161a20] p-2 rounded-lg">
           <div className="text-[10px] text-neutral-400 uppercase">LAST LAP</div>
           <div className="text-sm font-bold text-white timing-cell">{entry.lastLapTime}</div>
         </div>
 
-        <div className="border border-[#1f2632] bg-[#161a20] p-2">
+        <div className="border border-[#1f2632] bg-[#161a20] p-2 rounded-lg">
           <div className="text-[10px] text-neutral-400 uppercase">BEST LAP</div>
           <div className="text-sm font-bold timing-cell f1-driver-accent-value">{entry.bestLapTime}</div>
         </div>
       </div>
 
+      {/* Visual Tyre Degradation & Life Remaining Gauge */}
+      <div className="mb-4">
+        <TyreDegradationGauge
+          entry={entry}
+          completedLaps={completedLaps}
+          trackTemp={trackTemp}
+        />
+      </div>
+
       {/* Sector Times */}
-      <div className="border border-[#1f2632] bg-[#161a20] p-3 mb-4">
+      <div className="border border-[#1f2632] bg-[#161a20] p-3 mb-4 rounded-xl">
         <div className="text-[10px] text-neutral-400 uppercase font-bold mb-2">
           SECTOR TIMES · LAP {entry.currentLap}
         </div>
         <div className="grid grid-cols-3 gap-2">
           {entry.sectors.map((sec, idx) => (
-            <div key={idx} className="border border-[#252e3b] bg-[#111418] p-2 text-center">
+            <div key={idx} className="border border-[#252e3b] bg-[#111418] p-2 text-center rounded-lg">
               <div className="text-[10px] text-neutral-400">SECTOR {idx + 1}</div>
               <div className={`text-sm font-bold timing-cell ${
                 sec.status === 'overall-best'
@@ -93,9 +111,9 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
       </div>
 
       {/* Tyre Stint Strategy & Pit History */}
-      <div className="border border-[#1f2632] bg-[#161a20] p-3 mb-4">
+      <div className="border border-[#1f2632] bg-[#161a20] p-3 mb-4 rounded-xl">
         <div className="flex items-center justify-between text-[10px] text-neutral-400 uppercase font-bold mb-2">
-          <span>TYRE STRATEGY</span>
+          <span>STINT STRATEGY HISTORY</span>
           <span>{entry.pitCount} PIT STOP{entry.pitCount !== 1 ? 'S' : ''}</span>
         </div>
 
@@ -103,14 +121,16 @@ export const DriverTelemetryDrawer: React.FC<Props> = ({ entry, onClose }) => {
           {entry.stints.map((stint) => (
             <div
               key={stint.stintNumber}
-              className="flex items-center justify-between px-2.5 py-1.5 border border-[#222934] bg-[#111418]"
+              className="flex items-center justify-between px-2.5 py-1.5 border border-[#222934] bg-[#111418] rounded-lg"
             >
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold text-neutral-400">STINT {stint.stintNumber}:</span>
-                <span className={`px-1.5 py-0.2 text-[10px] font-black border ${
+                <span className={`px-1.5 py-0.2 text-[10px] font-black border rounded ${
                   stint.compound === 'HARD' ? 'text-neutral-100 border-neutral-400' :
                   stint.compound === 'MEDIUM' ? 'text-yellow-400 border-yellow-500' :
-                  'text-red-400 border-red-500'
+                  stint.compound === 'SOFT' ? 'text-red-400 border-red-500' :
+                  stint.compound === 'INTERMEDIATE' ? 'text-green-400 border-green-500' :
+                  'text-blue-400 border-blue-500'
                 }`}>
                   {stint.compound}
                 </span>
