@@ -114,7 +114,7 @@ export class JolpicaProvider implements F1DataProvider {
     const start = new Date(startTime).getTime();
     if (!Number.isFinite(start)) return 'SCHEDULED';
     const now = Date.now();
-    const durationMinutes = type === 'RACE' ? 120 : type === 'SPRINT' ? 60 : 60;
+    const durationMinutes = type === 'RACE' ? 180 : type === 'SPRINT' ? 120 : 60;
     const end = start + durationMinutes * 60 * 1000;
     if (now < start) return 'UPCOMING';
     if (now < end) return 'LIVE';

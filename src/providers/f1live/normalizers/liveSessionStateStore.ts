@@ -40,11 +40,11 @@ export class LiveSessionStateStore {
         airTemp: 0,
         trackTemp: 0,
         humidity: 0,
-        pressure: 1013,
+        pressure: 0,
         windSpeed: 0,
         windDirection: 0,
         rainfall: false,
-        rainfallProbability: 0
+        rainfallProbability: undefined
       },
       entries: [],
       raceControl: [],

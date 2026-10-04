@@ -105,21 +105,23 @@ describe('deriveRainfallProbability', () => {
     expect(result.riskLevel).toBe('LOW');
   });
 
-  it('calculates meteorological model probability when no explicit probability or RC message is available', () => {
+  it('reports unavailable when neither telemetry nor an official rain message is present', () => {
     const snap = mockSnapshot({
       weather: {
         airTemp: 26.0,
         trackTemp: 38.0,
         humidity: 85.0,
-        pressure: 1002.0, // Low pressure (< 1005) + high humidity
+        pressure: 1002.0,
         windSpeed: 3.0,
         windDirection: 110,
         rainfall: false,
         rainfallProbability: undefined
-      }
+      },
+      raceControl: []
     });
     const result = deriveRainfallProbability(snap);
-    expect(result.probability).toBeGreaterThan(50);
-    expect(result.source).toBe('METEOROLOGICAL_MODEL');
+    expect(result.probability).toBe(0);
+    expect(result.source).toBe('UNAVAILABLE');
+    expect(result.forecastNote).toContain('Awaiting');
   });
 });
