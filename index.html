@@ -1,32 +1,6 @@
 <!doctype html>
 <html lang="en" class="dark">
   <head>
-    <script>
-      (function () {
-        try {
-          var currentFetch = window.fetch;
-          function defineFetchProperty(target) {
-            if (!target) return;
-            try {
-              Object.defineProperty(target, 'fetch', {
-                configurable: true,
-                enumerable: true,
-                get: function () {
-                  return currentFetch;
-                },
-                set: function (newFetch) {
-                  currentFetch = newFetch;
-                }
-              });
-            } catch (_) {}
-          }
-          defineFetchProperty(window);
-          if (typeof Window !== 'undefined' && Window.prototype) {
-            defineFetchProperty(Window.prototype);
-          }
-        } catch (_) {}
-      })();
-    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>F1 Pulse — Every lap. Every gap. Every update.</title>
