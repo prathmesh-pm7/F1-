@@ -43,7 +43,7 @@ export function useLiveSession(activeLiveSession: { gp: GrandPrix; session: Sess
       }
     }
     return () => { unsubSnapshot(); unsubState(); };
-  }, [isReplayMode, replayEngine, liveEngine, activeLiveSession]);
+  }, [isReplayMode, replayEngine, liveEngine, Boolean(activeLiveSession)]);
 
   const switchToReplay = () => {
     liveEngine.disconnect(); replayEngine.pause(); setIsReplayPlaying(false); setIsReplayMode(true);
