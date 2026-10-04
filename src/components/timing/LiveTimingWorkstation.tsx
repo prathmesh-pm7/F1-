@@ -10,6 +10,7 @@ import { PerformanceInsights } from './PerformanceInsights';
 import { LeaderGapChart } from './LeaderGapChart';
 import { TrackWeather } from '../weather/TrackWeather';
 import { TyreDegradationGauge } from './TyreDegradationGauge';
+import { QualifyingView } from './QualifyingView';
 import { RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -22,6 +23,7 @@ interface Props {
 
 export const LiveTimingWorkstation: React.FC<Props> = ({ snapshot, connectionState, isReplayMode, favoriteTeam, driverStandings = [], getCompletedLaps, onPlayReplay, onPauseReplay, onStepReplay, onSetReplaySpeed, onJumpReplayLap, isReplayPlaying, replaySpeed, onConnectLive, onSwitchToReplay }) => {
   const [selectedDriver, setSelectedDriver] = useState<TimingEntry | null>(snapshot.entries[0] || null);
+  const [timingMode, setTimingMode] = useState<'RACE' | 'QUALIFYING'>('RACE');
   const favoriteEntries = favoriteTeam ? snapshot.entries.filter(entry => entry.teamName === favoriteTeam.name || entry.teamName === favoriteTeam.fullName) : [];
 
   useEffect(() => {
@@ -77,10 +79,55 @@ export const LiveTimingWorkstation: React.FC<Props> = ({ snapshot, connectionSta
 
       {snapshot.entries.length > 0 && <div className="f1-live-workspace">
         <section className="f1-timing-primary" aria-label="Formula 1 Timing Table">
-          <div className="f1-section-heading"><span>LIVE TIMING</span><span>{snapshot.entries.length} CARS</span></div>
-          <div className="f1-timing-context"><span className="f1-fastest-lap">{snapshot.fastestLap ? <>FASTEST <strong>{snapshot.fastestLap.driverCode}</strong> {snapshot.fastestLap.time} · L{snapshot.fastestLap.lap}</> : 'FASTEST LAP —'}</span></div>
-          <details className="f1-timing-guide"><summary>TIMING GUIDE <span>What do these numbers mean?</span></summary><div className="f1-timing-guide-grid"><div><strong>Gap to leader</strong><span>Time behind P1</span></div><div><strong>Interval</strong><span>Time behind the car ahead</span></div><div><strong>Last lap</strong><span>Most recent completed lap</span></div><div><strong>Best lap</strong><span>Fastest lap of the session</span></div><div><strong>Sector 1–3</strong><span>Times for each part of the lap</span></div><div><strong>Tyre / age</strong><span>Compound and laps on this set</span></div></div></details>
-          <TimingTable entries={snapshot.entries} selectedDriver={selectedDriver} onSelectDriver={entry => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)} />
+          <div className="f1-section-heading">
+            <div className="flex items-center gap-2">
+              <span>{timingMode === 'QUALIFYING' ? 'QUALIFYING CLASSIFICATION' : 'LIVE TIMING'}</span>
+              <span className="text-[10px] text-neutral-400 font-normal">· {snapshot.entries.length} CARS</span>
+            </div>
+            <div className="flex items-center gap-1 bg-[#141822] p-0.5 rounded-lg border border-[#232c3d]">
+              <button
+                type="button"
+                onClick={() => setTimingMode('RACE')}
+                className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wider transition-all cursor-pointer ${
+                  timingMode === 'RACE'
+                    ? 'bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/40 shadow-[0_0_8px_rgba(0,240,255,0.2)]'
+                    : 'text-neutral-400 hover:text-white border border-transparent'
+                }`}
+              >
+                RACE
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimingMode('QUALIFYING')}
+                className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wider transition-all cursor-pointer ${
+                  timingMode === 'QUALIFYING'
+                    ? 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/40 shadow-[0_0_8px_rgba(217,70,239,0.3)]'
+                    : 'text-neutral-400 hover:text-white border border-transparent'
+                }`}
+              >
+                QUALIFYING
+              </button>
+            </div>
+          </div>
+
+          {timingMode === 'QUALIFYING' ? (
+            <div className="p-3">
+              <QualifyingView
+                entries={snapshot.entries}
+                selectedDriver={selectedDriver}
+                onSelectDriver={entry => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)}
+                fastestLap={snapshot.fastestLap}
+                circuitName={snapshot.circuitName}
+                sessionName={snapshot.sessionName}
+              />
+            </div>
+          ) : (
+            <>
+              <div className="f1-timing-context"><span className="f1-fastest-lap">{snapshot.fastestLap ? <>FASTEST <strong>{snapshot.fastestLap.driverCode}</strong> {snapshot.fastestLap.time} · L{snapshot.fastestLap.lap}</> : 'FASTEST LAP —'}</span></div>
+              <details className="f1-timing-guide"><summary>TIMING GUIDE <span>What do these numbers mean?</span></summary><div className="f1-timing-guide-grid"><div><strong>Gap to leader</strong><span>Time behind P1</span></div><div><strong>Interval</strong><span>Time behind the car ahead</span></div><div><strong>Last lap</strong><span>Most recent completed lap</span></div><div><strong>Best lap</strong><span>Fastest lap of the session</span></div><div><strong>Sector 1–3</strong><span>Times for each part of the lap</span></div><div><strong>Tyre / age</strong><span>Compound and laps on this set</span></div></div></details>
+              <TimingTable entries={snapshot.entries} selectedDriver={selectedDriver} onSelectDriver={entry => setSelectedDriver(selectedDriver?.driverCode === entry.driverCode ? null : entry)} />
+            </>
+          )}
         </section>
         <aside className="f1-race-side">
           {selectedDriver && (
