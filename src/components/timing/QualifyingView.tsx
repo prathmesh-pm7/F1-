@@ -63,7 +63,7 @@ export const QualifyingView: React.FC<Props> = ({ entries, selectedDriver, onSel
       const reached = idx < Q3_CUT ? 3 : idx < Q2_CUT ? 2 : 1;
       const time = car.t[Math.min(viewDepth, reached) - 1];
       const fmt = (p: number) => (reached > p ? secondsToLapStr(car.t[p]) : '—');
-      return { entry: car.entry, q: [fmt(0), fmt(1), fmt(2)], time, eliminated: idx >= cutoff };
+      return { entry: car.entry, q: [fmt(0), fmt(1), fmt(2)] as [string, string, string], time, eliminated: idx >= cutoff };
     });
 
     const bestSectors = [0, 1, 2].map(s => {
