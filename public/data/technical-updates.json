@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "technical-0-2026-10-08T14:50:36.143065+00:00",
+    "team": "Mercedes",
+    "teamColor": "#27F4D2",
+    "component": "Chassis & Weight",
+    "updateType": "Aerodynamic",
+    "weekend": "RECENT",
+    "submissionDate": "2026-10-08",
+    "summary": "Mercedes will 'find an answer' to unlocking upgrades – Antonelli",
+    "technicalDescription": "Mercedes are targeting a return to victory at the Singapore Grand Prix as they continue to extract performance from their latest upgrade package.",
+    "source": "Formula 1",
+    "sourceUrl": "https://www.formula1.com/en/latest/article/antonelli-explains-how-mercedes-will-find-an-answer-to-unlocking-upgrades-in-singapore.6wh8R3l6YtmHaT4J5M6W8T",
+    "status": "REPORTED",
+    "provenance": {
+      "provider": "Curated Technical",
+      "sourceUrl": "https://www.formula1.com/en/latest/article/antonelli-explains-how-mercedes-will-find-an-answer-to-unlocking-upgrades-in-singapore.6wh8R3l6YtmHaT4J5M6W8T",
+      "retrievedAt": "2026-10-08T14:50:33.809431+00:00",
+      "isLive": false,
+      "isFixture": false,
+      "notes": "Official Formula 1 technical/news publication; not an FIA filing."
+    }
+  }
+]
