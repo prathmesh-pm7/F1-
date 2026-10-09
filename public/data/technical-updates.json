@@ -1,6 +1,6 @@
 [
   {
-    "id": "technical-0-2026-10-09T01:07:43.496038+00:00",
+    "id": "technical-0-2026-10-09T07:55:46.525240+00:00",
     "team": "Mercedes",
     "teamColor": "#27F4D2",
     "component": "Chassis & Weight",
@@ -15,14 +15,14 @@
     "provenance": {
       "provider": "Curated Technical",
       "sourceUrl": "https://www.formula1.com/en/latest/article/why-splitting-car-specifications-is-a-no-brainer-for-mercedes-at-the-singapore-grand-prix.44OonD5CF8Eg4yQ2w5REwh",
-      "retrievedAt": "2026-10-09T01:07:41.321416+00:00",
+      "retrievedAt": "2026-10-09T07:55:45.128169+00:00",
       "isLive": false,
       "isFixture": false,
       "notes": "Official Formula 1 technical/news publication; not an FIA filing."
     }
   },
   {
-    "id": "technical-1-2026-10-09T01:07:43.496056+00:00",
+    "id": "technical-1-2026-10-09T07:55:46.525257+00:00",
     "team": "Mercedes",
     "teamColor": "#27F4D2",
     "component": "Chassis & Weight",
@@ -37,7 +37,7 @@
     "provenance": {
       "provider": "Curated Technical",
       "sourceUrl": "https://www.formula1.com/en/latest/article/antonelli-explains-how-mercedes-will-find-an-answer-to-unlocking-upgrades-in-singapore.6wh8R3l6YtmHaT4J5M6W8T",
-      "retrievedAt": "2026-10-09T01:07:41.321416+00:00",
+      "retrievedAt": "2026-10-09T07:55:45.128169+00:00",
       "isLive": false,
       "isFixture": false,
       "notes": "Official Formula 1 technical/news publication; not an FIA filing."
