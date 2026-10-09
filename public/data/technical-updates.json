@@ -1,12 +1,12 @@
 [
   {
-    "id": "technical-0-2026-10-08T20:37:45.962141+00:00",
+    "id": "technical-0-2026-10-09T01:07:43.496038+00:00",
     "team": "Mercedes",
     "teamColor": "#27F4D2",
     "component": "Chassis & Weight",
     "updateType": "Aerodynamic",
     "weekend": "RECENT",
-    "submissionDate": "2026-10-08",
+    "submissionDate": "2026-10-09",
     "summary": "Why splitting car specs is a 'no-brainer' for Mercedes",
     "technicalDescription": "Mercedes has committed to an unusual strategy for the Singapore Grand Prix, as it will field its two W17s with completely different aero packages over what will already be a hectic and complicated Sprint weekend.",
     "source": "Formula 1",
@@ -15,20 +15,20 @@
     "provenance": {
       "provider": "Curated Technical",
       "sourceUrl": "https://www.formula1.com/en/latest/article/why-splitting-car-specifications-is-a-no-brainer-for-mercedes-at-the-singapore-grand-prix.44OonD5CF8Eg4yQ2w5REwh",
-      "retrievedAt": "2026-10-08T20:37:45.093066+00:00",
+      "retrievedAt": "2026-10-09T01:07:41.321416+00:00",
       "isLive": false,
       "isFixture": false,
       "notes": "Official Formula 1 technical/news publication; not an FIA filing."
     }
   },
   {
-    "id": "technical-1-2026-10-08T20:37:45.962163+00:00",
+    "id": "technical-1-2026-10-09T01:07:43.496056+00:00",
     "team": "Mercedes",
     "teamColor": "#27F4D2",
     "component": "Chassis & Weight",
     "updateType": "Aerodynamic",
     "weekend": "RECENT",
-    "submissionDate": "2026-10-08",
+    "submissionDate": "2026-10-09",
     "summary": "Mercedes will 'find an answer' to unlocking upgrades – Antonelli",
     "technicalDescription": "Mercedes are targeting a return to victory at the Singapore Grand Prix as they continue to extract performance from their latest upgrade package.",
     "source": "Formula 1",
@@ -37,7 +37,7 @@
     "provenance": {
       "provider": "Curated Technical",
       "sourceUrl": "https://www.formula1.com/en/latest/article/antonelli-explains-how-mercedes-will-find-an-answer-to-unlocking-upgrades-in-singapore.6wh8R3l6YtmHaT4J5M6W8T",
-      "retrievedAt": "2026-10-08T20:37:45.093066+00:00",
+      "retrievedAt": "2026-10-09T01:07:41.321416+00:00",
       "isLive": false,
       "isFixture": false,
       "notes": "Official Formula 1 technical/news publication; not an FIA filing."
