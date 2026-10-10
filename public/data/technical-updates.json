@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": "technical-0-2026-10-10T17:46:51.447787+00:00",
+    "team": "Mercedes",
+    "teamColor": "#27F4D2",
+    "component": "Chassis & Weight",
+    "updateType": "Aerodynamic",
+    "weekend": "RECENT",
+    "submissionDate": "2026-10-10",
+    "summary": "Antonelli now ‘seeing the potential’ in Mercedes’ upgrades",
+    "technicalDescription": "Kimi Antonelli declared that he and Mercedes are now “starting to see the potential” in the upgrades they recently introduced, after enjoying a “better day” around Singapore’s Marina Bay Street Circuit.",
+    "source": "Formula 1",
+    "sourceUrl": "https://www.formula1.com/en/latest/article/antonelli-now-seeing-the-potential-in-mercedes-upgrades-after-better-day-in-singapore.1BdEq0Y4u9ZIr3eSyJWhes",
+    "status": "REPORTED",
+    "provenance": {
+      "provider": "Curated Technical",
+      "sourceUrl": "https://www.formula1.com/en/latest/article/antonelli-now-seeing-the-potential-in-mercedes-upgrades-after-better-day-in-singapore.1BdEq0Y4u9ZIr3eSyJWhes",
+      "retrievedAt": "2026-10-10T17:46:50.170318+00:00",
+      "isLive": false,
+      "isFixture": false,
+      "notes": "Official Formula 1 technical/news publication; not an FIA filing."
+    }
+  }
+]
