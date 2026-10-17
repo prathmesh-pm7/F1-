@@ -1,12 +1,12 @@
 [
   {
-    "id": "technical-0-2026-10-16T22:01:43.188474+00:00",
+    "id": "technical-0-2026-10-17T00:43:05.740197+00:00",
     "team": "Williams",
     "teamColor": "#64C4FF",
     "component": "Chassis & Weight",
     "updateType": "Weight Saving",
     "weekend": "RECENT",
-    "submissionDate": "2026-10-16",
+    "submissionDate": "2026-10-17",
     "summary": "Williams outline plans for 50th anniversary year in 2027",
     "technicalDescription": "Williams have outlined plans for their 50th anniversary year in 2027, with a milestone chassis designation, an immersive experience in London and a fan-picked Silverstone car livery all set to feature throughout a calendar of special events.",
     "source": "Formula 1",
@@ -15,7 +15,7 @@
     "provenance": {
       "provider": "Curated Technical",
       "sourceUrl": "https://www.formula1.com/en/latest/article/williams-outline-plans-for-50th-anniversary-year-with-calendar-of-special-events.wxPd7X2kbw2bUHstwFeZB",
-      "retrievedAt": "2026-10-16T22:01:42.805528+00:00",
+      "retrievedAt": "2026-10-17T00:43:04.484414+00:00",
       "isLive": false,
       "isFixture": false,
       "notes": "Official Formula 1 technical/news publication; not an FIA filing."
